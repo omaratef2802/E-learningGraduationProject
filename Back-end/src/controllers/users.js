@@ -19,10 +19,10 @@ const AllUsers = async (req, res, next, roler) => {
 };
 
 const getAllUsers = async (req, res, next) => {
-  AllUsers(res, req, next, "user");
+  AllUsers(req, res, next, "user");
 };
 const getAllInstructor = async (req, res, next) => {
-  AllUsers(res, req, next, "instructor");
+  AllUsers(req, res, next, "instructor");
 };
 const getUserById = async (req, res, next) => {
   try {
@@ -66,7 +66,7 @@ const updatePassword = async (req, res, next) => {
     let id = req.id;
     let { currentPassword, confirmPassord, newPassword } = req.body;
     if (!confirmPassord || !newPassword || !currentPassword) {
-      next(
+      return next(
         new ApiError(
           404,
           "please provide confirm password and new password and currentPassword",
@@ -76,10 +76,12 @@ const updatePassword = async (req, res, next) => {
     const user = await userModel.findById(id);
     let validation = await bcrypt.compare(currentPassword, user.password);
     if (!validation) {
-      next(new ApiError(400, "password isn't correct"));
+      return next(new ApiError(400, "password isn't correct"));
     }
     if (confirmPassord != newPassword) {
-      next(new ApiError(401, "confirm password doens't match the password"));
+      return next(
+        new ApiError(401, "confirm password doens't match the password"),
+      );
     }
     user.password = newPassword;
     await user.save();
