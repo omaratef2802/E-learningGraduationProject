@@ -6,6 +6,7 @@ const passport = require("../configs/passport");
 
 const {
   getAllUsers,
+  getAllInstructor,
   getUserById,
   createUser,
   deleteUser,
@@ -43,9 +44,15 @@ router.post("/forgetPassword", forgetPassword);
 router.post("/verifyOtp", verifyOtp);
 router.post("/changePassword", changePassword);
 
-// //                      admins
+// //                      admins & instructor
 
-// router.get("/admin/:page", auth, relasedTo("admin"), getAllUsers);
-// router.delete("/:id", auth, relasedTo("admin"), deleteUser);
+router.get(
+  "/MyUser/:limit/:skip",
+  auth,
+  relasedTo("admin,instructor"),
+  getAllUsers,
+);
+router.get("/admin/:limit/:skip", auth, relasedTo("admin"), getAllInstructor);
+router.delete("/:id", auth, relasedTo("admin"), deleteUser);
 
 module.exports = router;

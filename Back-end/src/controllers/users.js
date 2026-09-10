@@ -6,15 +6,23 @@ const ApiError = require("../utils/ApiError");
 const OTP = require("../modules/OTP");
 const sendEmail = require("../utils/sendEmail");
 
-const getAllUsers = async (req, res, next) => {
+const AllUsers = async (req, res, next, roler) => {
   try {
-    let { page } = req.params;
-    let num = page - 1;
-    let users = await userModel.find().limit(1).skip(num);
+    let { limit, skip } = req.params;
+    limit = Number(limit);
+    skip = Number(skip);
+    let users = await userModel.find({ role: roler }).limit(limit).skip(skip);
     res.status(200).json({ message: "success", data: users });
   } catch (err) {
     next(new ApiError(404, err.message));
   }
+};
+
+const getAllUsers = async (req, res, next) => {
+  AllUsers(res, req, next, "user");
+};
+const getAllInstructor = async (req, res, next) => {
+  AllUsers(res, req, next, "instructor");
 };
 const getUserById = async (req, res, next) => {
   try {
@@ -291,6 +299,7 @@ const changePassword = async (req, res, next) => {
 
 module.exports = {
   getAllUsers,
+  getAllInstructor,
   getUserById,
   createUser,
   deleteUser,
