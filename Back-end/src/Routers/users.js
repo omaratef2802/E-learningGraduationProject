@@ -49,7 +49,7 @@ router.post("/changePassword", changePassword);
 router.get(
   "/MyUser/:limit/:skip",
   auth,
-  relasedTo("admin,instructor"),
+  relasedTo("admin", "instructor"),
   getAllUsers,
 );
 router.get("/admin/:limit/:skip", auth, relasedTo("admin"), getAllInstructor);
