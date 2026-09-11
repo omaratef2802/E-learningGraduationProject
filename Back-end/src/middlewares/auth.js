@@ -26,7 +26,7 @@ const auth = async (req, res, next) => {
 function relasedTo(...roles) {
   return function (req, res, next) {
     if (!roles.includes(req.role)) {
-      next(new ApiError(401, "you don't allowed to this process"));
+      return next(new ApiError(401, "you don't allowed to this process"));
     }
     next();
   };
