@@ -22,7 +22,7 @@ const UserSchema = new mongoose.Schema(
       type: String,
       validate: {
         validator: function (email) {
-          return /^[a-zA-Z]{3,8}[0-9]{0,9}(@)(gmail|yahoo|outlook)\.com$/.test(
+          return /^[a-zA-Z]{3,18}[0-9]{0,9}(@)(gmail|yahoo|outlook)\.com$/.test(
             email,
           );
         },
