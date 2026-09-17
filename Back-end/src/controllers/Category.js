@@ -7,7 +7,6 @@ const Category = require("../modules/dbCategory");
 // create category
 const createCategory = async (req, res) => {
   try {
-    const { name, slug, icon, description, subcategories } = req.body;
     const category = await Category.create(req.body);
     res.status(201).json({ message: "Category created successfully",data:category });
   } catch (err) {
@@ -47,7 +46,7 @@ const getCategoryBySlug = async (req, res) => {
     }
     res.status(200).json({category });
   } catch (err) {
-    res.status(500).json({ message: "Error fetching category",err: error.message });
+    res.status(500).json({ message: "Error fetching category",err: err.message });
   }
 };
 

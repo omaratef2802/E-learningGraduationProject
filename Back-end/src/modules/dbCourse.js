@@ -17,7 +17,20 @@ const courseSchema = new mongoose.Schema(
       minlength: [10, "Course description must be at least 10 characters"],
       maxlength: [1000, "Course description cannot exceed 1000 characters"]
     },
-
+     slug: {
+      type: String,
+      required: [true, "Category slug is required"],
+      unique: true,
+      trim: true,
+      lowercase: true,
+      match: [
+        /^[a-z0-9]+(?:-[a-z0-9]+)*$/,
+        "Slug must contain only lowercase letters, numbers and hyphens"
+      ]
+    },
+    image:{
+      type:String
+    },
     instructorId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
@@ -86,23 +99,6 @@ const courseSchema = new mongoose.Schema(
         trim: true
       }
     ],
-
-    sections: [
-      {
-        title: {
-          type: String,
-          required: [true, "Section title is required"],
-          trim: true
-        },
-
-        lessons: [
-          {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: "Lesson"
-          }
-        ]
-      }
-    ]
   },
   {
     timestamps: true

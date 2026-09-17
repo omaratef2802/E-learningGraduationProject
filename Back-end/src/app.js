@@ -6,7 +6,7 @@ const cors = require("cors");
 const mongoose = require("mongoose");
 const passport = require("./configs/passport");
 // connect db
-mongoose .connect("mongodb://127.0.0.1:27017/E-learning")
+mongoose .connect(process.env.URL_MONGO)
   .then(() => {
     console.log("the db runing successfuly");
   })

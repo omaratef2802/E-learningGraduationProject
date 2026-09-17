@@ -20,7 +20,7 @@ const createTrack = async (req, res) => {
 // Get All Tracks
 const getTracks = async (req, res) => {
   try {
-    const tracks = await Track.find();
+    const tracks = await Track.find().populate("category");
 
     res.status(200).json({
       tracks
@@ -53,7 +53,7 @@ const getTracksByCategory = async (req, res) => {
 // Get Track By ID
 const getTrackById = async (req, res) => {
   try {
-    const track = await Track.findById(req.params.id);
+    const track = await Track.findById(req.params.id).populate("category");
 
     if (!track) {
       return res.status(404).json({

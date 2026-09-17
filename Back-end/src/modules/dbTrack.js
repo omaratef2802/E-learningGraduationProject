@@ -21,6 +21,12 @@ const trackSchema = new mongoose.Schema(
         "Invalid track slug"
       ]
     },
+    icon:{
+    type:String
+    },
+    image:{
+    type:String
+    },
 
     description: {
       type: String,
