@@ -7,6 +7,8 @@ const mongoose = require("mongoose");
 const passport = require("./configs/passport");
 // connect db
 mongoose .connect(process.env.URL_MONGO)
+mongoose
+  .connect("mongodb://127.0.0.1:27017/E-learning")
   .then(() => {
     console.log("the db runing successfuly");
   })
@@ -28,6 +30,22 @@ app.use("/E-learning/users", users);
 app.use("/E-learning/category",categoryRoutes)
 app.use("/E-learning/track",trackRoutes)
 app.use("/E-learning/course",courseRoutes)
+const users = require("./Routers/users");
+const cartRouter = require("./Routers/Cart");
+const wishlistRouter = require("./Routers/Wishlist");
+const orderRouter = require("./Routers/Order");
+const paymentRouter = require("./Routers/Payment");
+const refundRouter = require("./Routers/Refund");
+const walletRouter = require("./Routers/Wallet");
+const payoutRouter = require("./Routers/Payout");
+app.use("/E-learning/users", users);
+app.use("/cart", cartRouter);
+app.use("/wishlist", wishlistRouter);
+app.use("/orders", orderRouter);
+app.use("/payments", paymentRouter);
+app.use("/refunds", refundRouter);
+app.use("/wallet", walletRouter);
+app.use("/payouts", payoutRouter);
 app.use((err, req, res, next) => {
   let statusCode = err.statusCode ? err.statusCode : 500;
   res.status(statusCode).json({ message: err.message });
