@@ -1,6 +1,6 @@
 const express = require("express");
 const { createPayment, updatePayment, getPaymentHistory} = require("../controllers/Payment");
-const auth = require("../middleware/auth");
+const {auth , relasedTo} = require("../middlewares/auth");
 const router = express.Router();
 router.post("/", auth, createPayment);
 router.patch("/:id", relasedTo("admin"), auth, updatePayment);
