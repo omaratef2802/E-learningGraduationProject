@@ -1,6 +1,6 @@
 const express = require("express");
 const { createPayout, getPayoutHistory, updatePayout} = require("../controllers/Payout");
-const auth = require("../middleware/auth");
+const {auth , relasedTo} = require("../middlewares/auth");
 const router = express.Router();
 router.post("/", auth, createPayout);
 router.get("/", auth, getPayoutHistory);

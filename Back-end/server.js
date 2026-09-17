@@ -1,3 +1,5 @@
+require("dotenv").config();
+console.log("Google Client ID:", process.env.GOOGLE_CLIENT_ID);
 const { app } = require("./src/app");
 
 app.listen(3000, () => {
