@@ -2,7 +2,22 @@ const Course = require("../modules/dbCourse");
 
 const createCourse = async (req, res) => {
   try {
-    const course = await Course.create(req.body);
+    const data = { ...req.body };
+
+    // Instructor creates a course for himself
+    if (req.role === "instructor") {
+      data.instructorId = req.id;
+    }
+
+    // Admin can choose the instructor
+    if (req.role === "admin" && !data.instructorId) {
+      return res.status(400).json({
+        success: false,
+        message: "Instructor is required"
+      });
+    }
+
+    const course = await Course.create(data);
 
     res.status(201).json({
       success: true,
@@ -22,7 +37,7 @@ const getAllCourses = async (req, res) => {
     const courses = await Course.find()
       .populate("instructorId", "firstName lastName email")
       .populate("category", "name slug")
-      .populate("track", "name slug");
+      .populate("track", "title slug");
 
     res.status(200).json({
       success: true,
@@ -41,7 +56,7 @@ const getCourseById = async (req, res) => {
     const course = await Course.findById(req.params.id)
       .populate("instructorId", "firstName lastName email")
       .populate("category", "name slug")
-      .populate("track", "name slug");
+      .populate("track", "title slug");
 
     if (!course) {
       return res.status(404).json({
@@ -70,7 +85,7 @@ const getCoursesByTrack = async (req, res) => {
     })
       .populate("instructorId", "firstName lastName")
       .populate("category", "name")
-      .populate("track", "name");
+      .populate("track", "title");
 
     res.status(200).json({
       success: true,
@@ -91,7 +106,7 @@ const getCoursesByCategory = async (req, res) => {
       status: "published"
     })
       .populate("instructorId", "firstName lastName")
-      .populate("track", "name");
+      .populate("track", "title");
 
     res.status(200).json({
       success: true,
@@ -107,14 +122,7 @@ const getCoursesByCategory = async (req, res) => {
 
 const updateCourse = async (req, res) => {
   try {
-    const course = await Course.findByIdAndUpdate(
-      req.params.id,
-      req.body,
-      {
-        new: true,
-        runValidators: true
-      }
-    );
+    const course = await Course.findById(req.params.id);
 
     if (!course) {
       return res.status(404).json({
@@ -123,10 +131,37 @@ const updateCourse = async (req, res) => {
       });
     }
 
+    // Instructor can update only his own course
+    if (
+      req.role === "instructor" &&
+      course.instructorId.toString() !== req.id
+    ) {
+      return res.status(403).json({
+        success: false,
+        message: "You can only update your own courses"
+      });
+    }
+
+    const updates = { ...req.body };
+
+    // Instructor cannot change the course owner
+    if (req.role === "instructor") {
+      updates.instructorId = req.id;
+    }
+
+    const updatedCourse = await Course.findByIdAndUpdate(
+      req.params.id,
+      updates,
+      {
+        new: true,
+        runValidators: true
+      }
+    );
+
     res.status(200).json({
       success: true,
       message: "Course updated successfully",
-      data: course
+      data: updatedCourse
     });
   } catch (error) {
     res.status(400).json({
@@ -138,7 +173,7 @@ const updateCourse = async (req, res) => {
 
 const deleteCourse = async (req, res) => {
   try {
-    const course = await Course.findByIdAndDelete(req.params.id);
+    const course = await Course.findById(req.params.id);
 
     if (!course) {
       return res.status(404).json({
@@ -146,6 +181,19 @@ const deleteCourse = async (req, res) => {
         message: "Course not found"
       });
     }
+
+    // Instructor can delete only his own course
+    if (
+      req.role === "instructor" &&
+      course.instructorId.toString() !== req.id
+    ) {
+      return res.status(403).json({
+        success: false,
+        message: "You can only delete your own courses"
+      });
+    }
+
+    await Course.findByIdAndDelete(req.params.id);
 
     res.status(200).json({
       success: true,

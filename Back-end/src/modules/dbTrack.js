@@ -21,11 +21,15 @@ const trackSchema = new mongoose.Schema(
         "Invalid track slug"
       ]
     },
-    icon:{
-    type:String
+
+    icon: {
+      type: String,
+      trim: true
     },
-    image:{
-    type:String
+
+    image: {
+      type: String,
+      trim: true
     },
 
     description: {
@@ -40,6 +44,11 @@ const trackSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "Category",
       required: [true, "Category is required"]
+    },
+
+    subcategoryId: {
+      type: mongoose.Schema.Types.ObjectId,
+      required: [true, "Subcategory is required"]
     },
 
     requiredSkills: [
@@ -68,14 +77,11 @@ const trackSchema = new mongoose.Schema(
           ref: "Course"
         }
       }
-    ],
-    icon: {
-      type: String,
-      trim: true
-    }
+    ]
   },
   {
     timestamps: true
   }
 );
+
 module.exports = mongoose.model("Track", trackSchema);
