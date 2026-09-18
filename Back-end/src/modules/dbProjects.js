@@ -20,7 +20,7 @@ const projectSchema = new mongoose.Schema({
     reviewedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
     reviewedAt: Date
   },
-  skillsAwarded: [String] // مهارات تضاف تلقائياً عند الاعتماد
+  skillsAwarded: [String] 
 }, { timestamps: true });
 
 module.exports = mongoose.model('Project', projectSchema);
