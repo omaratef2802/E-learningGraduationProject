@@ -1,9 +1,26 @@
 const express = require("express");
+
 const router = express.Router();
 
-const { verifyCertificate, generateCertificate } = require("../controllers/Certificate");
+const {
+  verifyCertificate,
+  getMyCertificates,
+} = require("../controllers/Certificate");
 
-router.get("/verify/:certificateId", verifyCertificate);
-router.post("/generate", generateCertificate);
+const { auth, relasedTo } = require("../middlewares/auth");
+
+// Public certificate verification
+router.get(
+  "/verify/:certificateId",
+  verifyCertificate
+);
+
+// Student views their certificates
+router.get(
+  "/my-certificates",
+  auth,
+  relasedTo("user"),
+  getMyCertificates
+);
 
 module.exports = router;

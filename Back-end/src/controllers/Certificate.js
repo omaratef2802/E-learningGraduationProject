@@ -1,51 +1,71 @@
 const Certificate = require("../modules/dbCertificate");
+const User = require("../modules/dbUsers");
+const Course = require("../modules/dbCourse");
 const crypto = require("crypto");
-exports.generateCertificate = async (req, res) => {
-  try {
-    const { studentId, courseId } = req.body;
+const QRCode = require("qrcode");
 
-    const existingCertificate = await Certificate.findOne({
-      student: studentId,
-      course: courseId,
-    });
+exports.generateCertificateForStudent = async (studentId, courseId) => {
+  const existingCertificate = await Certificate.findOne({
+    student: studentId,
+    course: courseId,
+  });
 
-    if (existingCertificate) {
-      return res.status(200).json({
-        success: true,
-        message: "Certificate already exists",
-        data: existingCertificate,
-      });
-    }
-
-    const certificateId = "CERT-" + crypto.randomBytes(4).toString("hex").toUpperCase();
-    const verificationUrl = `https://yourplatform.com/verify-certificate/${certificateId}`;
-    const qrCode = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==";
-
-    const certificate = await Certificate.create({
-      student: studentId,
-      course: courseId,
-      certificateId,
-      verificationUrl,
-      qrCode,
-    });
-
-    return res.status(201).json({
-      success: true,
-      message: "Certificate generated successfully",
-      data: certificate,
-    });
-  } catch (error) {
-    console.error("Error generating certificate:", error.message);
-    return res.status(500).json({ success: false, message: error.message });
+  if (existingCertificate) {
+    return existingCertificate;
   }
+
+  const student = await User.findById(studentId);
+
+  if (!student) {
+    throw new Error("Student not found");
+  }
+
+  const course = await Course.findById(courseId).populate(
+    "instructorId",
+    "firstName lastName"
+  );
+
+  if (!course) {
+    throw new Error("Course not found");
+  }
+
+  if (!course.instructorId) {
+    throw new Error("Course instructor not found");
+  }
+
+  const certificateId =
+    "CERT-" +
+    crypto.randomBytes(4).toString("hex").toUpperCase();
+
+  const frontendUrl =
+    process.env.FRONTEND_URL || "http://localhost:4200";
+
+  const verificationUrl =
+    `${frontendUrl}/verify-certificate/${certificateId}`;
+
+  const qrCode = await QRCode.toDataURL(verificationUrl);
+
+  const certificate = await Certificate.create({
+    student: studentId,
+    course: courseId,
+    studentName: `${student.firstName} ${student.lastName}`,
+    courseName: course.title,
+    instructorName: `${course.instructorId.firstName} ${course.instructorId.lastName}`,
+    certificateId,
+    issueDate: new Date(),
+    verificationUrl,
+    qrCode,
+  });
+
+  return certificate;
 };
 exports.verifyCertificate = async (req, res) => {
   try {
     const { certificateId } = req.params;
 
-    const certificate = await Certificate.findOne({ certificateId })
-      .populate("student", "firstName lastName email")
-      .populate("course", "title");
+    const certificate = await Certificate.findOne({
+      certificateId,
+    });
 
     if (!certificate) {
       return res.status(404).json({
@@ -58,7 +78,7 @@ exports.verifyCertificate = async (req, res) => {
     return res.status(200).json({
       success: true,
       valid: true,
-      message: "Certificate is authentic and valid.",
+      message: "Certificate is authentic and valid",
       data: certificate,
     });
   } catch (error) {
@@ -71,10 +91,20 @@ exports.verifyCertificate = async (req, res) => {
 exports.getMyCertificates = async (req, res) => {
   try {
     const studentId = req.id;
-    const certificates = await Certificate.find({ student: studentId }).populate("course", "title");
 
-    return res.status(200).json({ success: true, count: certificates.length, data: certificates });
+    const certificates = await Certificate.find({
+      student: studentId,
+    }).sort({ issueDate: -1 });
+
+    return res.status(200).json({
+      success: true,
+      count: certificates.length,
+      data: certificates,
+    });
   } catch (error) {
-    return res.status(500).json({ success: false, message: error.message });
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
   }
 };
