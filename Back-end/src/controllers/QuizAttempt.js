@@ -1,11 +1,9 @@
 const QuizAttempt = require("../modules/dbQuizAttempt");
-
-// Submit Quiz Attempt (مطابق لـ POST /api/quizzes/:quizId/attempts)
 exports.submitQuiz = async (req, res) => {
   try {
     const { quizId } = req.params;
     const { courseId, lessonId, answers, quizSnapshot } = req.body;
-    const studentId = req.id; // أو req.user._id حسب Member 1
+    const studentId = req.id; 
 
     let correctCount = 0;
     const totalQuestions = quizSnapshot.questions.length;
@@ -44,21 +42,19 @@ exports.submitQuiz = async (req, res) => {
     return res.status(500).json({ success: false, message: error.message });
   }
 };
-
-// Get My Quiz Attempts (مطابق لـ GET /api/quizzes/:quizId/my-attempts)
 exports.getMyQuizAttempts = async (req, res) => {
-  try {
-    const { quizId } = req.params;
-    const studentId = req.id;
+try {
+const { quizId } = req.params;
+const studentId = req.id;
 
-    const attempts = await QuizAttempt.find({ student: studentId, quiz: quizId });
+const attempts = await QuizAttempt.find({ student: studentId, quiz: quizId });
 
-    return res.status(200).json({
-      success: true,
-      count: attempts.length,
-      data: attempts,
-    });
-  } catch (error) {
-    return res.status(500).json({ success: false, message: error.message });
-  }
+return res.status(200).json({
+success: true,
+count: attempts.length,
+data: attempts,
+});
+} catch (error) {
+return res.status(500).json({ success: false, message: error.message });
+}
 };

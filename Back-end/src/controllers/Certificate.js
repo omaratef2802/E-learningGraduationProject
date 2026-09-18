@@ -1,7 +1,5 @@
 const Certificate = require("../modules/dbCertificate");
 const crypto = require("crypto");
-
-// 1. Generate a certificate
 exports.generateCertificate = async (req, res) => {
   try {
     const { studentId, courseId } = req.body;
@@ -41,8 +39,6 @@ exports.generateCertificate = async (req, res) => {
     return res.status(500).json({ success: false, message: error.message });
   }
 };
-
-// 2. Public certificate verification
 exports.verifyCertificate = async (req, res) => {
   try {
     const { certificateId } = req.params;
@@ -72,8 +68,6 @@ exports.verifyCertificate = async (req, res) => {
     });
   }
 };
-
-// 3. Get My Certificates
 exports.getMyCertificates = async (req, res) => {
   try {
     const studentId = req.id;
