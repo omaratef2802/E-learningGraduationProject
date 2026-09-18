@@ -21,11 +21,9 @@ const UserSchema = new mongoose.Schema(
     email: {
       type: String,
       validate: {
-        validator: function (email) {
-          return /^[a-zA-Z]{3,8}[0-9]{0,9}(@)(gmail|yahoo|outlook)\.com$/.test(
-            email,
-          );
-        },
+       validator: function (email) {
+          return /^[a-zA-Z0-9._%+-]+@(gmail|yahoo|outlook)\.com$/.test(email);
+         },
         message: (obj) => `${obj.value} is not valid`,
       },
       required: [true, "the email is required"],

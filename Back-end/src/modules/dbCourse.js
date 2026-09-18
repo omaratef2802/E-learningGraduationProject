@@ -19,7 +19,7 @@ const courseSchema = new mongoose.Schema(
     },
      slug: {
       type: String,
-      required: [true, "Category slug is required"],
+      required: [true, "Course slug is required"],
       unique: true,
       trim: true,
       lowercase: true,
@@ -33,7 +33,7 @@ const courseSchema = new mongoose.Schema(
     },
     instructorId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
+      ref: "users",
       required: [true, "Instructor is required"]
     },
 
@@ -72,11 +72,12 @@ const courseSchema = new mongoose.Schema(
     },
 
     duration: {
-      type: Number,
-      required: [true, "Course duration is required"],
-      min: [1, "Duration must be at least 1"]
-    },
-
+  value: Number,
+  unit: {
+    type: String,
+    enum: ["hours", "minutes"]
+  }
+     },
     status: {
       type: String,
       enum: {

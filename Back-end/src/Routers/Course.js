@@ -22,10 +22,10 @@ router.get("/category/:categoryId", auth, getCoursesByCategory);
 
 router.get("/:id", auth, getCourseById);
 
-router.post("/", auth, relasedTo("admin"), createCourse);
+router.post("/", auth, relasedTo("admin", "instructor"), createCourse);
 
-router.put("/:id", auth, relasedTo("admin"), updateCourse);
+router.put("/:id", auth,relasedTo("admin", "instructor"), updateCourse);
 
-router.delete("/:id", auth, relasedTo("admin"), deleteCourse);
+router.delete("/:id", auth,relasedTo("admin", "instructor"), deleteCourse);
 
 module.exports = router;

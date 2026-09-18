@@ -3,16 +3,16 @@ dotenv.config();
 const express = require("express");
 const app = express();
 const cors = require("cors");
-const mongoose = require("mongoose");
+// const mongoose = require("mongoose");
 const passport = require("./configs/passport");
 // connect db
-mongoose .connect(process.env.URL_MONGO)
-  .then(() => {
-    console.log("the db runing successfuly");
-  })
-  .catch((err) => {
-    console.log(err.message);
-  });
+// mongoose .connect(process.env.URL_MONGO)
+//   .then(() => {
+//     console.log("the db runing successfuly");
+//   })
+//   .catch((err) => {
+//     console.log(err.message);
+//   });
 
 app.use(cors());
 app.use(express.json());
