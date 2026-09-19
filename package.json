@@ -1,0 +1,7 @@
+{
+  "name": "e-learning-graduation-project",
+  "private": true,
+  "scripts": {
+    "start:dev": "npm --prefix Back-end run start:dev"
+  }
+}

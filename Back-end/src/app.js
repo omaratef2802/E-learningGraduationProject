@@ -29,6 +29,16 @@ app.use("/E-learning/category",categoryRoutes)
 app.use("/E-learning/track",trackRoutes)
 app.use("/E-learning/course",courseRoutes)
 
+const lessonRoutes = require("./Routers/Lesson");
+const enrollmentRoutes = require("./Routers/Enrollement");
+app.use("/E-learning/lessons", lessonRoutes);
+app.use("/E-learning/enrollments", enrollmentRoutes);
+
+
+const sectionRoutes = require("./Routers/Section");
+app.use("/E-learning/sections", sectionRoutes);
+
+
 const cartRouter = require("./Routers/Cart");
 const wishlistRouter = require("./Routers/Wishlist");
 const orderRouter = require("./Routers/Order");
