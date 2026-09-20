@@ -2,50 +2,32 @@ const dotenv = require("dotenv");
 dotenv.config();
 const express = require("express");
 const app = express();
-const cors = require("cors");
-// const mongoose = require("mongoose");
-const passport = require("./configs/passport");
-// connect db
-// mongoose .connect(process.env.URL_MONGO)
-//   .then(() => {
-//     console.log("the db runing successfuly");
-//   })
-//   .catch((err) => {
-//     console.log(err.message);
-//   });
+const jwt = require("jsonwebtoken");
 
-app.use(cors());
 app.use(express.json());
-app.use(express.Router());
-app.use(passport.initialize());
 
-// require endpoints
-const users = require("./Routers/users");
-const categoryRoutes=require("./Routers/Category")
-const trackRoutes=require("./Routers/Track")
-const courseRoutes = require("./Routers/Course");
-app.use("/E-learning/users", users);
-app.use("/E-learning/category",categoryRoutes)
-app.use("/E-learning/track",trackRoutes)
-app.use("/E-learning/course",courseRoutes)
+app.post("/users/login", (req, res) => {
+  const token = jwt.sign(
+    { email: req.body.email }, 
+    process.env.JWT_SECRET || "your_super_secret_key", 
+    { expiresIn: "1d" }
+  );
 
-const cartRouter = require("./Routers/Cart");
-const wishlistRouter = require("./Routers/Wishlist");
-const orderRouter = require("./Routers/Order");
-const paymentRouter = require("./Routers/Payment");
-const refundRouter = require("./Routers/Refund");
-const walletRouter = require("./Routers/Wallet");
-const payoutRouter = require("./Routers/Payout");
-app.use("/E-learning/users", users);
-app.use("/cart", cartRouter);
-app.use("/wishlist", wishlistRouter);
-app.use("/orders", orderRouter);
-app.use("/payments", paymentRouter);
-app.use("/refunds", refundRouter);
-app.use("/wallet", walletRouter);
-app.use("/payouts", payoutRouter);
-app.use((err, req, res, next) => {
-  let statusCode = err.statusCode ? err.statusCode : 500;
-  res.status(statusCode).json({ message: err.message });
+  res.status(200).json({
+    success: true,
+    message: "Login successful!",
+    data: { 
+      email: req.body.email,
+      token: token
+    }
+  });
 });
-module.exports = { app };
+
+app.get("/", (req, res) => {
+  res.status(200).json({
+    success: true,
+    message: "Smart E-Learning Backend is running successfully!",
+  });
+});
+
+module.exports = app;

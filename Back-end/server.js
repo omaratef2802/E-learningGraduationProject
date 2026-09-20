@@ -1,18 +1,17 @@
 require("dotenv").config();
 
-console.log("Google Client ID:", process.env.GOOGLE_CLIENT_ID);
-
 const mongoose = require("mongoose");
-const { app } = require("./src/app");
+const app = require("./src/app");
 
-mongoose.connect(process.env.URL_MONGO)
+mongoose
+  .connect(process.env.MONGODB_URI)
   .then(() => {
-    console.log("the db runing successfuly");
+    console.log("MongoDB connected successfully");
 
     app.listen(3000, () => {
       console.log("the server run on the port 3000");
     });
   })
-  .catch((err) => {
-    console.log("DB Error:", err.message);
+  .catch((error) => {
+    console.error("MongoDB connection failed:", error.message);
   });
