@@ -6,7 +6,6 @@ const jwt = require("jsonwebtoken");
 
 app.use(express.json());
 
-// مسار الـ login المؤقت مع توكن ديناميكي بيتغير حسب الإيميل المدخل
 app.post("/users/login", (req, res) => {
   const token = jwt.sign(
     { email: req.body.email }, 
