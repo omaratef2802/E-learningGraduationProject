@@ -9,13 +9,11 @@ const {
 
 const { auth, relasedTo } = require("../middlewares/auth");
 
-// Public certificate verification
 router.get(
   "/verify/:certificateId",
   verifyCertificate
 );
 
-// Student views their certificates
 router.get(
   "/my-certificates",
   auth,

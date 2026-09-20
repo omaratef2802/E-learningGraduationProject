@@ -1,23 +1,33 @@
+const dotenv = require("dotenv");
+dotenv.config();
 const express = require("express");
-
 const app = express();
+const jwt = require("jsonwebtoken");
 
 app.use(express.json());
 
-const quizRoutes = require("./Routers/QuizAttempt");
-const projectRoutes = require("./Routers/Projects");
-const certificateRoutes = require("./Routers/Certificate");
+// مسار الـ login المؤقت مع توكن ديناميكي بيتغير حسب الإيميل المدخل
+app.post("/users/login", (req, res) => {
+  const token = jwt.sign(
+    { email: req.body.email }, 
+    process.env.JWT_SECRET || "your_super_secret_key", 
+    { expiresIn: "1d" }
+  );
 
-
-app.use("/api/quizzes", quizRoutes);
-app.use("/api/projects", projectRoutes);
-app.use("/api/certificates", certificateRoutes);
-
+  res.status(200).json({
+    success: true,
+    message: "Login successful!",
+    data: { 
+      email: req.body.email,
+      token: token
+    }
+  });
+});
 
 app.get("/", (req, res) => {
   res.status(200).json({
     success: true,
-    message: "Smart E-Learning Backend (Member 4) is running successfully!",
+    message: "Smart E-Learning Backend is running successfully!",
   });
 });
 
