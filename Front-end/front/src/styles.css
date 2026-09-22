@@ -1,0 +1,30 @@
+:root {
+    --bg-color: #f0f4f9;
+    --card-bg: #f4f7fc;
+    --shadow-light: #ffffff;
+    --shadow-dark: #d5e0f2;
+    --primary-blue: #4f46e5;
+    --accent-blue: #2563eb;
+    --text-main: #1e293b;
+    --text-muted: #64748b;
+    --badge-bg: rgba(79, 70, 229, 0.08);
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+
+body {
+    background-color: var(--bg-color);
+    color: var(--text-main);
+    padding: 30px 20px;
+    min-height: 100vh;
+}
+
+.app-container {
+    max-width: 1300px;
+    margin: 0 auto;
+}
