@@ -2,8 +2,14 @@
   <!-- Structural Sidebar -->
   <app-sidebar class="shrink-0" />
 
-  <!-- Scrollable Main Content -->
-  <main class="flex-1 min-w-0 overflow-y-auto min-h-screen">
-    <router-outlet />
-  </main>
+  <!-- Main Area with Shared Header + Routed Pages -->
+  <div class="flex-1 min-w-0 flex flex-col min-h-screen">
+    <!-- Shared Header across ALL student pages -->
+    <app-header />
+
+    <!-- Scrollable Page Content -->
+    <main class="flex-1 min-w-0 overflow-y-auto">
+      <router-outlet />
+    </main>
+  </div>
 </div>

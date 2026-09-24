@@ -1,8 +1,8 @@
-﻿import { Component, signal } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { NgIcon, provideIcons } from '@ng-icons/core';
-import { lucideSearch, lucideArrowRight } from '@ng-icons/lucide';
+import { lucideArrowRight } from '@ng-icons/lucide';
 import {
   StatCardComponent,
   ContinueLearningComponent,
@@ -30,7 +30,6 @@ import {
   ],
   providers: [
     provideIcons({
-      lucideSearch,
       lucideArrowRight
     })
   ],

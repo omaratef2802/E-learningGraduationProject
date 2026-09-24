@@ -1,0 +1,32 @@
+<header class="app-header">
+  <!-- Search Bar -->
+  <div class="search-bar">
+    <span class="search-icon">
+      <ng-icon name="lucideSearch" size="1.05rem" />
+    </span>
+    <input
+      type="text"
+      [ngModel]="searchQuery()"
+      (ngModelChange)="searchQuery.set($event)"
+      placeholder="Search your courses & lessons..."
+      class="search-input"
+    />
+  </div>
+
+  <!-- Header Right (Notifications + Avatar) -->
+  <div class="header-right">
+    <button class="notif-btn" title="Notifications" aria-label="Notifications">
+      <ng-icon name="lucideBell" size="1.15rem" />
+      <span class="notif-dot"></span>
+    </button>
+
+    <div class="user-avatar-wrapper">
+      <img
+        [src]="userAvatar()"
+        alt="Student Avatar"
+        class="user-avatar-img"
+      />
+      <span class="online-indicator"></span>
+    </div>
+  </div>
+</header>

@@ -1,0 +1,113 @@
+.app-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  padding: 1.25rem 2rem 0.5rem;
+  background-color: transparent;
+  user-select: none;
+}
+
+.search-bar {
+  position: relative;
+  width: 100%;
+  max-width: 26rem;
+}
+
+.search-icon {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  padding-left: 1rem;
+  display: flex;
+  align-items: center;
+  pointer-events: none;
+  color: #94a3b8;
+}
+
+.search-input {
+  width: 100%;
+  padding: 0.65rem 1.25rem 0.65rem 2.65rem;
+  background-color: rgba(255, 255, 255, 0.95);
+  border: 1px solid rgba(226, 232, 240, 0.9);
+  border-radius: 9999px;
+  font-size: 0.8125rem;
+  color: #1e293b;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+  transition: all 0.2s ease;
+}
+
+.search-input::placeholder {
+  color: #94a3b8;
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.12);
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-shrink: 0;
+}
+
+.notif-btn {
+  position: relative;
+  width: 2.5rem;
+  height: 2.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  background-color: #ffffff;
+  border: 1px solid rgba(226, 232, 240, 0.85);
+  color: #64748b;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+}
+
+.notif-btn:hover {
+  background-color: #f8fafc;
+  color: #334155;
+}
+
+.notif-dot {
+  position: absolute;
+  top: 0.45rem;
+  right: 0.45rem;
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 9999px;
+  background-color: #4f46e5;
+  border: 1.5px solid #ffffff;
+}
+
+.user-avatar-wrapper {
+  position: relative;
+  flex-shrink: 0;
+  cursor: pointer;
+}
+
+.user-avatar-img {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 9999px;
+  object-fit: cover;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.online-indicator {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 0.65rem;
+  height: 0.65rem;
+  border-radius: 9999px;
+  background-color: #10b981;
+  border: 2px solid #ffffff;
+}

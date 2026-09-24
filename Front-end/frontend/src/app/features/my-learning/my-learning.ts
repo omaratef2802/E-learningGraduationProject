@@ -4,9 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import {
   lucideSearch,
-  lucideBell,
   lucideBookOpen,
-  lucideUser,
   lucideChevronLeft,
   lucideChevronRight
 } from '@ng-icons/lucide';
@@ -27,9 +25,7 @@ export type FilterTab = 'all' | 'in-progress' | 'completed' | 'not-started';
   providers: [
     provideIcons({
       lucideSearch,
-      lucideBell,
       lucideBookOpen,
-      lucideUser,
       lucideChevronLeft,
       lucideChevronRight
     })
@@ -38,10 +34,6 @@ export type FilterTab = 'all' | 'in-progress' | 'completed' | 'not-started';
   styleUrl: './my-learning.css'
 })
 export class MyLearningComponent {
-  // User info
-  readonly userName = signal('Naema Chen');
-  readonly userRole = signal('Student');
-
   // Search & Filter state
   readonly searchQuery = signal('');
   readonly activeTab = signal<FilterTab>('all');
