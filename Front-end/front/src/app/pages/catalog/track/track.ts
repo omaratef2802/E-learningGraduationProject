@@ -232,10 +232,6 @@ export class Track implements OnInit {
     },
   ];
 
-  // ==============================
-  // FRONT-END TRACKS PAGE
-  // ==============================
-
   readonly frontEndTracks: TrackCourse[] = [
     {
       title: 'HTML5 & Modern CSS3',
@@ -457,11 +453,6 @@ export class Track implements OnInit {
     this.currentTrack =
       this.trackMap[routeKey] ??
       this.trackMap[this.defaultRouteKey];
-
-    /*
-     * Web Development page:
-     * show all 5 Web Development subcategories.
-     */
     if (routeKey === 'web-development') {
       this.selectedCategory = 'All';
       this.searchText = '';
@@ -469,11 +460,6 @@ export class Track implements OnInit {
       this.selectedSort = 'Most Popular';
       return;
     }
-
-    /*
-     * Front-End Tracks page:
-     * show all 6 Front-End tracks.
-     */
     if (routeKey === 'front-end') {
       this.selectedCategory = 'All';
       this.searchText = '';
@@ -481,11 +467,6 @@ export class Track implements OnInit {
       this.selectedSort = 'Most Popular';
       return;
     }
-
-    /*
-     * Individual Front-End track:
-     * show only its own card.
-     */
     if (
       routeKey === 'html-css' ||
       routeKey === 'javascript' ||
