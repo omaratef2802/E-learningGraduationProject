@@ -145,10 +145,6 @@ export class Track implements OnInit {
     },
   };
 
-  // ==============================
-  // WEB DEVELOPMENT PAGE
-  // ==============================
-
   readonly webDevelopmentCourses: TrackCourse[] = [
     {
       title: 'Programming Fundamentals',
