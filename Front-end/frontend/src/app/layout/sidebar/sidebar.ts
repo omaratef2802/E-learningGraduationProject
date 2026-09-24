@@ -1,4 +1,4 @@
-﻿import { Component, signal } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import {
@@ -35,7 +35,7 @@ import { NavItem, UserProfile } from '../../core/models';
 export class SidebarComponent {
   readonly navItems = signal<NavItem[]>([
     { label: 'Dashboard', route: '/dashboard', icon: 'lucideLayoutGrid' },
-    { label: 'My Courses', route: '/courses', icon: 'lucideBookOpen' },
+    { label: 'My Learning', route: '/my-learning', icon: 'lucideBookOpen' },
     { label: 'Assessments', route: '/assessments', icon: 'lucideCheckSquare' },
     { label: 'Certificates', route: '/certificates', icon: 'lucideBadgeCheck' },
     { label: 'Notifications', route: '/notifications', icon: 'lucideBell' },

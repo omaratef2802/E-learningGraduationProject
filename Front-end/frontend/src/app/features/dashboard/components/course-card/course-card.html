@@ -1,5 +1,5 @@
-﻿<div class="course-card">
-  <!-- Top image with tag pill -->
+<div class="course-card">
+  <!-- Top image with tag pill & status badge -->
   <div class="course-media">
     <img
       [src]="course.imageUrl"
@@ -9,37 +9,87 @@
     <span class="course-tag" [ngClass]="course.tagClass">
       {{ course.tag }}
     </span>
+
+    <!-- Status Badge (Top-Right) -->
+    @if (course.status === 'completed' || course.statusText === 'Completed') {
+      <span class="status-badge status-completed">
+        <ng-icon name="lucideCheck" size="0.75rem" />
+        <span>Completed</span>
+      </span>
+    } @else if (course.status === 'in-progress' || course.statusText === 'In Progress') {
+      <span class="status-badge status-in-progress">
+        <span class="status-dot"></span>
+        <span>In Progress</span>
+      </span>
+    } @else if (course.status === 'not-started' || course.statusText === 'Not Started') {
+      <span class="status-badge status-not-started">
+        <span class="status-dot-gray"></span>
+        <span>Not Started</span>
+      </span>
+    }
   </div>
 
-  <!-- Course details -->
+  <!-- Course details: Unified structure for all card states -->
   <div class="course-body">
-    <h3 class="course-title">{{ course.title }}</h3>
+    <h3 class="course-title" [title]="course.title">{{ course.title }}</h3>
     <p class="course-instructor">Instructor: {{ course.instructor }}</p>
-    <p class="course-activity">{{ course.lastActive }}</p>
+
+    @if (course.lastActive) {
+      <p class="course-activity">{{ course.lastActive }}</p>
+    } @else {
+      <p class="course-activity opacity-0 select-none">&nbsp;</p>
+    }
 
     <!-- Progress info -->
     <div class="course-progress-header">
       <span class="lessons-count">{{ course.completedLessons }}/{{ course.totalLessons }} Lessons</span>
-      <span class="progress-percentage">{{ course.progressPercent }}%</span>
+      <span
+        [class.progress-completed-text]="course.status === 'completed' || course.progressPercent === 100"
+        [class.progress-percentage]="course.status !== 'completed' && course.progressPercent !== 100"
+      >
+        {{ course.status === 'completed' || course.progressPercent === 100 ? '100% Complete' : course.progressPercent + '%' }}
+      </span>
     </div>
 
     <!-- Progress bar -->
     <div class="progress-bar-bg">
       <div
         class="progress-bar-fill"
-        [ngClass]="course.progressGradient"
+        [ngClass]="course.status === 'completed' || course.progressPercent === 100 ? 'gradient-green' : course.progressGradient"
         [style.width.%]="course.progressPercent"
       ></div>
     </div>
   </div>
 
-  <!-- Continue button -->
-  <button
-    type="button"
-    (click)="onContinue()"
-    class="continue-action-btn"
-  >
-    <ng-icon name="lucidePlay" size="0.95rem" />
-    <span>Continue</span>
-  </button>
+  <!-- Action Buttons -->
+  @if (course.status === 'completed') {
+    <div class="completed-actions-row">
+      <button
+        type="button"
+        (click)="onViewCourse()"
+        class="view-course-btn"
+      >
+        <ng-icon name="lucideEye" size="0.9rem" />
+        <span>View Course</span>
+      </button>
+
+      <button
+        type="button"
+        (click)="onCertificate()"
+        class="certificate-btn"
+      >
+        <ng-icon name="lucideAward" size="0.9rem" />
+        <span>Certificate</span>
+      </button>
+    </div>
+  } @else {
+    <button
+      type="button"
+      (click)="onContinue()"
+      class="continue-action-btn"
+    >
+      <ng-icon name="lucidePlay" size="0.95rem" />
+      <span>{{ course.buttonText || 'Continue Learning' }}</span>
+    </button>
+  }
 </div>

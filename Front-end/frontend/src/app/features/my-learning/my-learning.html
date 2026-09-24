@@ -1,0 +1,181 @@
+<div class="my-learning-container">
+  <!-- Top App Header -->
+  <header class="flex items-center justify-between gap-6 pb-2">
+    <!-- Search Bar -->
+    <div class="relative w-full max-w-xs sm:max-w-sm">
+      <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+        <ng-icon name="lucideSearch" size="1.05rem" />
+      </span>
+      <input
+        type="text"
+        placeholder="Search courses, lessons..."
+        class="search-input placeholder:text-slate-400"
+      />
+    </div>
+
+    <!-- Header Actions (Right) -->
+    <div class="flex items-center gap-4 shrink-0">
+      <!-- Notification Button -->
+      <button class="relative w-9 h-9 flex items-center justify-center rounded-full bg-white border border-slate-200/80 text-slate-500 hover:bg-slate-50 hover:text-slate-700 transition-colors shadow-sm cursor-pointer" title="Notifications" aria-label="Notifications">
+        <ng-icon name="lucideBell" size="1.15rem" />
+        <span class="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-red-500 ring-2 ring-white"></span>
+      </button>
+
+      <!-- User Profile -->
+      <div class="flex items-center gap-2.5 cursor-pointer">
+        <div class="flex flex-col text-right">
+          <span class="text-[13px] font-bold text-slate-900 leading-tight">{{ userName() }}</span>
+          <span class="text-[11px] text-slate-400 font-medium leading-none">{{ userRole() }}</span>
+        </div>
+        <div class="w-9 h-9 rounded-full bg-indigo-600 text-white flex items-center justify-center shadow-md shadow-indigo-500/20">
+          <ng-icon name="lucideUser" size="1.1rem" />
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Page Title / Workspace Banner -->
+  <div class="flex flex-col gap-1">
+    <span class="inline-flex items-center gap-1.5 text-[11px] font-bold tracking-wider text-indigo-600 uppercase">
+      <ng-icon name="lucideBookOpen" size="0.85rem" />
+      STUDENT WORKSPACE
+    </span>
+    <h1 class="text-3xl font-extrabold text-slate-900 tracking-tight">My Learning</h1>
+    <p class="text-sm text-slate-500">Manage your courses and continue learning from where you left off.</p>
+  </div>
+
+  <!-- Filter & Search Toolbar -->
+  <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
+    <!-- Search inside My Courses -->
+    <div class="relative w-full sm:w-64">
+      <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+        <ng-icon name="lucideSearch" size="0.95rem" />
+      </span>
+      <input
+        type="text"
+        [ngModel]="searchQuery()"
+        (ngModelChange)="onSearchChange($event)"
+        placeholder="Search my courses..."
+        class="courses-search-input placeholder:text-slate-400"
+      />
+    </div>
+
+    <!-- Filter Tabs -->
+    <div class="flex items-center gap-1 bg-slate-100/90 p-1 rounded-full border border-slate-200/70 overflow-x-auto self-start sm:self-auto">
+      <button
+        type="button"
+        (click)="setTab('all')"
+        [class.active-tab]="activeTab() === 'all'"
+        class="filter-tab-btn"
+      >
+        All <span class="text-[11px] opacity-80">({{ totalCount() }})</span>
+      </button>
+
+      <button
+        type="button"
+        (click)="setTab('in-progress')"
+        [class.active-tab]="activeTab() === 'in-progress'"
+        class="filter-tab-btn"
+      >
+        In Progress <span class="text-[11px] opacity-80">({{ inProgressCount() }})</span>
+      </button>
+
+      <button
+        type="button"
+        (click)="setTab('completed')"
+        [class.active-tab]="activeTab() === 'completed'"
+        class="filter-tab-btn"
+      >
+        Completed <span class="text-[11px] opacity-80">({{ completedCount() }})</span>
+      </button>
+
+      <button
+        type="button"
+        (click)="setTab('not-started')"
+        [class.active-tab]="activeTab() === 'not-started'"
+        class="filter-tab-btn"
+      >
+        Not Started <span class="text-[11px] opacity-80">({{ notStartedCount() }})</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Courses Grid -->
+  @if (paginatedCourses().length > 0) {
+    <div class="courses-grid">
+      @for (course of paginatedCourses(); track course.id) {
+        <app-course-card
+          [course]="course"
+          (continue)="onContinueCourse($event)"
+          (viewCourse)="onViewCourse($event)"
+          (certificate)="onViewCertificate($event)"
+        />
+      }
+    </div>
+
+    <!-- Pagination Controls -->
+    @if (totalPages() > 1) {
+      <div class="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 border-t border-slate-200/60">
+        <!-- Results text -->
+        <span class="text-xs text-slate-500 font-medium">
+          {{ paginationRangeText() }}
+        </span>
+
+        <!-- Page Buttons -->
+        <div class="flex items-center gap-1.5">
+          <!-- Previous Button -->
+          <button
+            type="button"
+            (click)="prevPage()"
+            [disabled]="currentPage() === 1"
+            class="p-2 rounded-xl border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 hover:text-slate-900 disabled:opacity-40 disabled:cursor-not-allowed transition-all shadow-xs"
+            aria-label="Previous Page"
+          >
+            <ng-icon name="lucideChevronLeft" size="1rem" />
+          </button>
+
+          <!-- Page Numbers -->
+          @for (page of pageNumbers(); track page) {
+            <button
+              type="button"
+              (click)="goToPage(page)"
+              [class.active-page-btn]="currentPage() === page"
+              class="min-w-[2.25rem] h-9 px-2.5 rounded-xl text-xs font-semibold border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 transition-all shadow-xs cursor-pointer"
+            >
+              {{ page }}
+            </button>
+          }
+
+          <!-- Next Button -->
+          <button
+            type="button"
+            (click)="nextPage()"
+            [disabled]="currentPage() === totalPages()"
+            class="p-2 rounded-xl border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 hover:text-slate-900 disabled:opacity-40 disabled:cursor-not-allowed transition-all shadow-xs"
+            aria-label="Next Page"
+          >
+            <ng-icon name="lucideChevronRight" size="1rem" />
+          </button>
+        </div>
+      </div>
+    }
+  } @else {
+    <!-- Empty State -->
+    <div class="flex flex-col items-center justify-center p-16 bg-white rounded-3xl border border-slate-200/70 text-center shadow-sm">
+      <div class="w-16 h-16 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center mb-5">
+        <ng-icon name="lucideBookOpen" size="2rem" />
+      </div>
+      <h3 class="text-lg font-bold text-slate-900 mb-1.5">No courses found</h3>
+      <p class="text-sm text-slate-500 max-w-sm mb-6">
+        We couldn't find any courses matching your search or selected filter.
+      </p>
+      <button
+        type="button"
+        (click)="searchQuery.set(''); setTab('all')"
+        class="px-5 py-2 rounded-full bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold transition-colors cursor-pointer"
+      >
+        Reset Filters
+      </button>
+    </div>
+  }
+</div>

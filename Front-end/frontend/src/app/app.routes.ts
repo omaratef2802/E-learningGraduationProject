@@ -1,7 +1,8 @@
-﻿import { Routes } from '@angular/router';
+import { Routes } from '@angular/router';
 import { AppLayoutComponent } from './layout';
 import {
   DashboardComponent,
+  MyLearningComponent,
   CoursesComponent,
   AssessmentsComponent,
   CertificatesComponent,
@@ -17,6 +18,7 @@ export const routes: Routes = [
     children: [
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
       { path: 'dashboard', component: DashboardComponent },
+      { path: 'my-learning', component: MyLearningComponent },
       { path: 'courses', component: CoursesComponent },
       { path: 'assessments', component: AssessmentsComponent },
       { path: 'certificates', component: CertificatesComponent },

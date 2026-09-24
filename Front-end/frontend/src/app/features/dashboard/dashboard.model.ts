@@ -1,4 +1,4 @@
-﻿export interface StatItem {
+export interface StatItem {
   id: string;
   title: string;
   value: string;
@@ -22,7 +22,7 @@ export interface CourseItem {
   id: string;
   title: string;
   instructor: string;
-  lastActive: string;
+  lastActive?: string;
   tag: string;
   tagClass: string;
   completedLessons: number;
@@ -30,6 +30,12 @@ export interface CourseItem {
   progressPercent: number;
   progressGradient: string;
   imageUrl: string;
+  status?: 'in-progress' | 'completed' | 'not-started';
+  statusText?: string;
+  statusClass?: string;
+  level?: string;
+  duration?: string;
+  buttonText?: string;
 }
 
 export interface WeeklyRhythmDay {
