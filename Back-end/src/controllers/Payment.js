@@ -1,6 +1,7 @@
 const Payment = require("../modules/Payment");
 const Order = require("../modules/Order");
 const ApiError = require("../utils/ApiError");
+const { createNotificationHelper } = require("./Notification");
 const createPayment = async (req, res, next) => {
   try {
     const userId = req.user.id;
@@ -49,9 +50,23 @@ const updatePayment = async (req, res, next) => {
     }
     if (status === "success") {
       order.status = "paid";
+      await createNotificationHelper({
+        userId: payment.userId,
+        title: "Payment Successful",
+        message: `Your payment of $${payment.amount} for order #${payment.orderId} was successful.`,
+        type: "payment",
+        referenceId: payment.orderId,
+      });
     }
     if (status === "failed") {
       order.status = "cancelled";
+      await createNotificationHelper({
+        userId: payment.userId,
+        title: "Payment Failed",
+        message: `Your payment for order #${payment.orderId} has failed.`,
+        type: "payment",
+        referenceId: payment.orderId,
+      });
     }
     await order.save();
     res.status(200).json({

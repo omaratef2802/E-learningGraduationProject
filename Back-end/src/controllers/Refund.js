@@ -2,6 +2,7 @@ const Refund = require("../modules/Refund");
 const Payment = require("../modules/Payment");
 const Order = require("../modules/Order");
 const ApiError = require("../utils/ApiError");
+const { createNotificationHelper } = require("./Notification");
 const createRefund = async (req, res, next) => {
   try {
     const userId = req.user.id;
@@ -65,6 +66,23 @@ const updateRefund = async (req, res, next) => {
       }
       order.status = "refunded";
       await order.save();
+
+      await createNotificationHelper({
+        userId: refund.userId,
+        title: "Refund Approved",
+        message: `Your refund request for payment #${refund.paymentId} has been approved.`,
+        type: "refund",
+        referenceId: refund._id,
+      });
+    }
+    if (status === "rejected") {
+      await createNotificationHelper({
+        userId: refund.userId,
+        title: "Refund Rejected",
+        message: `Your refund request for payment #${refund.paymentId} has been rejected.`,
+        type: "refund",
+        referenceId: refund._id,
+      });
     }
     res.status(200).json({
       message: "Refund updated",

@@ -1,6 +1,7 @@
 const Order = require("../modules/Order");
 const Cart = require("../modules/Cart");
 const ApiError = require("../utils/ApiError");
+const { createNotificationHelper } = require("./Notification");
 const createOrder = async (req, res, next) => {
   try {
     const userId = req.id;
@@ -13,6 +14,13 @@ const createOrder = async (req, res, next) => {
       courses: cart.courses,
       totalPrice: cart.totalPrice,
       status: "pending",
+    });
+    await createNotificationHelper({
+      userId: userId,
+      title: "Order Placed",
+      message: `Your order #${order._id} for $${order.totalPrice} has been placed.`,
+      type: "payment",
+      referenceId: order._id,
     });
     res.status(201).json({
       message: "Order created",

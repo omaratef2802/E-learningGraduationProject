@@ -1,6 +1,7 @@
 const Payout = require("../modules/Payout");
 const Wallet = require("../modules/Wallet");
 const ApiError = require("../utils/ApiError");
+const { createNotificationHelper } = require("./Notification");
 const createPayout = async (req, res, next) => {
   try {
     const instructorId = req.id;
@@ -62,6 +63,32 @@ const updatePayout = async (req, res, next) => {
       }
       wallet.availableBalance = wallet.availableBalance - payout.amount;
       await wallet.save();
+
+      await createNotificationHelper({
+        userId: payout.instructorId,
+        title: "Payout Completed",
+        message: `Your payout of $${payout.amount} has been processed successfully.`,
+        type: "instructor",
+        referenceId: payout._id,
+      });
+    }
+    if (status === "approved") {
+      await createNotificationHelper({
+        userId: payout.instructorId,
+        title: "Payout Approved",
+        message: `Your payout request of $${payout.amount} has been approved.`,
+        type: "instructor",
+        referenceId: payout._id,
+      });
+    }
+    if (status === "rejected") {
+      await createNotificationHelper({
+        userId: payout.instructorId,
+        title: "Payout Rejected",
+        message: `Your payout request of $${payout.amount} has been rejected.`,
+        type: "instructor",
+        referenceId: payout._id,
+      });
     }
     res.status(200).json({
       message: "Payout updated",
