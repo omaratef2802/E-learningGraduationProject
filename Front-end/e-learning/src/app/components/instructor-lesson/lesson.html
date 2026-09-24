@@ -1,0 +1,233 @@
+<div class="editor-shell">
+
+  <app-instructor-sidebar></app-instructor-sidebar>
+
+
+  <main class="editor-main">
+
+    <header class="editor-topbar">
+
+      <a
+        routerLink="/instructor-course-curriculum"
+        [queryParams]="{ course: courseTitle }"
+      >
+        ← Back to Course Content
+      </a>
+
+      <span>
+        INSTRUCTOR PORTAL / LESSON BUILDER
+      </span>
+
+    </header>
+
+
+    <section class="editor-content">
+
+      <div class="editor-heading">
+
+        <div>
+
+          <span>
+            COURSE CONTENT
+          </span>
+
+          <h1>
+            {{ lessonId ? 'Edit Lesson' : 'Add Lesson' }}
+          </h1>
+
+          <p>
+            Create a lesson that students can watch
+            or read.
+          </p>
+
+        </div>
+
+
+        <button
+          class="primary-action"
+          type="button"
+          (click)="saveLesson()"
+        >
+          Save Lesson →
+        </button>
+
+      </div>
+
+
+      <form
+        class="lesson-form"
+        (ngSubmit)="saveLesson()"
+      >
+
+        <!-- TITLE -->
+
+        <label>
+
+          LESSON TITLE
+
+          <input
+            name="title"
+            [(ngModel)]="title"
+            placeholder="e.g. Introduction to HTML"
+            required
+          />
+
+        </label>
+
+
+        <!-- DESCRIPTION -->
+
+        <label>
+
+          DESCRIPTION
+
+          <textarea
+            name="description"
+            [(ngModel)]="description"
+            rows="3"
+            placeholder="What will students learn?"
+            required
+          ></textarea>
+
+        </label>
+
+
+        <!-- TYPE + ORDER -->
+
+        <div class="form-grid">
+
+          <label>
+
+            LESSON TYPE
+
+            <select
+              name="type"
+              [(ngModel)]="type"
+              (ngModelChange)="onTypeChange()"
+            >
+
+              <option value="Video">
+                Video
+              </option>
+
+              <option value="Text">
+                Text
+              </option>
+
+            </select>
+
+          </label>
+
+
+          <label>
+
+            ORDER
+
+            <input
+              name="order"
+              type="number"
+              min="1"
+              [(ngModel)]="order"
+            />
+
+          </label>
+
+        </div>
+
+
+        <!-- VIDEO -->
+
+        @if (type === 'Video') {
+
+          <label>
+
+            VIDEO URL / UPLOAD
+
+            <input
+              name="content"
+              [(ngModel)]="content"
+              placeholder="https://video.example.com/lesson"
+            />
+
+
+            <input
+              class="file-input"
+              type="file"
+              accept="video/*"
+              (change)="onVideoSelected($event)"
+            />
+
+
+            <small>
+              {{ videoName || 'Or upload a video file' }}
+            </small>
+
+          </label>
+
+
+          <label>
+
+            VIDEO DURATION
+
+            <input
+              name="duration"
+              [(ngModel)]="duration"
+              placeholder="e.g. 12 min"
+              required
+            />
+
+          </label>
+
+        }
+
+
+        <!-- TEXT -->
+
+        @else {
+
+          <label>
+
+            LESSON CONTENT
+
+            <textarea
+              name="content"
+              [(ngModel)]="content"
+              rows="9"
+              placeholder="Write the lesson content here..."
+              required
+            ></textarea>
+
+          </label>
+
+        }
+
+
+        <!-- PREVIEW -->
+
+        <label class="check-row">
+
+          <input
+            name="preview"
+            type="checkbox"
+            [(ngModel)]="preview"
+          />
+
+          Available as a student preview
+
+        </label>
+
+
+        <button
+          class="mobile-save"
+          type="submit"
+        >
+          Save Lesson
+        </button>
+
+      </form>
+
+    </section>
+
+  </main>
+
+</div>

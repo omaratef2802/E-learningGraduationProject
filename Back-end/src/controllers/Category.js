@@ -4,7 +4,7 @@ const Category = require("../modules/dbCategory");
 
 
 
-// create category
+
 const createCategory = async (req, res) => {
   try {
     const category = await Category.create(req.body);
@@ -13,7 +13,7 @@ const createCategory = async (req, res) => {
     res.status(500).json({ message: "Error creating category", error: err.message });
   }
 };
-// get all category
+
 const getCategories = async (req, res) => {
   try {
     const categories = await Category.find();
@@ -22,7 +22,7 @@ const getCategories = async (req, res) => {
     res.status(500).json({ message: "Error fetching categories", error: err.message });
   }
 };
-// by id
+
 const getCategoryById = async (req, res) => {
   try {
     const category = await Category.findById(req.params.id);
@@ -36,7 +36,7 @@ const getCategoryById = async (req, res) => {
   }
 };
 
-// by slug 
+
 const getCategoryBySlug = async (req, res) => {
   try {
     const category = await Category.findOne({ slug: req.params.slug });
@@ -50,7 +50,7 @@ const getCategoryBySlug = async (req, res) => {
   }
 };
 
-// update category 
+ 
 const updateCategory = async (req, res) => {
   try {
     const category = await Category.findByIdAndUpdate( req.params.id, req.body);
@@ -63,7 +63,7 @@ const updateCategory = async (req, res) => {
   }
 };
 
-// delete category 
+
 const deleteCategory = async (req, res) => {
   try {
     const category = await Category.findByIdAndDelete(req.params.id);
@@ -92,8 +92,6 @@ const addSubcategory = async (req, res) => {
   }
 };
 
-// update subcaregory 
-
 const updateSubcategory = async (req, res) => {
   try {
     const category = await Category.findById(req.params.id);
@@ -112,8 +110,6 @@ const updateSubcategory = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
-
-// delete 
 const deleteSubcategory = async (req, res) => {
   try {
     const category = await Category.findById(req.params.id);

@@ -1,0 +1,756 @@
+:host {
+  display: block;
+  min-height: 100vh;
+  background: #edf0f8;
+  color: #30364d;
+  font-family: "Trebuchet MS", "Segoe UI", sans-serif;
+}
+
+.certificates-shell {
+  display: flex;
+  min-height: 100vh;
+}
+
+.certificates-main {
+  width: calc(100% - 258px);
+  margin-left: 258px;
+  min-width: 0;
+  padding-left: 24px;
+}
+
+
+/* =========================
+   TOP BAR
+========================= */
+
+.profile-topbar {
+  min-height: 64px;
+  padding: 0 34px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  background: #f5f7fc;
+  border-bottom: 1px solid #dfe2ed;
+}
+
+.breadcrumb {
+  color: #7a8092;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+.breadcrumb strong {
+  color: #6b70ef;
+}
+
+.top-user {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  cursor: pointer;
+}
+
+.top-user strong {
+  display: block;
+  font-size: 12px;
+}
+
+.top-user small {
+  display: block;
+  margin-top: 3px;
+
+  color: #8b90a0;
+  font-size: 10px;
+}
+
+.mini-avatar {
+  width: 35px;
+  height: 35px;
+
+  overflow: hidden;
+
+  display: grid;
+  place-items: center;
+
+  border-radius: 50%;
+  background: #e9eaff;
+}
+
+.mini-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+
+/* =========================
+   CONTENT
+========================= */
+
+.certificates-content {
+  width: min(100%, 1080px);
+
+  margin: auto;
+
+  padding: 46px 38px 80px;
+}
+
+
+/* =========================
+   HEADING
+========================= */
+
+.certificates-heading {
+  display: flex;
+
+  align-items: flex-end;
+  justify-content: space-between;
+
+  gap: 25px;
+
+  margin-bottom: 24px;
+}
+
+.certificates-heading span {
+  color: #6b70ef;
+
+  font-size: 10px;
+
+  font-weight: 800;
+
+  letter-spacing: 0.12em;
+}
+
+.certificates-heading h1 {
+  margin: 10px 0 7px;
+
+  font-size: clamp(2rem, 4vw, 3rem);
+
+  line-height: 1.05;
+
+  letter-spacing: -0.06em;
+}
+
+.certificates-heading p {
+  margin: 0;
+
+  color: #7a7f91;
+
+  font-size: 14px;
+
+  line-height: 1.6;
+}
+
+
+/* =========================
+   EXPORT BUTTON
+========================= */
+
+.export-btn {
+  flex-shrink: 0;
+
+  padding: 12px 18px;
+
+  border: 0;
+
+  border-radius: 22px;
+
+  background: #6b70ef;
+
+  color: #fff;
+
+  font-family: inherit;
+
+  font-size: 12px;
+
+  font-weight: 700;
+
+  cursor: pointer;
+
+  box-shadow: 0 9px 18px #6b70ef38;
+
+  transition: 0.2s ease;
+}
+
+.export-btn:hover {
+  background: #5c62df;
+
+  transform: translateY(-2px);
+}
+
+.export-btn:disabled {
+  opacity: 0.5;
+
+  cursor: not-allowed;
+
+  transform: none;
+}
+
+
+/* =========================
+   FILTERS
+========================= */
+
+.certificates-filters {
+  display: grid;
+
+  grid-template-columns: 1.6fr 0.9fr 0.8fr auto;
+
+  gap: 14px;
+
+  margin-bottom: 25px;
+
+  padding: 20px;
+
+  border: 1px solid #e3e5f2;
+
+  border-radius: 20px;
+
+  background: #f8f9fd;
+
+  box-shadow: 0 14px 28px #4d547a17;
+}
+
+
+/* =========================
+   SEARCH
+========================= */
+
+.search-box {
+  height: 44px;
+
+  display: flex;
+
+  align-items: center;
+
+  padding: 0 14px;
+
+  border: 1px solid #dfe3ed;
+
+  border-radius: 12px;
+
+  background: #fff;
+
+  box-sizing: border-box;
+}
+
+.search-box span {
+  margin-right: 9px;
+
+  color: #9196a7;
+
+  font-size: 17px;
+}
+
+.search-box input {
+  width: 100%;
+
+  border: 0;
+
+  outline: none;
+
+  background: transparent;
+
+  color: #30364d;
+
+  font-family: inherit;
+
+  font-size: 12px;
+}
+
+.search-box input::placeholder {
+  color: #a0a5b4;
+}
+
+
+/* =========================
+   SELECTS
+========================= */
+
+.certificates-filters select {
+  width: 100%;
+
+  height: 44px;
+
+  box-sizing: border-box;
+
+  padding: 0 13px;
+
+  border: 1px solid #dfe3ed;
+
+  border-radius: 12px;
+
+  outline: none;
+
+  background: #fff;
+
+  color: #30364d;
+
+  font-family: inherit;
+
+  font-size: 12px;
+
+  cursor: pointer;
+
+  transition: 0.2s ease;
+}
+
+.certificates-filters select:focus {
+  border-color: #6b70ef;
+
+  box-shadow: 0 0 0 4px #e9eaff;
+}
+
+
+/* =========================
+   CLEAR FILTERS
+========================= */
+
+.clear-btn {
+  height: 44px;
+
+  padding: 0 15px;
+
+  border: 0;
+
+  border-radius: 20px;
+
+  background: #eef0f7;
+
+  color: #70768a;
+
+  font-family: inherit;
+
+  font-size: 11px;
+
+  font-weight: 700;
+
+  cursor: pointer;
+
+  white-space: nowrap;
+
+  transition: 0.2s ease;
+}
+
+.clear-btn:hover {
+  background: #e3e5ff;
+
+  color: #686fee;
+}
+
+
+/* =========================
+   TABLE CARD
+========================= */
+
+.certificates-table-card {
+  overflow: hidden;
+
+  border: 1px solid #fff;
+
+  border-radius: 18px;
+
+  background: #f8f9fd;
+
+  box-shadow: 0 10px 20px #59607d12;
+}
+
+
+/* =========================
+   TABLE
+========================= */
+
+table {
+  width: 100%;
+
+  border-collapse: collapse;
+}
+
+thead {
+  background: #f0f2f9;
+}
+
+th {
+  padding: 16px 15px;
+
+  text-align: left;
+
+  color: #7d8395;
+
+  font-size: 9px;
+
+  font-weight: 800;
+
+  letter-spacing: 0.08em;
+
+  white-space: nowrap;
+}
+
+td {
+  padding: 17px 15px;
+
+  border-top: 1px solid #e7e9f1;
+
+  color: #4d5469;
+
+  font-size: 11px;
+
+  vertical-align: middle;
+}
+
+tbody tr {
+  transition: 0.2s ease;
+}
+
+tbody tr:hover {
+  background: #f2f4fb;
+}
+
+
+/* =========================
+   STUDENT
+========================= */
+
+.student-info {
+  display: flex;
+
+  align-items: center;
+
+  gap: 10px;
+
+  min-width: 175px;
+}
+
+.student-avatar {
+  width: 35px;
+  height: 35px;
+
+  flex-shrink: 0;
+
+  display: grid;
+  place-items: center;
+
+  border-radius: 50%;
+
+  background: #e9eaff;
+
+  color: #6b70ef;
+
+  font-size: 10px;
+
+  font-weight: 800;
+}
+
+.student-info strong {
+  display: block;
+
+  color: #3c4258;
+
+  font-size: 11px;
+}
+
+.student-info small {
+  display: block;
+
+  margin-top: 3px;
+
+  color: #9095a5;
+
+  font-size: 9px;
+}
+
+
+/* =========================
+   CERTIFICATE ID
+========================= */
+
+.certificate-id {
+  display: inline-block;
+
+  color: #6b70ef;
+
+  font-size: 10px;
+
+  font-weight: 700;
+
+  white-space: nowrap;
+}
+
+
+/* =========================
+   COMPLETION
+========================= */
+
+.completion {
+  display: flex;
+
+  align-items: center;
+
+  gap: 8px;
+
+  min-width: 95px;
+}
+
+.progress {
+  width: 55px;
+  height: 5px;
+
+  overflow: hidden;
+
+  border-radius: 10px;
+
+  background: #dfe2ec;
+}
+
+.progress span {
+  display: block;
+
+  height: 100%;
+
+  border-radius: 10px;
+
+  background: #6b70ef;
+}
+
+.completion strong {
+  color: #555b70;
+
+  font-size: 9px;
+}
+
+
+/* =========================
+   STATUS
+========================= */
+
+.status {
+  display: inline-block;
+
+  padding: 5px 9px;
+
+  border-radius: 20px;
+
+  font-size: 9px;
+
+  font-weight: 700;
+
+  white-space: nowrap;
+}
+
+.status.issued {
+  background: #e9eaff;
+
+  color: #686fee;
+}
+
+.status.pending {
+  background: #fff2d8;
+
+  color: #a87817;
+}
+
+.status.revoked {
+  background: #ffe5e7;
+
+  color: #bd525e;
+}
+
+
+/* =========================
+   ACTION
+========================= */
+
+.action-btn {
+  width: 31px;
+  height: 31px;
+
+  border: 0;
+
+  border-radius: 10px;
+
+  background: #eef0ff;
+
+  color: #686fee;
+
+  font-family: inherit;
+
+  font-size: 12px;
+
+  cursor: pointer;
+
+  transition: 0.2s ease;
+}
+
+.action-btn:hover {
+  background: #e3e5ff;
+
+  transform: translateY(-1px);
+}
+
+
+/* =========================
+   FOOTER
+========================= */
+
+.table-footer {
+  display: flex;
+
+  align-items: center;
+  justify-content: space-between;
+
+  padding: 15px 17px;
+
+  border-top: 1px solid #e7e9f1;
+
+  color: #858b9e;
+
+  font-size: 10px;
+}
+
+
+/* =========================
+   STATE
+========================= */
+
+.state-box {
+  padding: 45px 25px;
+
+  border: 1px solid #fff;
+
+  border-radius: 18px;
+
+  background: #f8f9fd;
+
+  color: #7b8193;
+
+  font-size: 13px;
+
+  text-align: center;
+
+  box-shadow: 0 10px 20px #59607d12;
+}
+
+.state-box.error {
+  color: #c45a64;
+}
+
+
+/* =========================
+   TABLET
+========================= */
+
+@media (max-width: 1000px) {
+
+  .certificates-main {
+    padding-left: 20px;
+  }
+
+  .certificates-content {
+    padding: 40px 28px 70px;
+  }
+
+  .certificates-filters {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .certificates-table-card {
+    overflow-x: auto;
+  }
+
+  table {
+    min-width: 950px;
+  }
+}
+
+
+/* =========================
+   MOBILE
+========================= */
+
+@media (max-width: 700px) {
+
+  .certificates-main {
+    width: 100%;
+
+    margin-left: 0;
+
+    padding-left: 0;
+  }
+
+  .profile-topbar {
+    padding: 0 18px;
+  }
+
+  .top-user {
+    display: none;
+  }
+
+  .certificates-content {
+    padding: 30px 18px 55px;
+  }
+
+  .certificates-heading {
+    flex-direction: column;
+
+    align-items: stretch;
+  }
+
+  .certificates-heading h1 {
+    font-size: 2.2rem;
+  }
+
+  .export-btn {
+    width: 100%;
+  }
+
+  .certificates-filters {
+    grid-template-columns: 1fr;
+
+    padding: 22px 18px;
+  }
+
+  .clear-btn {
+    width: 100%;
+  }
+
+  .certificates-table-card {
+    overflow-x: auto;
+  }
+
+  table {
+    min-width: 950px;
+  }
+}
+
+
+/* =========================
+   SMALL MOBILE
+========================= */
+
+@media (max-width: 430px) {
+
+  .certificates-content {
+    padding: 25px 14px 45px;
+  }
+
+  .certificates-heading h1 {
+    font-size: 2rem;
+  }
+
+  .certificates-heading p {
+    font-size: 13px;
+  }
+
+  .student-info {
+    min-width: 160px;
+  }
+
+  .student-avatar {
+    width: 32px;
+    height: 32px;
+  }
+}

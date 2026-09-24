@@ -1,0 +1,18 @@
+<header class="site-header" [class.is-scrolled]="isScrolled">
+  <a class="brand" routerLink="/" aria-label="PathwayEd home">
+    <span class="brand-icon">◆</span>
+    <span class="brand-name">{{ config.brandName }}</span>
+  </a>
+
+  <nav class="nav-pill" aria-label="Main navigation">
+    @for (link of config.links; track link.route) {
+      <a [class.active]="link.label === 'Home'" [routerLink]="link.route" [fragment]="link.fragment" (click)="link.label === 'Categories' ? scrollToCategories($event) : null">{{ link.label }}</a>
+    }
+  </nav>
+
+  <div class="header-actions">
+    <a class="login-link" [routerLink]="config.loginRoute">Log In</a>
+    <a class="signup-button" [routerLink]="config.signupRoute">Sign Up</a>
+    <a class="account-button" [routerLink]="config.profileRoute" aria-label="Account">♟</a>
+  </div>
+</header>

@@ -1,19 +1,7 @@
 const express = require("express");
 const router = express.Router();
 
-const {
-   createCategory,
-    getCategories,
-    getCategoryById,
-    getCategoryBySlug,
-    updateCategory,
-    deleteCategory,
-    addSubcategory,
-    updateSubcategory,
-    deleteSubcategory,
-    getSubcategoriesByCategory
-
-} = require("../controllers/Category");
+const { createCategory, getCategories, getCategoryById,  getCategoryBySlug, updateCategory, deleteCategory, addSubcategory, updateSubcategory, deleteSubcategory, getSubcategoriesByCategory} = require("../controllers/Category");
 
 const { auth, relasedTo } = require("../middlewares/auth");
 router.post("/", auth, relasedTo("admin"), createCategory);

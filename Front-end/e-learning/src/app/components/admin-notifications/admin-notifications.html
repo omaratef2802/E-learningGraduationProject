@@ -1,0 +1,415 @@
+<div class="notifications-shell">
+
+  <app-admin-sidebar></app-admin-sidebar>
+
+
+  <main class="notifications-main">
+
+
+    <!-- TOP BAR -->
+
+    <header class="profile-topbar">
+
+      <div class="breadcrumb">
+
+        <span>
+          ADMIN PORTAL
+        </span>
+
+        <strong>
+          / NOTIFICATIONS
+        </strong>
+
+      </div>
+
+
+      <div class="top-user">
+
+        <div class="mini-avatar">
+
+          {{ data.admin.firstName.charAt(0) }}
+          {{ data.admin.lastName.charAt(0) }}
+
+        </div>
+
+
+        <div>
+
+          <strong>
+            {{ data.admin.firstName }}
+            {{ data.admin.lastName }}
+          </strong>
+
+          <small>
+            {{ data.admin.role }}
+          </small>
+
+        </div>
+
+      </div>
+
+    </header>
+
+
+    <section class="notifications-content">
+
+
+      <!-- HERO -->
+
+      <section class="notifications-hero">
+
+        <div class="hero-copy">
+
+          <span class="eyebrow">
+            ADMIN COMMUNICATION
+          </span>
+
+          <h1>
+
+            Notifications
+
+            <span>
+              {{ getUnreadCount() }}
+            </span>
+
+          </h1>
+
+          <p>
+
+            Stay updated with platform activity,
+            user events, course changes, reports,
+            and important system notifications.
+
+          </p>
+
+        </div>
+
+
+        <div class="hero-decoration">
+
+          <div class="orbit orbit-one"></div>
+
+          <div class="orbit orbit-two"></div>
+
+          <div class="hero-dot dot-one"></div>
+
+          <div class="hero-dot dot-two"></div>
+
+          <div class="hero-center">
+            🔔
+          </div>
+
+        </div>
+
+      </section>
+
+
+      <!-- STATS -->
+
+      <section class="notification-stats">
+
+
+        <article class="stat-card featured">
+
+          <div class="stat-icon">
+            🔔
+          </div>
+
+          <div>
+
+            <span>
+              Total Notifications
+            </span>
+
+            <strong>
+              {{ getTotalCount() }}
+            </strong>
+
+            <small>
+              All admin updates
+            </small>
+
+          </div>
+
+        </article>
+
+
+        <article class="stat-card">
+
+          <div class="stat-icon unread">
+            ●
+          </div>
+
+          <div>
+
+            <span>
+              Unread
+            </span>
+
+            <strong>
+              {{ getUnreadCount() }}
+            </strong>
+
+            <small>
+              Need your attention
+            </small>
+
+          </div>
+
+        </article>
+
+
+        <article class="stat-card">
+
+          <div class="stat-icon read">
+            ✓
+          </div>
+
+          <div>
+
+            <span>
+              Read
+            </span>
+
+            <strong>
+              {{ getReadCount() }}
+            </strong>
+
+            <small>
+              Already reviewed
+            </small>
+
+          </div>
+
+        </article>
+
+      </section>
+
+
+      <!-- TOOLBAR -->
+
+      <section class="notification-toolbar">
+
+
+        <div class="notification-tabs">
+
+          <button
+            type="button"
+            [class.active]="selectedType === 'All'"
+            (click)="selectedType = 'All'; applyFilter()"
+          >
+            All
+          </button>
+
+
+          <button
+            type="button"
+            [class.active]="selectedType === 'User'"
+            (click)="selectedType = 'User'; applyFilter()"
+          >
+            Users
+          </button>
+
+
+          <button
+            type="button"
+            [class.active]="selectedType === 'Course'"
+            (click)="selectedType = 'Course'; applyFilter()"
+          >
+            Courses
+          </button>
+
+
+          <button
+            type="button"
+            [class.active]="selectedType === 'Report'"
+            (click)="selectedType = 'Report'; applyFilter()"
+          >
+            Reports
+          </button>
+
+
+          <button
+            type="button"
+            [class.active]="selectedType === 'System'"
+            (click)="selectedType = 'System'; applyFilter()"
+          >
+            System
+          </button>
+
+        </div>
+
+
+        @if (getUnreadCount() > 0) {
+
+          <button
+            type="button"
+            class="mark-all-button"
+            (click)="markAllAsRead()"
+          >
+            Mark all as read
+          </button>
+
+        }
+
+      </section>
+
+
+      <!-- ERROR -->
+
+      @if (errorMessage) {
+
+        <div class="notifications-state error">
+          {{ errorMessage }}
+        </div>
+
+      }
+
+
+      <!-- LOADING -->
+
+      @if (loading) {
+
+        <div class="notifications-state">
+          Loading notifications...
+        </div>
+
+      }
+
+
+      <!-- NOTIFICATIONS -->
+
+      @if (!loading) {
+
+        @if (filteredNotifications.length > 0) {
+
+          <section class="notification-list">
+
+            @for (
+              notification of filteredNotifications;
+              track notification.id
+            ) {
+
+              <article
+                class="notification-card"
+                [class.unread]="!notification.isRead"
+              >
+
+
+                <div
+                  class="notification-icon"
+                  [class.user]="notification.type === 'User'"
+                  [class.course]="notification.type === 'Course'"
+                  [class.report]="notification.type === 'Report'"
+                  [class.system]="notification.type === 'System'"
+                >
+
+                  {{ getNotificationIcon(notification.type) }}
+
+                </div>
+
+
+                <div class="notification-content">
+
+
+                  <div class="notification-head">
+
+                    <div>
+
+                      <span class="notification-type">
+                        {{ notification.type }}
+                      </span>
+
+                      <h2>
+                        {{ notification.title }}
+                      </h2>
+
+                    </div>
+
+
+                    @if (!notification.isRead) {
+
+                      <span class="unread-badge">
+                        New
+                      </span>
+
+                    }
+
+                  </div>
+
+
+                  <p>
+                    {{ notification.message }}
+                  </p>
+
+
+                  <div class="notification-footer">
+
+                    <span>
+                      {{ notification.createdAt }}
+                    </span>
+
+
+                    <div class="notification-actions">
+
+                      @if (!notification.isRead) {
+
+                        <button
+                          type="button"
+                          (click)="markAsRead(notification)"
+                        >
+                          Mark as read
+                        </button>
+
+                      }
+
+
+                      <button
+                        type="button"
+                        class="delete-button"
+                        (click)="removeNotification(notification.id)"
+                      >
+                        Delete
+                      </button>
+
+                    </div>
+
+                  </div>
+
+
+                </div>
+
+              </article>
+
+            }
+
+          </section>
+
+        } @else {
+
+          <div class="empty-notifications">
+
+            <div class="empty-icon">
+              🔔
+            </div>
+
+            <h2>
+              No notifications found
+            </h2>
+
+            <p>
+              There are no notifications matching
+              the selected category.
+            </p>
+
+          </div>
+
+        }
+
+      }
+
+    </section>
+
+  </main>
+
+</div>

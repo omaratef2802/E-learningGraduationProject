@@ -3,8 +3,12 @@ dotenv.config();
 const express = require("express");
 const app = express();
 const jwt = require("jsonwebtoken");
+const notificationRouter = require("./Routers/Notification");
+const usersRouter = require("./Routers/users");
 
 app.use(express.json());
+app.use("/notifications", notificationRouter);
+app.use("/users", usersRouter);
 
 app.post("/users/login", (req, res) => {
   const token = jwt.sign(

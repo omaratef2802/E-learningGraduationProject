@@ -1,0 +1,481 @@
+:host {
+  display: block;
+  min-height: 100vh;
+  background: #edf0f8;
+  color: #30364d;
+  font-family: "Trebuchet MS", "Segoe UI", sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+/* =========================
+   MAIN LAYOUT
+========================= */
+
+.editor-shell {
+  display: flex;
+  min-height: 100vh;
+}
+
+.editor-main {
+  width: calc(100% - 258px);
+  margin-left: 258px;
+  min-width: 0;
+  padding-left: 24px;
+}
+
+/* =========================
+   TOPBAR
+========================= */
+
+.editor-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 64px;
+  padding: 0 34px;
+  border-bottom: 1px solid #dfe2ed;
+  background: #f5f7fc;
+  color: #7a8092;
+  font-size: 11px;
+}
+
+.editor-topbar a {
+  color: #6b70ef;
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 700;
+  transition: color 0.2s ease;
+}
+
+.editor-topbar a:hover {
+  color: #555bd8;
+}
+
+/* =========================
+   CONTENT
+========================= */
+
+.editor-content {
+  width: min(100%, 1020px);
+  margin: 0 auto;
+  padding: 40px 38px 75px;
+}
+
+/* =========================
+   HEADING
+========================= */
+
+.editor-heading {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 28px;
+  margin-bottom: 28px;
+}
+
+.editor-heading > div {
+  min-width: 0;
+}
+
+.editor-heading > div > span,
+.questions-section .section-heading > div > span {
+  color: #6b70ef;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+}
+
+.editor-heading h1 {
+  margin: 9px 0 7px;
+  color: #30364d;
+  font-size: clamp(2rem, 4vw, 2.7rem);
+  line-height: 1.15;
+  letter-spacing: -0.05em;
+  font-weight: 800;
+}
+
+.editor-heading p {
+  margin: 0;
+  color: #7a8091;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+/* =========================
+   PRIMARY BUTTON
+========================= */
+
+.primary-action,
+.mobile-save,
+.add-question {
+  min-height: 40px;
+  padding: 0 18px;
+  border: 0;
+  border-radius: 11px;
+  color: #ffffff;
+  background: #6b70ef;
+  box-shadow: 0 8px 17px #6b70ef32;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.primary-action:hover,
+.mobile-save:hover,
+.add-question:hover {
+  background: #5d62df;
+  transform: translateY(-2px);
+  box-shadow: 0 11px 21px #6b70ef42;
+}
+
+/* =========================
+   FORM
+========================= */
+
+.quiz-form {
+  display: grid;
+  gap: 20px;
+}
+
+/* =========================
+   QUIZ DETAILS
+========================= */
+
+.quiz-details,
+.questions-section {
+  padding: 27px;
+  border: 1px solid #e3e5ef;
+  border-radius: 18px;
+  background: #f8f9fd;
+  box-shadow: 0 12px 25px #4d547a13;
+}
+
+.quiz-details h2 {
+  margin: 0 0 21px;
+  color: #30364d;
+  font-size: 17px;
+  font-weight: 800;
+}
+
+/* =========================
+   FORM GRID
+========================= */
+
+.form-grid,
+.options-grid,
+.answer-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 17px;
+}
+
+.form-grid label,
+.question-card label {
+  display: grid;
+  gap: 8px;
+  color: #686f84;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.07em;
+}
+
+.full-field {
+  grid-column: 1 / -1;
+}
+
+/* =========================
+   INPUTS
+========================= */
+
+.quiz-form input,
+.quiz-form textarea,
+.quiz-form select {
+  width: 100%;
+  box-sizing: border-box;
+  min-height: 42px;
+  padding: 11px 13px;
+  border: 1px solid #e0e4ef;
+  border-radius: 11px;
+  outline: none;
+  color: #454b62;
+  background: #f4f6fb;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 400;
+  letter-spacing: 0;
+  transition:
+    border-color 0.2s ease,
+    background 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.quiz-form textarea {
+  min-height: 95px;
+  resize: vertical;
+  line-height: 1.55;
+}
+
+.quiz-form input::placeholder,
+.quiz-form textarea::placeholder {
+  color: #a0a5b5;
+}
+
+.quiz-form input:focus,
+.quiz-form textarea:focus,
+.quiz-form select:focus {
+  border-color: #8d92ef;
+  background: #ffffff;
+  box-shadow: 0 0 0 3px #e9eaff;
+}
+
+/* =========================
+   QUESTIONS HEADER
+========================= */
+
+.section-heading {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 18px;
+}
+
+.section-heading h2 {
+  margin: 8px 0 0;
+  color: #30364d;
+  font-size: 19px;
+  line-height: 1.3;
+  font-weight: 800;
+}
+
+.add-question {
+  min-height: 37px;
+  padding: 0 14px;
+  border-radius: 10px;
+  font-size: 10px;
+}
+
+/* =========================
+   QUESTIONS
+========================= */
+
+.questions-section {
+  display: grid;
+  gap: 15px;
+}
+
+.question-card {
+  display: grid;
+  gap: 17px;
+  padding: 21px;
+  border: 1px solid #e1e4ee;
+  border-radius: 15px;
+  background: #ffffff;
+  box-shadow: 0 6px 15px #4d547a0b;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.question-card:hover {
+  border-color: #d7d9ef;
+  box-shadow: 0 9px 20px #4d547a12;
+}
+
+/* =========================
+   QUESTION HEADER
+========================= */
+
+.question-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+  padding-bottom: 13px;
+  border-bottom: 1px solid #edf0f6;
+}
+
+.question-heading h3 {
+  margin: 0;
+  color: #4f55a7;
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.question-heading button {
+  min-height: 29px;
+  padding: 0 10px;
+  border: 1px solid #f0dfe2;
+  border-radius: 8px;
+  color: #c66b76;
+  background: #fff7f8;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 9px;
+  font-weight: 700;
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.question-heading button:hover:not(:disabled) {
+  border-color: #e8b9bf;
+  background: #fff0f2;
+}
+
+.question-heading button:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+/* =========================
+   ANSWER ROW
+========================= */
+
+.answer-row {
+  grid-template-columns: minmax(0, 1fr) 170px;
+}
+
+/* =========================
+   OPTIONS
+========================= */
+
+.options-grid {
+  gap: 12px;
+}
+
+.options-grid label {
+  gap: 7px;
+}
+
+.options-grid input {
+  background: #f7f8fc;
+}
+
+/* =========================
+   BOTTOM SAVE
+========================= */
+
+.mobile-save {
+  display: none;
+  width: 100%;
+}
+
+/* =========================
+   TABLET
+========================= */
+
+@media (max-width: 1050px) {
+  .editor-main {
+    width: calc(100% - 226px);
+    margin-left: 226px;
+    padding-left: 20px;
+  }
+
+  .editor-content {
+    padding: 34px 25px 60px;
+  }
+}
+
+/* =========================
+   MOBILE
+========================= */
+
+@media (max-width: 700px) {
+  .editor-shell {
+    display: block;
+  }
+
+  .editor-main {
+    width: 100%;
+    margin-left: 0;
+    padding-left: 0;
+  }
+
+  .editor-topbar {
+    padding: 0 18px;
+  }
+
+  .editor-content {
+    padding: 28px 18px 55px;
+  }
+
+  .editor-heading {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 17px;
+  }
+
+  .editor-heading h1 {
+    font-size: 29px;
+  }
+
+  .primary-action {
+    width: 100%;
+  }
+
+  .quiz-details,
+  .questions-section {
+    padding: 21px 17px;
+  }
+
+  .form-grid,
+  .options-grid,
+  .answer-row {
+    grid-template-columns: 1fr;
+  }
+
+  .full-field {
+    grid-column: auto;
+  }
+
+  .section-heading {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 13px;
+  }
+
+  .add-question {
+    width: 100%;
+  }
+
+  .mobile-save {
+    display: block;
+  }
+}
+
+/* =========================
+   SMALL MOBILE
+========================= */
+
+@media (max-width: 430px) {
+  .editor-content {
+    padding: 24px 14px 45px;
+  }
+
+  .editor-heading h1 {
+    font-size: 25px;
+  }
+
+  .quiz-details,
+  .questions-section {
+    padding: 18px 14px;
+  }
+
+  .question-card {
+    padding: 17px 14px;
+  }
+
+  .question-heading h3 {
+    font-size: 13px;
+  }
+}

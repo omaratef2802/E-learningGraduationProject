@@ -54,6 +54,12 @@ const courseSchema = new mongoose.Schema(
       required: [true, "Course price is required"],
       min: [0, "Price cannot be negative"]
     },
+    discount: {
+  type: Number,
+  default: 0,
+  min: 0,
+  max: 100
+},
 
     level: {
       type: String,

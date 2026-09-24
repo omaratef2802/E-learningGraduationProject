@@ -1,0 +1,784 @@
+<div class="reports-shell">
+
+  <app-admin-sidebar></app-admin-sidebar>
+
+
+  <main class="reports-main">
+
+
+    <!-- =========================
+         TOP BAR
+    ========================== -->
+
+    <header class="profile-topbar">
+
+      <div class="breadcrumb">
+
+        <span>
+          ADMIN PORTAL
+        </span>
+
+        <strong>
+          / REPORTS
+        </strong>
+
+      </div>
+
+
+      <div class="top-user">
+
+        <div class="mini-avatar">
+
+          {{ data.admin.firstName.charAt(0) }}
+          {{ data.admin.lastName.charAt(0) }}
+
+        </div>
+
+
+        <div>
+
+          <strong>
+            {{ data.admin.firstName }}
+            {{ data.admin.lastName }}
+          </strong>
+
+          <small>
+            {{ data.admin.role }}
+          </small>
+
+        </div>
+
+      </div>
+
+    </header>
+
+
+    <!-- =========================
+         CONTENT
+    ========================== -->
+
+    <section class="reports-content">
+
+
+      <!-- =========================
+           HERO
+      ========================== -->
+
+      <section class="reports-hero">
+
+
+        <div class="hero-copy">
+
+          <span class="eyebrow">
+            PLATFORM ANALYTICS
+          </span>
+
+
+          <h1>
+            Reports & Insights
+
+            <span>
+              {{ reports.length }}
+            </span>
+          </h1>
+
+
+          <p>
+
+            Monitor platform activity, learner engagement,
+            course growth, certificates, and revenue
+            through a clear monthly performance overview.
+
+          </p>
+
+        </div>
+
+
+        <div class="hero-decoration">
+
+          <div class="orbit orbit-one"></div>
+
+          <div class="orbit orbit-two"></div>
+
+          <div class="hero-dot dot-one"></div>
+
+          <div class="hero-dot dot-two"></div>
+
+          <div class="hero-dot dot-three"></div>
+
+          <div class="hero-center">
+            ◒
+          </div>
+
+        </div>
+
+      </section>
+
+
+      <!-- =========================
+           KPI CARDS
+      ========================== -->
+
+      <section class="report-stats">
+
+
+        <!-- USERS -->
+
+        <article class="stat-card featured">
+
+          <div class="stat-top">
+
+            <div class="stat-icon users">
+              ♙
+            </div>
+
+            <span class="trend positive">
+              +{{ getUsersGrowth() }}%
+            </span>
+
+          </div>
+
+
+          <span class="stat-label">
+            TOTAL USERS
+          </span>
+
+
+          <strong>
+            {{ formatNumber(getTotalUsers()) }}
+          </strong>
+
+
+          <small>
+            {{ formatNumber(getLatestUsers()) }}
+            added in latest month
+          </small>
+
+        </article>
+
+
+        <!-- ENROLLMENTS -->
+
+        <article class="stat-card">
+
+          <div class="stat-top">
+
+            <div class="stat-icon enrollments">
+              ↗
+            </div>
+
+            <span class="trend positive">
+              +{{ getEnrollmentGrowth() }}%
+            </span>
+
+          </div>
+
+
+          <span class="stat-label">
+            ENROLLMENTS
+          </span>
+
+
+          <strong>
+            {{ formatNumber(getTotalEnrollments()) }}
+          </strong>
+
+
+          <small>
+            {{ formatNumber(getLatestEnrollments()) }}
+            latest month
+          </small>
+
+        </article>
+
+
+        <!-- CERTIFICATES -->
+
+        <article class="stat-card">
+
+          <div class="stat-top">
+
+            <div class="stat-icon certificates">
+              ✪
+            </div>
+
+            <span class="trend positive">
+              +{{ getCertificateGrowth() }}%
+            </span>
+
+          </div>
+
+
+          <span class="stat-label">
+            CERTIFICATES
+          </span>
+
+
+          <strong>
+            {{ formatNumber(getTotalCertificates()) }}
+          </strong>
+
+
+          <small>
+            {{ formatNumber(getLatestCertificates()) }}
+            issued latest month
+          </small>
+
+        </article>
+
+
+        <!-- REVENUE -->
+
+        <article class="stat-card">
+
+          <div class="stat-top">
+
+            <div class="stat-icon revenue">
+              $
+            </div>
+
+            <span class="trend positive">
+              +{{ getRevenueGrowth() }}%
+            </span>
+
+          </div>
+
+
+          <span class="stat-label">
+            REVENUE
+          </span>
+
+
+          <strong>
+            {{ formatRevenue(getTotalRevenue()) }}
+          </strong>
+
+
+          <small>
+            {{ formatRevenue(getLatestRevenue()) }}
+            latest month
+          </small>
+
+        </article>
+
+
+      </section>
+
+
+      <!-- =========================
+           MAIN ANALYTICS
+      ========================== -->
+
+      @if (errorMessage) {
+
+        <div class="reports-state error">
+          {{ errorMessage }}
+        </div>
+
+      }
+
+
+      @if (loading) {
+
+        <div class="reports-state">
+          Loading reports...
+        </div>
+
+      }
+
+
+      @if (!loading && !errorMessage) {
+
+
+        <!-- =========================
+             USERS + ENROLLMENTS
+        ========================== -->
+
+        <section class="analytics-grid">
+
+
+          <!-- USERS CHART -->
+
+          <article class="analytics-card">
+
+            <div class="analytics-header">
+
+              <div>
+
+                <span class="section-kicker">
+                  LEARNER GROWTH
+                </span>
+
+                <h2>
+                  User Growth
+                </h2>
+
+              </div>
+
+
+              <div class="header-value">
+
+                <strong>
+                  {{ formatNumber(getLatestUsers()) }}
+                </strong>
+
+                <small>
+                  latest
+                </small>
+
+              </div>
+
+            </div>
+
+
+            <div class="bar-chart">
+
+              @for (
+                report of reports;
+                track report.id
+              ) {
+
+                <div class="bar-column">
+
+                  <div class="bar-value">
+                    {{ report.users }}
+                  </div>
+
+                  <div class="bar-track">
+
+                    <div
+                      class="bar-fill users-fill"
+                      [style.height.%]="
+                        getUserBarHeight(report.users)
+                      "
+                    ></div>
+
+                  </div>
+
+                  <span class="bar-label">
+                    {{ report.month }}
+                  </span>
+
+                </div>
+
+              }
+
+            </div>
+
+          </article>
+
+
+          <!-- ENROLLMENTS CHART -->
+
+          <article class="analytics-card">
+
+            <div class="analytics-header">
+
+              <div>
+
+                <span class="section-kicker">
+                  LEARNING ACTIVITY
+                </span>
+
+                <h2>
+                  Enrollments
+                </h2>
+
+              </div>
+
+
+              <div class="header-value">
+
+                <strong>
+                  {{ formatNumber(getLatestEnrollments()) }}
+                </strong>
+
+                <small>
+                  latest
+                </small>
+
+              </div>
+
+            </div>
+
+
+            <div class="bar-chart">
+
+              @for (
+                report of reports;
+                track report.id
+              ) {
+
+                <div class="bar-column">
+
+                  <div class="bar-value">
+                    {{ report.enrollments }}
+                  </div>
+
+                  <div class="bar-track">
+
+                    <div
+                      class="bar-fill enrollment-fill"
+                      [style.height.%]="
+                        getEnrollmentBarHeight(
+                          report.enrollments
+                        )
+                      "
+                    ></div>
+
+                  </div>
+
+                  <span class="bar-label">
+                    {{ report.month }}
+                  </span>
+
+                </div>
+
+              }
+
+            </div>
+
+          </article>
+
+
+        </section>
+
+
+        <!-- =========================
+             BOTTOM SECTION
+        ========================== -->
+
+        <section class="bottom-grid">
+
+
+          <!-- REVENUE -->
+
+          <article class="analytics-card revenue-card">
+
+
+            <div class="analytics-header">
+
+              <div>
+
+                <span class="section-kicker">
+                  FINANCIAL PERFORMANCE
+                </span>
+
+                <h2>
+                  Monthly Revenue
+                </h2>
+
+              </div>
+
+
+              <div class="header-value">
+
+                <strong>
+                  {{ formatRevenue(getLatestRevenue()) }}
+                </strong>
+
+                <small>
+                  latest
+                </small>
+
+              </div>
+
+            </div>
+
+
+            <div class="revenue-list">
+
+              @for (
+                report of reports;
+                track report.id
+              ) {
+
+                <div class="revenue-row">
+
+                  <div class="revenue-month">
+
+                    <span class="month-dot"></span>
+
+                    <strong>
+                      {{ report.month }}
+                    </strong>
+
+                  </div>
+
+
+                  <div class="revenue-progress">
+
+                    <div
+                      class="revenue-progress-fill"
+                      [style.width.%]="
+                        getRevenueBarHeight(
+                          report.revenue
+                        )
+                      "
+                    ></div>
+
+                  </div>
+
+
+                  <strong class="revenue-value">
+                    {{ formatRevenue(report.revenue) }}
+                  </strong>
+
+                </div>
+
+              }
+
+            </div>
+
+          </article>
+
+
+          <!-- SUMMARY -->
+
+          <article class="analytics-card summary-card">
+
+
+            <div class="analytics-header">
+
+              <div>
+
+                <span class="section-kicker">
+                  PLATFORM SNAPSHOT
+                </span>
+
+                <h2>
+                  Current Overview
+                </h2>
+
+              </div>
+
+            </div>
+
+
+            <div class="snapshot-list">
+
+
+              <div class="snapshot-item">
+
+                <div class="snapshot-icon users">
+                  ♙
+                </div>
+
+                <div>
+
+                  <small>
+                    Latest Users
+                  </small>
+
+                  <strong>
+                    {{ formatNumber(getLatestUsers()) }}
+                  </strong>
+
+                </div>
+
+              </div>
+
+
+              <div class="snapshot-item">
+
+                <div class="snapshot-icon enrollments">
+                  ↗
+                </div>
+
+                <div>
+
+                  <small>
+                    Latest Enrollments
+                  </small>
+
+                  <strong>
+                    {{ formatNumber(getLatestEnrollments()) }}
+                  </strong>
+
+                </div>
+
+              </div>
+
+
+              <div class="snapshot-item">
+
+                <div class="snapshot-icon courses">
+                  ▣
+                </div>
+
+                <div>
+
+                  <small>
+                    Courses Added
+                  </small>
+
+                  <strong>
+                    {{ formatNumber(getLatestCourses()) }}
+                  </strong>
+
+                </div>
+
+              </div>
+
+
+              <div class="snapshot-item">
+
+                <div class="snapshot-icon certificates">
+                  ✪
+                </div>
+
+                <div>
+
+                  <small>
+                    Certificates
+                  </small>
+
+                  <strong>
+                    {{ formatNumber(getLatestCertificates()) }}
+                  </strong>
+
+                </div>
+
+              </div>
+
+
+            </div>
+
+
+            <div class="snapshot-footer">
+
+              <span>
+                Latest reporting period
+              </span>
+
+              <strong>
+                {{ getLatestReport()?.month || '—' }}
+              </strong>
+
+            </div>
+
+
+          </article>
+
+
+        </section>
+
+
+        <!-- =========================
+             MONTHLY TABLE
+        ========================== -->
+
+        <section class="report-table-card">
+
+
+          <div class="analytics-header">
+
+            <div>
+
+              <span class="section-kicker">
+                MONTHLY BREAKDOWN
+              </span>
+
+              <h2>
+                Performance Details
+              </h2>
+
+            </div>
+
+          </div>
+
+
+          <div class="table-wrapper">
+
+            <table>
+
+              <thead>
+
+                <tr>
+
+                  <th>
+                    Month
+                  </th>
+
+                  <th>
+                    Users
+                  </th>
+
+                  <th>
+                    Enrollments
+                  </th>
+
+                  <th>
+                    Courses
+                  </th>
+
+                  <th>
+                    Certificates
+                  </th>
+
+                  <th>
+                    Revenue
+                  </th>
+
+                </tr>
+
+              </thead>
+
+
+              <tbody>
+
+                @for (
+                  report of reports;
+                  track report.id
+                ) {
+
+                  <tr>
+
+                    <td>
+
+                      <strong>
+                        {{ report.month }}
+                      </strong>
+
+                    </td>
+
+                    <td>
+                      {{ formatNumber(report.users) }}
+                    </td>
+
+                    <td>
+                      {{ formatNumber(report.enrollments) }}
+                    </td>
+
+                    <td>
+                      {{ formatNumber(report.courses) }}
+                    </td>
+
+                    <td>
+                      {{ formatNumber(report.certificates) }}
+                    </td>
+
+                    <td class="table-revenue">
+                      {{ formatRevenue(report.revenue) }}
+                    </td>
+
+                  </tr>
+
+                }
+
+              </tbody>
+
+            </table>
+
+          </div>
+
+
+        </section>
+
+      }
+
+    </section>
+
+  </main>
+
+</div>

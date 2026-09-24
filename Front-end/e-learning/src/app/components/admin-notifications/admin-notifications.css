@@ -1,0 +1,582 @@
+/* ==========================================================================
+   DESIGN TOKENS & BASE (Unified with Courses System)
+   ========================================================================== */
+:host {
+  display: block;
+  min-height: 100vh;
+  background-color: #f4f6fa;
+  color: #1e293b;
+  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+button,
+input,
+select {
+  font: inherit;
+}
+
+.notifications-shell {
+  display: flex;
+  min-height: 100vh;
+  background-color: #f4f6fa;
+}
+
+/* ==========================================================================
+   MAIN LAYOUT
+   ========================================================================== */
+
+.notifications-main {
+  width: calc(100% - 258px);
+  min-width: 0;
+  min-height: 100vh;
+  margin-inline-start: 258px;
+  padding: 1.25rem 1.5rem 2.5rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  background-color: #f4f6fa;
+}
+
+/* ==========================================================================
+   TOP BAR (Identical to Course Topbar)
+   ========================================================================== */
+
+.profile-topbar {
+  width: 100%;
+  min-height: 64px;
+  padding: 0 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #ffffff;
+  border-radius: 16px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+}
+
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #64748b;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+}
+
+.breadcrumb strong {
+  color: #4f46e5;
+}
+
+.top-user {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 6px 12px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.top-user:hover {
+  background-color: #f1f5f9;
+}
+
+.top-user strong {
+  display: block;
+  color: #0f172a;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.top-user small {
+  display: block;
+  margin-top: 2px;
+  color: #64748b;
+  font-size: 0.75rem;
+}
+
+.mini-avatar {
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  color: #ffffff;
+  background: linear-gradient(135deg, #6366f1, #4f46e5);
+  font-size: 0.875rem;
+  font-weight: 700;
+  box-shadow: 0 2px 6px rgba(79, 70, 229, 0.25);
+}
+
+/* ==========================================================================
+   CONTENT CONTAINER
+   ========================================================================== */
+
+.notifications-content {
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* ==========================================================================
+   HERO SECTION (Matching Course Hero Style)
+   ========================================================================== */
+
+.notifications-hero {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 25px;
+  padding: 2rem;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-copy {
+  max-width: 600px;
+  z-index: 1;
+}
+
+.eyebrow {
+  display: block;
+  color: #4f46e5;
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.hero-copy h1 {
+  margin: 6px 0 10px;
+  color: #0f172a;
+  font-size: 1.75rem;
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.hero-copy h1 span {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: #4f46e5;
+  background: #eef2ff;
+  padding: 4px 10px;
+  border-radius: 9999px;
+}
+
+.hero-copy p {
+  margin: 0;
+  color: #64748b;
+  font-size: 0.9375rem;
+  line-height: 1.6;
+}
+
+.hero-decoration {
+  position: relative;
+  width: 120px;
+  height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.hero-center {
+  color: #6366f1;
+  font-size: 1.5rem;
+}
+
+/* ==========================================================================
+   SUMMARY / STATS CARDS (Matching Course Stats Style)
+   ========================================================================== */
+
+.notification-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.25rem;
+}
+
+.stat-card {
+  padding: 1.25rem 1.5rem;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 12px -2px rgba(0, 0, 0, 0.04);
+}
+
+.stat-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  background: #eef2ff;
+  color: #4f46e5;
+  font-size: 1.2rem;
+  flex-shrink: 0;
+}
+
+.stat-icon.unread { background: #fef3c7; color: #d97706; }
+.stat-icon.read { background: #dcfce7; color: #166534; }
+
+.stat-card span {
+  display: block;
+  margin-bottom: 4px;
+  color: #64748b;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.stat-card strong {
+  display: block;
+  color: #0f172a;
+  font-size: 1.5rem;
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+.stat-card small {
+  display: block;
+  margin-top: 4px;
+  color: #94a3b8;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+/* ==========================================================================
+   TOOLBAR & TAB BUTTONS (Identical Toolbar System)
+   ========================================================================== */
+
+.notification-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.875rem;
+  padding: 1rem 1.25rem;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+}
+
+.notification-tabs {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  background: #f8fafc;
+}
+
+.notification-tabs button {
+  height: 36px;
+  padding: 0 16px;
+  border: 0;
+  border-radius: 8px;
+  color: #64748b;
+  background: transparent;
+  cursor: pointer;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.notification-tabs button:hover {
+  color: #0f172a;
+}
+
+.notification-tabs button.active {
+  color: #4f46e5;
+  background: #ffffff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.mark-all-button {
+  height: 42px;
+  padding: 0 18px;
+  border: none;
+  border-radius: 10px;
+  color: #ffffff;
+  background: #4f46e5;
+  cursor: pointer;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  box-shadow: 0 2px 6px rgba(79, 70, 229, 0.25);
+  transition: all 0.2s ease;
+}
+
+.mark-all-button:hover {
+  background: #4338ca;
+  transform: translateY(-1px);
+}
+
+/* ==========================================================================
+   NOTIFICATION CARDS LIST
+   ========================================================================== */
+
+.notification-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.notification-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 1.25rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  display: flex;
+  gap: 1rem;
+  position: relative;
+}
+
+.notification-card:hover {
+  transform: translateY(-2px);
+  border-color: #cbd5e1;
+  box-shadow: 0 8px 12px -2px rgba(0, 0, 0, 0.04);
+}
+
+.notification-card.unread {
+  border-inline-start: 4px solid #4f46e5;
+  background: linear-gradient(90deg, #f8fafc, #ffffff);
+}
+
+:host-context([dir="rtl"]) .notification-card.unread,
+[dir="rtl"] .notification-card.unread {
+  border-inline-start: 4px solid #4f46e5;
+}
+
+.notification-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  background: #eef2ff;
+  color: #4f46e5;
+  font-size: 1.1rem;
+  flex-shrink: 0;
+}
+
+.notification-icon.user { background: #fef3c7; color: #d97706; }
+.notification-icon.course { background: #f3e8ff; color: #7c3aed; }
+.notification-icon.report { background: #dcfce7; color: #166534; }
+.notification-icon.system { background: #e0f2fe; color: #0284c7; }
+
+.notification-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.notification-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.notification-type {
+  color: #4f46e5;
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.notification-head h2 {
+  margin: 4px 0 0;
+  color: #0f172a;
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+.notification-content p {
+  margin: 6px 0 10px;
+  color: #64748b;
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+.unread-badge {
+  padding: 4px 10px;
+  border-radius: 9999px;
+  color: #4f46e5;
+  background: #eef2ff;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.notification-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid #f1f5f9;
+}
+
+.notification-footer > span {
+  color: #94a3b8;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.notification-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.notification-actions button {
+  height: 32px;
+  padding: 0 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  color: #64748b;
+  background: #ffffff;
+  cursor: pointer;
+  font-size: 0.75rem;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.notification-actions button:hover {
+  color: #4f46e5;
+  border-color: #c7d2fe;
+  background: #eef2ff;
+}
+
+.notification-actions .delete-button:hover {
+  color: #dc2626;
+  border-color: #fecaca;
+  background: #fef2f2;
+}
+
+/* ==========================================================================
+   STATES & EMPTY NOTIFICATIONS (Matching Course Empty Style)
+   ========================================================================== */
+
+.notifications-state,
+.empty-notifications {
+  padding: 48px 20px;
+  border-radius: 16px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  text-align: center;
+  color: #64748b;
+  font-size: 0.9375rem;
+}
+
+.notifications-state.error {
+  color: #dc2626;
+  background: #fef2f2;
+  border-color: #fecaca;
+}
+
+.empty-icon {
+  width: 48px;
+  height: 48px;
+  display: grid;
+  place-items: center;
+  margin: 0 auto 12px;
+  border-radius: 12px;
+  color: #4f46e5;
+  background: #eef2ff;
+  font-size: 1.5rem;
+}
+
+.empty-notifications h2 {
+  margin: 0 0 6px;
+  color: #0f172a;
+  font-size: 1.125rem;
+  font-weight: 700;
+}
+
+.empty-notifications p {
+  margin: 0;
+  color: #64748b;
+  font-size: 0.875rem;
+}
+
+/* ==========================================================================
+   MEDIA QUERIES (Responsive Behavior)
+   ========================================================================== */
+
+@media (max-width: 900px) {
+  .notifications-main {
+    margin-inline-start: 0;
+    width: 100%;
+    padding: 1rem;
+  }
+
+  .notification-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .notifications-hero {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .hero-decoration {
+    display: none;
+  }
+}
+
+@media (max-width: 700px) {
+  .notifications-shell {
+    display: block;
+  }
+
+  .profile-topbar {
+    min-height: 58px;
+    padding: 0 1rem;
+  }
+
+  .top-user {
+    display: none;
+  }
+
+  .notification-card {
+    flex-direction: column;
+  }
+
+  .notification-footer {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+}

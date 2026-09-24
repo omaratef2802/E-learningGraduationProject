@@ -15,12 +15,10 @@ const createTrack = async (req, res) => {
     });
   }
 };
-
-
-// Get All Tracks
 const getTracks = async (req, res) => {
   try {
-    const tracks = await Track.find().populate("category");
+    const tracks = await Track.find()
+      .populate("categoryId", "name slug");
 
     res.status(200).json({
       tracks
@@ -32,7 +30,6 @@ const getTracks = async (req, res) => {
   }
 };
 
-// Get Tracks By Category
 const getTracksByCategory = async (req, res) => {
   try {
     const tracks = await Track.find({
@@ -49,11 +46,26 @@ const getTracksByCategory = async (req, res) => {
   }
 };
 
+const getTracksByCategoryAndSubcategory = async (req, res) => {
+  try {
+    const tracks = await Track.find({
+      categoryId: req.params.categoryId,
+      subcategoryId: req.params.subcategoryId
+    }).populate("categoryId", "name slug");
 
-// Get Track By ID
+    res.status(200).json({
+      tracks
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: error.message
+    });
+  }
+};
 const getTrackById = async (req, res) => {
   try {
-    const track = await Track.findById(req.params.id).populate("category");
+    const track = await Track.findById(req.params.id)
+      .populate("categoryId", "name slug");
 
     if (!track) {
       return res.status(404).json({
@@ -70,14 +82,11 @@ const getTrackById = async (req, res) => {
     });
   }
 };
-
-
-// Get Track By Slug
 const getTrackBySlug = async (req, res) => {
   try {
     const track = await Track.findOne({
       slug: req.params.slug
-    });
+    }).populate("categoryId", "name slug");
 
     if (!track) {
       return res.status(404).json({
@@ -95,8 +104,6 @@ const getTrackBySlug = async (req, res) => {
   }
 };
 
-
-// Update Track
 const updateTrack = async (req, res) => {
   try {
     const track = await Track.findByIdAndUpdate(
@@ -125,8 +132,6 @@ const updateTrack = async (req, res) => {
   }
 };
 
-
-// Delete Track
 const deleteTrack = async (req, res) => {
   try {
     const track = await Track.findByIdAndDelete(req.params.id);
@@ -152,6 +157,7 @@ module.exports = {
   createTrack,
   getTracks,
   getTracksByCategory,
+  getTracksByCategoryAndSubcategory,
   getTrackById,
   getTrackBySlug,
   updateTrack,

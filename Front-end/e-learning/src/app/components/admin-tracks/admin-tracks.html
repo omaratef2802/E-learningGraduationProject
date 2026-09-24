@@ -1,0 +1,609 @@
+<div class="tracks-shell">
+
+  <app-admin-sidebar></app-admin-sidebar>
+
+
+  <main class="tracks-main">
+
+
+    <!-- =========================
+         TOP BAR
+    ========================== -->
+
+    <header class="profile-topbar">
+
+      <div class="breadcrumb">
+
+        <span>
+          ADMIN PORTAL
+        </span>
+
+        <strong>
+          / TRACKS
+        </strong>
+
+      </div>
+
+
+      <div class="top-user">
+
+        <div class="mini-avatar">
+
+          {{ data.admin.firstName.charAt(0) }}
+          {{ data.admin.lastName.charAt(0) }}
+
+        </div>
+
+
+        <div>
+
+          <strong>
+            {{ data.admin.firstName }}
+            {{ data.admin.lastName }}
+          </strong>
+
+          <small>
+            {{ data.admin.role }}
+          </small>
+
+        </div>
+
+      </div>
+
+    </header>
+
+
+    <!-- =========================
+         CONTENT
+    ========================== -->
+
+    <section class="tracks-content">
+
+
+      <!-- =========================
+           HERO
+      ========================== -->
+
+      <section class="tracks-hero">
+
+
+        <div class="hero-copy">
+
+          <span class="eyebrow">
+            TRACK MANAGEMENT
+          </span>
+
+
+          <h1>
+
+            Learning Tracks
+
+            <span>
+              {{ getTotalTracks() }}
+            </span>
+
+          </h1>
+
+
+          <p>
+
+            Manage structured learning paths across
+            PathwayEd and keep each track connected
+            to its category, courses, and learners.
+
+          </p>
+
+        </div>
+
+
+        <div class="hero-decoration">
+
+          <div class="orbit orbit-one"></div>
+
+          <div class="orbit orbit-two"></div>
+
+          <div class="hero-dot dot-one"></div>
+
+          <div class="hero-dot dot-two"></div>
+
+          <div class="hero-dot dot-three"></div>
+
+          <div class="hero-center">
+            ◇
+          </div>
+
+        </div>
+
+      </section>
+
+
+      <!-- =========================
+           STATS
+      ========================== -->
+
+      <section class="track-stats">
+
+
+        <article class="stat-card featured">
+
+          <div class="stat-icon">
+            ◇
+          </div>
+
+          <div>
+
+            <span>
+              Total Tracks
+            </span>
+
+            <strong>
+              {{ getTotalTracks() }}
+            </strong>
+
+            <small>
+              Structured learning paths
+            </small>
+
+          </div>
+
+        </article>
+
+
+        <article class="stat-card">
+
+          <div class="stat-icon active">
+            ✓
+          </div>
+
+          <div>
+
+            <span>
+              Active
+            </span>
+
+            <strong>
+              {{ getActiveTracks() }}
+            </strong>
+
+            <small>
+              Currently available
+            </small>
+
+          </div>
+
+        </article>
+
+
+        <article class="stat-card">
+
+          <div class="stat-icon courses">
+            ▣
+          </div>
+
+          <div>
+
+            <span>
+              Courses
+            </span>
+
+            <strong>
+              {{ getTotalCourses() }}
+            </strong>
+
+            <small>
+              Inside all tracks
+            </small>
+
+          </div>
+
+        </article>
+
+
+        <article class="stat-card">
+
+          <div class="stat-icon students">
+            ♙
+          </div>
+
+          <div>
+
+            <span>
+              Learners
+            </span>
+
+            <strong>
+              {{ getTotalStudents() }}
+            </strong>
+
+            <small>
+              Across all tracks
+            </small>
+
+          </div>
+
+        </article>
+
+
+      </section>
+
+
+      <!-- =========================
+           TOOLBAR
+      ========================== -->
+
+      <section class="tracks-toolbar">
+
+
+        <div class="search-box">
+
+          <span>
+            ⌕
+          </span>
+
+          <input
+            type="text"
+            [(ngModel)]="searchText"
+            (input)="applyFilters()"
+            placeholder="Search tracks, categories..."
+          />
+
+        </div>
+
+
+        <select
+          [(ngModel)]="selectedCategory"
+          (change)="applyFilters()"
+        >
+
+          <option value="All">
+            All Categories
+          </option>
+
+
+          @for (
+            category of categories;
+            track category
+          ) {
+
+            <option [value]="category">
+
+              {{ category }}
+
+            </option>
+
+          }
+
+        </select>
+
+
+        <select
+          [(ngModel)]="selectedStatus"
+          (change)="applyFilters()"
+        >
+
+          <option value="All">
+            All Status
+          </option>
+
+          <option value="Active">
+            Active
+          </option>
+
+          <option value="Inactive">
+            Inactive
+          </option>
+
+        </select>
+
+
+        <button
+          type="button"
+          class="clear-button"
+          (click)="clearFilters()"
+        >
+          Clear
+        </button>
+
+
+      </section>
+
+
+      <!-- =========================
+           RESULTS
+      ========================== -->
+
+      <div class="results-bar">
+
+
+        <div>
+
+          <span class="results-kicker">
+            TRACK DIRECTORY
+          </span>
+
+          <strong>
+
+            {{ filteredTracks.length }}
+
+            {{
+              filteredTracks.length === 1
+                ? 'track'
+                : 'tracks'
+            }}
+
+          </strong>
+
+        </div>
+
+
+        <div class="status-summary">
+
+
+          <span class="summary-dot active-dot"></span>
+
+          {{ getActiveTracks() }}
+          active
+
+
+          @if (getInactiveTracks() > 0) {
+
+            <span class="summary-dot inactive-dot"></span>
+
+            {{ getInactiveTracks() }}
+            inactive
+
+          }
+
+
+        </div>
+
+
+      </div>
+
+
+      <!-- =========================
+           ERROR
+      ========================== -->
+
+      @if (errorMessage) {
+
+        <div class="tracks-state error">
+
+          {{ errorMessage }}
+
+        </div>
+
+      }
+
+
+      <!-- =========================
+           LOADING
+      ========================== -->
+
+      @if (loading) {
+
+        <div class="tracks-state">
+
+          Loading tracks...
+
+        </div>
+
+      }
+
+
+      <!-- =========================
+           TRACK GRID
+      ========================== -->
+
+      @if (!loading) {
+
+
+        @if (filteredTracks.length > 0) {
+
+
+          <section class="track-grid">
+
+
+            @for (
+              track of filteredTracks;
+              track track.id
+            ) {
+
+
+              <article class="track-card">
+
+
+                <!-- CARD TOP -->
+
+                <div class="track-card-top">
+
+
+                  <div class="track-symbol">
+
+                    {{ getTrackInitial(track.name) }}
+
+                  </div>
+
+
+                  <span
+                    class="status-badge"
+                    [class.inactive]="track.status === 'Inactive'"
+                  >
+
+                    <span class="status-dot"></span>
+
+                    {{ track.status }}
+
+                  </span>
+
+
+                </div>
+
+
+                <!-- BODY -->
+
+                <div class="track-body">
+
+
+                  <span class="track-kicker">
+                    LEARNING TRACK
+                  </span>
+
+
+                  <h2>
+                    {{ track.name }}
+                  </h2>
+
+
+                  <div class="track-category">
+
+                    <span class="category-label">
+                      CATEGORY
+                    </span>
+
+                    <strong>
+                      {{ track.category }}
+                    </strong>
+
+                  </div>
+
+
+                  <p>
+                    {{ track.description }}
+                  </p>
+
+
+                  <!-- METRICS -->
+
+                  <div class="track-metrics">
+
+
+                    <div class="metric">
+
+                      <div class="metric-icon course-icon">
+                        ▣
+                      </div>
+
+                      <div>
+
+                        <strong>
+                          {{ track.coursesCount }}
+                        </strong>
+
+                        <small>
+                          {{ getCourseLabel(track.coursesCount) }}
+                        </small>
+
+                      </div>
+
+                    </div>
+
+
+                    <div class="metric">
+
+                      <div class="metric-icon student-icon">
+                        ♙
+                      </div>
+
+                      <div>
+
+                        <strong>
+                          {{ track.studentsCount }}
+                        </strong>
+
+                        <small>
+                          {{ getStudentLabel(track.studentsCount) }}
+                        </small>
+
+                      </div>
+
+                    </div>
+
+
+                  </div>
+
+
+                </div>
+
+
+                <!-- FOOTER -->
+
+                <div class="track-footer">
+
+                  <span>
+
+                    {{
+                      track.status === 'Active'
+                        ? 'Available for learners'
+                        : 'Currently unavailable'
+                    }}
+
+                  </span>
+
+
+                  <span class="footer-arrow">
+                    →
+                  </span>
+
+                </div>
+
+
+              </article>
+
+
+            }
+
+
+          </section>
+
+
+        } @else {
+
+
+          <!-- EMPTY STATE -->
+
+          <div class="empty-tracks">
+
+
+            <div class="empty-icon">
+              ◇
+            </div>
+
+
+            <h2>
+              No tracks found
+            </h2>
+
+
+            <p>
+
+              Try changing your search,
+              category, or status filter
+              to see more tracks.
+
+            </p>
+
+
+            <button
+              type="button"
+              (click)="clearFilters()"
+            >
+
+              Clear Filters
+
+            </button>
+
+
+          </div>
+
+
+        }
+
+      }
+
+
+    </section>
+
+  </main>
+
+</div>

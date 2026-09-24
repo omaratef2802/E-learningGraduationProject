@@ -1,0 +1,739 @@
+/* ==========================================================================
+   DESIGN TOKENS & BASE (Unified System)
+   ========================================================================== */
+:host {
+  display: block;
+  min-height: 100vh;
+  background-color: #f4f6fa;
+  color: #1e293b;
+  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+.reports-shell {
+  display: flex;
+  min-height: 100vh;
+  background-color: #f4f6fa;
+}
+
+/* ==========================================================================
+   MAIN LAYOUT
+   ========================================================================== */
+
+.reports-main {
+  width: calc(100% - 258px);
+  min-width: 0;
+  min-height: 100vh;
+  margin-inline-start: 258px;
+  padding: 1.25rem 1.5rem 2.5rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  background-color: #f4f6fa;
+}
+
+/* ==========================================================================
+   TOP BAR
+   ========================================================================== */
+
+.profile-topbar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  width: 100%;
+  min-height: 64px;
+  padding: 0 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(12px);
+  border-radius: 16px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+}
+
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #64748b;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+}
+
+.breadcrumb strong {
+  color: #4f46e5;
+}
+
+.top-user {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 6px 12px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.top-user:hover {
+  background-color: #f1f5f9;
+}
+
+.top-user strong {
+  display: block;
+  color: #0f172a;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.top-user small {
+  display: block;
+  margin-top: 2px;
+  color: #64748b;
+  font-size: 0.75rem;
+}
+
+.mini-avatar {
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  color: #ffffff;
+  background: linear-gradient(135deg, #6366f1, #4f46e5);
+  font-size: 0.875rem;
+  font-weight: 700;
+  box-shadow: 0 2px 6px rgba(79, 70, 229, 0.25);
+}
+
+/* ==========================================================================
+   CONTENT CONTAINER
+   ========================================================================== */
+
+.reports-content {
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* ==========================================================================
+   HERO SECTION
+   ========================================================================== */
+
+.reports-hero {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 25px;
+  padding: 2rem;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-copy {
+  max-width: 600px;
+  z-index: 1;
+}
+
+.eyebrow {
+  display: block;
+  color: #4f46e5;
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+
+.hero-copy h1 {
+  margin: 0 0 10px;
+  color: #0f172a;
+  font-size: 1.75rem;
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.hero-copy h1 span {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: #4f46e5;
+  background: #eef2ff;
+  padding: 4px 10px;
+  border-radius: 9999px;
+}
+
+.hero-copy p {
+  margin: 0;
+  color: #64748b;
+  font-size: 0.9375rem;
+  line-height: 1.6;
+}
+
+/* Hero Orbit Decoration */
+.hero-decoration {
+  position: absolute;
+  top: 50%;
+  right: 2rem;
+  width: 160px;
+  height: 160px;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.orbit {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  border: 1px solid #c7d2fe;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.orbit-one {
+  width: 100px;
+  height: 100px;
+}
+
+.orbit-two {
+  width: 150px;
+  height: 150px;
+  border-style: dashed;
+}
+
+.hero-center {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #6366f1, #4f46e5);
+  color: #ffffff;
+  display: grid;
+  place-items: center;
+  font-size: 1.25rem;
+  transform: translate(-50%, -50%);
+  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+}
+
+.hero-dot {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #4f46e5;
+  box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.15);
+}
+
+.dot-one { top: 15px; left: 75px; }
+.dot-two { right: 10px; bottom: 40px; }
+.dot-three { left: 20px; bottom: 25px; }
+
+/* ==========================================================================
+   KPI STATS CARDS
+   ========================================================================== */
+
+.report-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1.25rem;
+}
+
+.stat-card {
+  padding: 1.25rem 1.5rem;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+.stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 12px -2px rgba(0, 0, 0, 0.04);
+}
+
+.stat-card.featured {
+  border-color: #c7d2fe;
+  background: linear-gradient(180deg, #ffffff, #f5f3ff);
+}
+
+.stat-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.stat-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  font-size: 1.2rem;
+  flex-shrink: 0;
+}
+
+.stat-icon.users { background: #eef2ff; color: #4f46e5; }
+.stat-icon.enrollments { background: #e0f2fe; color: #0284c7; }
+.stat-icon.certificates { background: #fef3c7; color: #d97706; }
+.stat-icon.revenue { background: #dcfce7; color: #166534; }
+
+.trend {
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 9999px;
+}
+
+.trend.positive {
+  color: #166534;
+  background: #dcfce7;
+}
+
+.stat-label {
+  display: block;
+  margin-bottom: 4px;
+  color: #64748b;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.stat-card strong {
+  display: block;
+  color: #0f172a;
+  font-size: 1.625rem;
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+.stat-card small {
+  display: block;
+  margin-top: 6px;
+  color: #94a3b8;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+/* ==========================================================================
+   CHARTS & ANALYTICS CARDS
+   ========================================================================== */
+
+.analytics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+  gap: 1.25rem;
+}
+
+.analytics-card {
+  padding: 1.5rem;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+  display: flex;
+  flex-direction: column;
+}
+
+.analytics-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+}
+
+.section-kicker {
+  display: block;
+  color: #4f46e5;
+  font-size: 0.6875rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 2px;
+}
+
+.analytics-header h2 {
+  margin: 0;
+  color: #0f172a;
+  font-size: 1.125rem;
+  font-weight: 700;
+}
+
+.header-value {
+  text-align: end;
+}
+
+.header-value strong {
+  display: block;
+  color: #0f172a;
+  font-size: 1.25rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.header-value small {
+  color: #94a3b8;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+/* Bar Chart Custom Styling */
+.bar-chart {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+  height: 200px;
+  padding-top: 20px;
+  border-top: 1px solid #f1f5f9;
+}
+
+.bar-column {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100%;
+  justify-content: flex-end;
+}
+
+.bar-value {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #64748b;
+  margin-bottom: 6px;
+}
+
+.bar-track {
+  width: 100%;
+  max-width: 32px;
+  flex: 1;
+  background: #f1f5f9;
+  border-radius: 8px;
+  display: flex;
+  align-items: flex-end;
+  overflow: hidden;
+}
+
+.bar-fill {
+  width: 100%;
+  border-radius: 8px 8px 0 0;
+  transition: height 0.4s ease;
+}
+
+.users-fill {
+  background: linear-gradient(180deg, #6366f1, #4f46e5);
+}
+
+.enrollment-fill {
+  background: linear-gradient(180deg, #38bdf8, #0284c7);
+}
+
+.bar-label {
+  margin-top: 8px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #64748b;
+}
+
+/* ==========================================================================
+   BOTTOM SECTION (REVENUE & SNAPSHOT)
+   ========================================================================== */
+
+.bottom-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 1.25rem;
+}
+
+.revenue-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-top: 1rem;
+  border-top: 1px solid #f1f5f9;
+}
+
+.revenue-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.revenue-month {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100px;
+  flex-shrink: 0;
+}
+
+.month-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #22c55e;
+}
+
+.revenue-month strong {
+  color: #334155;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.revenue-progress {
+  flex: 1;
+  height: 10px;
+  background: #f1f5f9;
+  border-radius: 9999px;
+  overflow: hidden;
+}
+
+.revenue-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #4f46e5, #22c55e);
+  border-radius: 9999px;
+  transition: width 0.4s ease;
+}
+
+.revenue-value {
+  width: 90px;
+  text-align: end;
+  color: #0f172a;
+  font-size: 0.875rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+/* Snapshot List */
+.summary-card {
+  display: flex;
+  flex-direction: column;
+}
+
+.snapshot-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  flex: 1;
+  padding-top: 1rem;
+  border-top: 1px solid #f1f5f9;
+}
+
+.snapshot-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px;
+  border-radius: 12px;
+  background: #f8fafc;
+  border: 1px solid #f1f5f9;
+}
+
+.snapshot-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+.snapshot-icon.users { background: #eef2ff; color: #4f46e5; }
+.snapshot-icon.enrollments { background: #e0f2fe; color: #0284c7; }
+.snapshot-icon.courses { background: #f3e8ff; color: #7e22ce; }
+.snapshot-icon.certificates { background: #fef3c7; color: #d97706; }
+
+.snapshot-item small {
+  display: block;
+  color: #64748b;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.snapshot-item strong {
+  display: block;
+  color: #0f172a;
+  font-size: 0.9375rem;
+  font-weight: 700;
+}
+
+.snapshot-footer {
+  margin-top: 1.25rem;
+  padding-top: 1rem;
+  border-top: 1px solid #f1f5f9;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: #64748b;
+  font-size: 0.8125rem;
+}
+
+.snapshot-footer strong {
+  color: #4f46e5;
+  font-weight: 700;
+}
+
+/* ==========================================================================
+   MONTHLY PERFORMANCE TABLE
+   ========================================================================== */
+
+.report-table-card {
+  padding: 1.5rem;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+}
+
+.table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  margin-top: 1rem;
+  border-top: 1px solid #f1f5f9;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: start;
+}
+
+th {
+  padding: 12px 16px;
+  color: #64748b;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-bottom: 1px solid #e2e8f0;
+  background: #f8fafc;
+}
+
+td {
+  padding: 14px 16px;
+  color: #334155;
+  font-size: 0.875rem;
+  font-weight: 500;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+tr:last-child td {
+  border-bottom: none;
+}
+
+tr:hover td {
+  background-color: #f8fafc;
+}
+
+td strong {
+  color: #0f172a;
+  font-weight: 700;
+}
+
+.table-revenue {
+  color: #166534;
+  font-weight: 700;
+}
+
+/* ==========================================================================
+   STATES & LOADING
+   ========================================================================== */
+
+.reports-state {
+  padding: 48px 20px;
+  border-radius: 16px;
+  background: #ffffff;
+  border: 1px dashed #cbd5e1;
+  text-align: center;
+  color: #64748b;
+  font-size: 0.9375rem;
+}
+
+.reports-state.error {
+  color: #dc2626;
+  background: #fef2f2;
+  border-color: #fecaca;
+  border-style: solid;
+}
+
+/* ==========================================================================
+   RESPONSIVE LAYOUT
+   ========================================================================== */
+
+@media (max-width: 1100px) {
+  .bottom-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 900px) {
+  .reports-main {
+    margin-inline-start: 0;
+    width: 100%;
+    padding: 1rem;
+  }
+
+  .analytics-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .reports-hero {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .hero-decoration {
+    display: none;
+  }
+}
+
+@media (max-width: 600px) {
+  .top-user {
+    display: none;
+  }
+
+  .bar-chart {
+    gap: 6px;
+  }
+
+  .revenue-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
+
+  .revenue-progress {
+    width: 100%;
+  }
+
+  .revenue-value {
+    text-align: start;
+  }
+
+  .report-stats {
+    grid-template-columns: 1fr;
+  }
+}

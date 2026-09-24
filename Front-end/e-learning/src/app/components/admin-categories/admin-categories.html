@@ -1,0 +1,458 @@
+<div class="categories-shell">
+
+  <app-admin-sidebar></app-admin-sidebar>
+
+  <main class="categories-main">
+
+    <header class="profile-topbar">
+
+      <div class="breadcrumb">
+        <span>ADMIN PORTAL</span>
+        <strong>/ CATEGORIES</strong>
+      </div>
+
+      <div class="top-user">
+
+        <div class="mini-avatar">
+          {{ data.admin.firstName.charAt(0) }}
+          {{ data.admin.lastName.charAt(0) }}
+        </div>
+
+        <div>
+          <strong>
+            {{ data.admin.firstName }}
+            {{ data.admin.lastName }}
+          </strong>
+
+          <small>
+            {{ data.admin.role }}
+          </small>
+        </div>
+
+      </div>
+
+    </header>
+
+
+    <section class="categories-content">
+
+      <!-- HERO -->
+
+      <section class="categories-hero">
+
+        <div class="hero-copy">
+
+          <span class="eyebrow">
+            CATEGORY MANAGEMENT
+          </span>
+
+          <h1>
+            Learning Categories
+
+            <span>
+              {{ getTotalCategories() }}
+            </span>
+          </h1>
+
+          <p>
+            Organize the learning experience by managing
+            the main categories that structure courses
+            and learning tracks across PathwayEd.
+          </p>
+
+        </div>
+
+
+        <div class="hero-decoration">
+
+          <div class="orbit orbit-one"></div>
+          <div class="orbit orbit-two"></div>
+
+          <div class="hero-dot dot-one"></div>
+          <div class="hero-dot dot-two"></div>
+          <div class="hero-dot dot-three"></div>
+
+          <div class="hero-center">
+            ◫
+          </div>
+
+        </div>
+
+      </section>
+
+
+      <!-- STATS -->
+
+      <section class="category-stats">
+
+        <article class="stat-card featured">
+
+          <div class="stat-icon">
+            ◫
+          </div>
+
+          <div>
+
+            <span>
+              Total Categories
+            </span>
+
+            <strong>
+              {{ getTotalCategories() }}
+            </strong>
+
+            <small>
+              Main learning areas
+            </small>
+
+          </div>
+
+        </article>
+
+
+        <article class="stat-card">
+
+          <div class="stat-icon active">
+            ✓
+          </div>
+
+          <div>
+
+            <span>
+              Active
+            </span>
+
+            <strong>
+              {{ getActiveCategories() }}
+            </strong>
+
+            <small>
+              Currently available
+            </small>
+
+          </div>
+
+        </article>
+
+
+        <article class="stat-card">
+
+          <div class="stat-icon courses">
+            ▣
+          </div>
+
+          <div>
+
+            <span>
+              Courses
+            </span>
+
+            <strong>
+              {{ getTotalCourses() }}
+            </strong>
+
+            <small>
+              Across all categories
+            </small>
+
+          </div>
+
+        </article>
+
+
+        <article class="stat-card">
+
+          <div class="stat-icon tracks">
+            ◇
+          </div>
+
+          <div>
+
+            <span>
+              Learning Tracks
+            </span>
+
+            <strong>
+              {{ getTotalTracks() }}
+            </strong>
+
+            <small>
+              Structured paths
+            </small>
+
+          </div>
+
+        </article>
+
+      </section>
+
+
+      <!-- TOOLBAR -->
+
+      <section class="categories-toolbar">
+
+        <div class="search-box">
+
+          <span>⌕</span>
+
+          <input
+            type="text"
+            [(ngModel)]="searchText"
+            (input)="applyFilters()"
+            placeholder="Search categories..."
+          />
+
+        </div>
+
+
+        <select
+          [(ngModel)]="selectedStatus"
+          (change)="applyFilters()"
+        >
+
+          <option value="All">
+            All Status
+          </option>
+
+          <option value="Active">
+            Active
+          </option>
+
+          <option value="Inactive">
+            Inactive
+          </option>
+
+        </select>
+
+
+        <button
+          type="button"
+          class="clear-button"
+          (click)="clearFilters()"
+        >
+          Clear
+        </button>
+
+      </section>
+
+
+      <!-- RESULTS -->
+
+      <div class="results-bar">
+
+        <div>
+
+          <span class="results-kicker">
+            CATEGORY DIRECTORY
+          </span>
+
+          <strong>
+            {{ filteredCategories.length }}
+
+            {{
+              filteredCategories.length === 1
+                ? 'category'
+                : 'categories'
+            }}
+          </strong>
+
+        </div>
+
+
+        <div class="status-summary">
+
+          <span class="summary-dot active-dot"></span>
+
+          {{ getActiveCategories() }} active
+
+          @if (getInactiveCategories() > 0) {
+
+            <span class="summary-dot inactive-dot"></span>
+
+            {{ getInactiveCategories() }} inactive
+
+          }
+
+        </div>
+
+      </div>
+
+
+      <!-- ERROR -->
+
+      @if (errorMessage) {
+
+        <div class="categories-state error">
+          {{ errorMessage }}
+        </div>
+
+      }
+
+
+      <!-- LOADING -->
+
+      @if (loading) {
+
+        <div class="categories-state">
+          Loading categories...
+        </div>
+
+      }
+
+
+      <!-- CONTENT -->
+
+      @if (!loading) {
+
+        @if (filteredCategories.length > 0) {
+
+          <section class="category-grid">
+
+            @for (
+              category of filteredCategories;
+              track category.id
+            ) {
+
+              <article class="category-card">
+
+                <div class="category-card-top">
+
+                  <div class="category-symbol">
+                    {{ getCategoryInitial(category.name) }}
+                  </div>
+
+
+                  <span
+                    class="status-badge"
+                    [class.inactive]="category.status === 'Inactive'"
+                  >
+
+                    <span class="status-dot"></span>
+
+                    {{ category.status }}
+
+                  </span>
+
+                </div>
+
+
+                <div class="category-body">
+
+                  <span class="category-kicker">
+                    LEARNING CATEGORY
+                  </span>
+
+                  <h2>
+                    {{ category.name }}
+                  </h2>
+
+                  <p>
+                    {{ category.description }}
+                  </p>
+
+
+                  <div class="category-metrics">
+
+                    <div class="metric">
+
+                      <div class="metric-icon course-icon">
+                        ▣
+                      </div>
+
+                      <div>
+
+                        <strong>
+                          {{ category.coursesCount }}
+                        </strong>
+
+                        <small>
+                          {{ getCategoryCourseLabel(category.coursesCount) }}
+                        </small>
+
+                      </div>
+
+                    </div>
+
+
+                    <div class="metric">
+
+                      <div class="metric-icon track-icon">
+                        ◇
+                      </div>
+
+                      <div>
+
+                        <strong>
+                          {{ category.tracksCount }}
+                        </strong>
+
+                        <small>
+                          {{ getCategoryTrackLabel(category.tracksCount) }}
+                        </small>
+
+                      </div>
+
+                    </div>
+
+                  </div>
+
+                </div>
+
+
+                <div class="category-footer">
+
+                  <span>
+                    @if (category.status === 'Active') {
+                      Visible across the platform
+                    } @else {
+                      Currently unavailable
+                    }
+                  </span>
+
+                  <span class="footer-arrow">
+                    →
+                  </span>
+
+                </div>
+
+              </article>
+
+            }
+
+          </section>
+
+        } @else {
+
+          <div class="empty-categories">
+
+            <div class="empty-icon">
+              ◫
+            </div>
+
+            <h2>
+              No categories found
+            </h2>
+
+            <p>
+              Try changing your search or status filter
+              to see more categories.
+            </p>
+
+            <button
+              type="button"
+              (click)="clearFilters()"
+            >
+              Clear Filters
+            </button>
+
+          </div>
+
+        }
+
+      }
+
+    </section>
+
+  </main>
+
+</div>

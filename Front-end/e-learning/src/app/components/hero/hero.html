@@ -1,0 +1,38 @@
+<main class="hero-page">
+  <section class="hero-section" aria-labelledby="hero-title">
+    <div class="hero-copy">
+      <span class="eyebrow"><i></i>{{ config.eyebrow }}</span>
+      <h1 id="hero-title">{{ config.titleFirst }}<br /><em>{{ config.titleAccent }}</em> {{ config.titleLast }}</h1>
+      <p class="hero-description">{{ config.description }}</p>
+
+      <div class="hero-actions">
+        <button class="primary-button" type="button" (click)="search('')">Explore Courses <span>→</span></button>
+        <button class="secondary-button" type="button" (click)="search('learning paths')"><span>♧</span> Explore Learning Paths</button>
+      </div>
+
+      <form class="search-panel" (ngSubmit)="search(heroQuery.value)">
+        <label for="hero-search">WHAT DO YOU WANT TO LEARN TODAY?</label>
+        <div class="search-input-row">
+          <span aria-hidden="true">⌕</span>
+          <input #heroQuery id="hero-search" name="query" type="search" [placeholder]="config.placeholder" />
+          <button type="submit">Search</button>
+        </div>
+        <div class="quick-searches">
+          <span>Quick search:</span>
+          @for (item of config.quickSearches; track item) {
+            <button type="button" (click)="search(item)">{{ item }}</button>
+          }
+        </div>
+      </form>
+    </div>
+
+    <div class="hero-visual">
+      <div class="image-frame">
+        <img [src]="config.image" alt="People collaborating in a bright learning space" />
+        <div class="path-card"><strong>84%</strong><span><small>ACTIVE PATH</small>Product Design Lead<br /><b>10 of 12 modules completed</b></span></div>
+        <div class="learners-card"><b>UI/UX</b><strong>10k+ Learners</strong></div>
+        <div class="verified-card"><span class="verified-icon">✦</span><span><small>CREDENTIAL VERIFIED</small><strong>Global Business Communication</strong><small>Verified by PathwayEd Board</small></span></div>
+      </div>
+    </div>
+  </section>
+</main>

@@ -1,0 +1,592 @@
+<div class="courses-shell">
+
+  <app-admin-sidebar></app-admin-sidebar>
+
+  <main class="courses-main">
+
+    <header class="profile-topbar">
+
+      <div class="breadcrumb">
+        <span>ADMIN PORTAL</span>
+        <strong>/ COURSES</strong>
+      </div>
+
+      <div class="top-user">
+
+        <div class="mini-avatar">
+          {{ data.admin.firstName.charAt(0) }}
+          {{ data.admin.lastName.charAt(0) }}
+        </div>
+
+        <div>
+          <strong>
+            {{ data.admin.firstName }}
+            {{ data.admin.lastName }}
+          </strong>
+
+          <small>
+            {{ data.admin.role }}
+          </small>
+        </div>
+
+      </div>
+
+    </header>
+
+    <section class="courses-content">
+
+      <!-- HERO -->
+
+      <section class="courses-hero">
+
+        <div class="hero-copy">
+
+          <span class="eyebrow">
+            COURSE MANAGEMENT
+          </span>
+
+          <h1>
+            All Courses
+
+            <span>
+              {{ courses.length }}
+            </span>
+          </h1>
+
+          <p>
+            Review the learning catalog,
+            manage course assignments,
+            and monitor the content available
+            across PathwayEd.
+          </p>
+
+        </div>
+
+        <div class="hero-actions">
+
+          <button
+            type="button"
+            class="create-course-button"
+            (click)="openCreateCourse()"
+          >
+            <span>＋</span>
+            Create Course
+          </button>
+
+          <div class="hero-decoration">
+
+            <div class="orbit orbit-one"></div>
+
+            <div class="orbit orbit-two"></div>
+
+            <div class="hero-dot dot-one"></div>
+
+            <div class="hero-dot dot-two"></div>
+
+            <div class="hero-center">
+              ◆
+            </div>
+
+          </div>
+
+        </div>
+
+      </section>
+
+      <!-- STATS -->
+
+      <section class="course-stats">
+
+        <article class="stat-card featured">
+
+          <div class="stat-icon">
+            ▣
+          </div>
+
+          <div>
+            <span>Total Courses</span>
+
+            <strong>
+              {{ getTotalCourses() }}
+            </strong>
+
+            <small>
+              Across the platform
+            </small>
+          </div>
+
+        </article>
+
+        <article class="stat-card">
+
+          <div class="stat-icon published">
+            ✓
+          </div>
+
+          <div>
+            <span>Published</span>
+
+            <strong>
+              {{ getPublishedCourses() }}
+            </strong>
+
+            <small>
+              Available to learners
+            </small>
+          </div>
+
+        </article>
+
+        <article class="stat-card">
+
+          <div class="stat-icon learners">
+            ♙
+          </div>
+
+          <div>
+            <span>Learners</span>
+
+            <strong>
+              {{ getTotalStudents() }}
+            </strong>
+
+            <small>
+              Across listed courses
+            </small>
+          </div>
+
+        </article>
+
+        <article class="stat-card">
+
+          <div class="stat-icon rating">
+            ★
+          </div>
+
+          <div>
+            <span>Avg. Rating</span>
+
+            <strong>
+              {{ getAverageRating() }}
+            </strong>
+
+            <small>
+              Course ratings
+            </small>
+          </div>
+
+        </article>
+
+      </section>
+
+      <!-- TOOLBAR -->
+
+      <section class="courses-toolbar">
+
+        <div class="search-box">
+
+          <span>⌕</span>
+
+          <input
+            type="text"
+            [(ngModel)]="searchText"
+            (input)="applyFilters()"
+            placeholder="Search courses, categories, or instructors..."
+          />
+
+        </div>
+
+        <select
+          [(ngModel)]="selectedCategory"
+          (change)="applyFilters()"
+        >
+
+          <option value="All">
+            All Categories
+          </option>
+
+          @for (
+            category of categories;
+            track category
+          ) {
+
+            <option [value]="category">
+              {{ category }}
+            </option>
+
+          }
+
+        </select>
+
+        <select
+          [(ngModel)]="selectedStatus"
+          (change)="applyFilters()"
+        >
+
+          <option value="All">
+            All Status
+          </option>
+
+          <option value="Assigned">
+            Assigned
+          </option>
+
+          <option value="Draft">
+            Draft
+          </option>
+
+          <option value="In Review">
+            In Review
+          </option>
+
+          <option value="Changes Required">
+            Changes Required
+          </option>
+
+          <option value="Published">
+            Published
+          </option>
+
+        </select>
+
+        <select
+          [(ngModel)]="selectedSort"
+          (change)="onSortChange()"
+        >
+
+          <option value="Latest">
+            Latest
+          </option>
+
+          <option value="Students">
+            Most Students
+          </option>
+
+          <option value="Rating">
+            Highest Rated
+          </option>
+
+          <option value="Price">
+            Highest Price
+          </option>
+
+        </select>
+
+        <button
+          type="button"
+          class="clear-button"
+          (click)="clearFilters()"
+        >
+          Clear
+        </button>
+
+      </section>
+
+      <!-- RESULTS -->
+
+      <div class="results-bar">
+
+        <div>
+
+          <span class="results-kicker">
+            CATALOG
+          </span>
+
+          <strong>
+            {{ filteredCourses.length }}
+            {{
+              filteredCourses.length === 1
+                ? 'course'
+                : 'courses'
+            }}
+          </strong>
+
+        </div>
+
+        <div class="status-summary">
+
+          <span class="summary-dot published-dot"></span>
+          {{ getPublishedCourses() }} published
+
+          <span class="summary-dot draft-dot"></span>
+          {{ getDraftCourses() }} draft
+
+          @if (getAssignedCourses() > 0) {
+
+            <span class="summary-dot assigned-dot"></span>
+            {{ getAssignedCourses() }} assigned
+
+          }
+
+          @if (getInReviewCourses() > 0) {
+
+            <span class="summary-dot review-dot"></span>
+            {{ getInReviewCourses() }} in review
+
+          }
+
+        </div>
+
+      </div>
+
+      @if (errorMessage) {
+
+        <div class="courses-state error">
+          {{ errorMessage }}
+        </div>
+
+      }
+
+      @if (loading) {
+
+        <div class="courses-state">
+          Loading courses...
+        </div>
+
+      } @else {
+
+        @if (filteredCourses.length > 0) {
+
+          <section class="course-grid">
+
+            @for (
+              course of filteredCourses;
+              track course.id
+            ) {
+
+              <article class="course-card">
+
+                <!-- COVER -->
+
+                <div class="course-cover">
+
+                  <img
+                    [src]="course.image"
+                    [alt]="course.title"
+                  />
+
+                  <div class="cover-shade"></div>
+
+                  <span class="category-badge">
+                    {{ course.category }}
+                  </span>
+
+                  <span
+                    class="status-badge"
+                    [class.draft]="course.status === 'Draft'"
+                    [class.review]="course.status === 'In Review'"
+                    [class.assigned]="course.status === 'Assigned'"
+                    [class.changes]="course.status === 'Changes Required'"
+                  >
+                    {{ course.status }}
+                  </span>
+
+                </div>
+
+                <!-- BODY -->
+
+                <div class="course-body">
+
+                  <div class="course-topline">
+
+                    <span>
+                      COURSE
+                    </span>
+
+                    <strong>
+                      {{ course.price }}
+                    </strong>
+
+                  </div>
+
+                  <h2>
+                    {{ course.title }}
+                  </h2>
+
+                  <div class="course-category-row">
+
+                    <div class="category-icon">
+                      {{ course.category.charAt(0) }}
+                    </div>
+
+                    <div>
+                      <small>
+                        Category
+                      </small>
+
+                      <strong>
+                        {{ course.category }}
+                      </strong>
+                    </div>
+
+                  </div>
+
+                  @if (course.instructorName) {
+
+                    <div class="instructor-row">
+
+                      <div class="instructor-avatar">
+                        {{ course.instructorName.charAt(0) }}
+                      </div>
+
+                      <div>
+                        <small>
+                          Instructor
+                        </small>
+
+                        <strong>
+                          {{ course.instructorName }}
+                        </strong>
+                      </div>
+
+                    </div>
+
+                  }
+
+                  <!-- METRICS -->
+
+                  <div class="course-metrics">
+
+                    <div>
+
+                      <span class="metric-icon">
+                        ♙
+                      </span>
+
+                      <div>
+
+                        <strong>
+                          {{ course.students }}
+                        </strong>
+
+                        <small>
+                          Students
+                        </small>
+
+                      </div>
+
+                    </div>
+
+                    <div>
+
+                      <span class="metric-icon star">
+                        ★
+                      </span>
+
+                      <div>
+
+                        <strong>
+                          {{ course.rating }}
+                        </strong>
+
+                        <small>
+                          Rating
+                        </small>
+
+                      </div>
+
+                    </div>
+
+                    <div>
+
+                      <span class="metric-icon clock">
+                        ◷
+                      </span>
+
+                      <div>
+
+                        <strong>
+                          {{ course.updated }}
+                        </strong>
+
+                        <small>
+                          Updated
+                        </small>
+
+                      </div>
+
+                    </div>
+
+                  </div>
+
+                  <!-- FOOTER -->
+
+                  <div class="course-footer">
+
+                    <span>
+
+                      @switch (course.status) {
+
+                        @case ('Published') {
+                          Available on platform
+                        }
+
+                        @case ('Assigned') {
+                          Assigned to instructor
+                        }
+
+                        @case ('In Review') {
+                          Waiting for admin review
+                        }
+
+                        @case ('Changes Required') {
+                          Instructor needs to update
+                        }
+
+                        @default {
+                          Course in progress
+                        }
+
+                      }
+
+                    </span>
+
+                    <span class="footer-arrow">
+                      →
+                    </span>
+
+                  </div>
+
+                </div>
+
+              </article>
+
+            }
+
+          </section>
+
+        } @else {
+
+          <div class="empty-courses">
+
+            <div class="empty-icon">
+              ▣
+            </div>
+
+            <h2>
+              No courses found
+            </h2>
+
+            <p>
+              Try changing your search
+              or filters to see more courses.
+            </p>
+
+            <button
+              type="button"
+              (click)="clearFilters()"
+            >
+              Clear Filters
+            </button>
+
+          </div>
+
+        }
+
+      }
+
+    </section>
+
+  </main>
+
+</div>
