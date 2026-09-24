@@ -28,8 +28,8 @@ description: string;
 selector: 'app-react-courses',
 standalone: true,
 imports: [FormsModule, RouterLink],
-templateUrl: './react-courses.html',
-styleUrl: './react-courses.css',
+templateUrl: './courses.html',
+styleUrl: './courses.css',
 })
 export class ReactCourses {
 searchText = '';

@@ -3,7 +3,11 @@ import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 
 type TrackLevel = 'Beginner' | 'Intermediate' | 'Advanced';
-type TrackSortOption = 'Most Popular' | 'A-Z' | 'Most Courses';
+
+type TrackSortOption =
+| 'Most Popular'
+| 'A-Z'
+| 'Most Courses';
 
 type TrackItem = {
 title: string;
@@ -15,6 +19,7 @@ weeks: number;
 learners: string;
 image: string;
 description: string;
+route: string;
 };
 
 @Component({
@@ -44,6 +49,7 @@ image:
 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=900&h=560&q=90',
 description:
 'Master semantic markup, responsive flexbox and grid layouts, modern CSS architecture, cross-browser accessibility.',
+route: '/catalog/web-development/front-end/html-css',
 },
 {
 title: 'JavaScript Mastery',
@@ -57,6 +63,7 @@ image:
 'https://images.unsplash.com/photo-1461749280684-dccba630e2f6?auto=format&fit=crop&w=900&h=560&q=90',
 description:
 'Deep dive into modern ES6+, asynchronous JavaScript, DOM manipulation, closures, event-driven architecture, and APIs.',
+route: '/catalog/web-development/front-end/javascript',
 },
 {
 title: 'TypeScript for Enterprise',
@@ -70,6 +77,7 @@ image:
 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=900&h=560&q=90',
 description:
 'Write scalable, type-safe frontend code using interfaces, generics, type narrowing, and advanced compiler configurations.',
+route: '/catalog/web-development/front-end/typescript',
 },
 {
 title: 'React Development',
@@ -83,6 +91,7 @@ image:
 'https://images.unsplash.com/photo-1633356122544-f134324a6cee?auto=format&fit=crop&w=900&h=560&q=90',
 description:
 'Master React, modern hooks, component architecture, state management, and performance patterns for production apps.',
+route: '/catalog/web-development/front-end/react',
 },
 {
 title: 'Vue.js 3 Ecosystem',
@@ -96,6 +105,7 @@ image:
 'https://images.unsplash.com/photo-1558655146-d09347e92766?auto=format&fit=crop&w=900&h=560&q=90',
 description:
 'Build fast, reactive web applications with Vue 3, Composition API, Pinia state store, Vue Router, and Vue tooling.',
+route: '/catalog/web-development/front-end/vue',
 },
 {
 title: 'Angular Enterprise Architecture',
@@ -109,6 +119,7 @@ image:
 'https://images.unsplash.com/photo-1551650975-87deedd944c3?auto=format&fit=crop&w=900&h=560&q=90',
 description:
 'Architect robust enterprise applications with Angular components, dependency injection, RxJS reactive streams, and NgRx.',
+route: '/catalog/web-development/front-end/angular',
 },
 ];
 
@@ -117,18 +128,33 @@ const search = this.searchText.toLowerCase().trim();
 
 const result = this.tracks.filter((track) => {
 const matchesSearch =
-!search || `${track.title} ${track.description} ${track.level}`.toLowerCase().includes(search);
-const matchesLevel = this.selectedLevel === 'All' || track.level === this.selectedLevel;
+!search ||
+`${track.title} ${track.description} ${track.level}`
+.toLowerCase()
+.includes(search);
+
+const matchesLevel =
+this.selectedLevel === 'All' ||
+track.level === this.selectedLevel;
+
 const matchesRating =
 this.selectedRating === 'Any Rating' ||
 (this.selectedRating === '4.5+' && track.rating >= 4.5) ||
 (this.selectedRating === '4.8+' && track.rating >= 4.8);
+
 const matchesDuration =
 this.selectedDuration === 'Any Duration' ||
-(this.selectedDuration === 'Under 7 Weeks' && track.weeks < 7) ||
-(this.selectedDuration === '7+ Weeks' && track.weeks >= 7);
+(this.selectedDuration === 'Under 7 Weeks' &&
+track.weeks < 7) ||
+(this.selectedDuration === '7+ Weeks' &&
+track.weeks >= 7);
 
-return matchesSearch && matchesLevel && matchesRating && matchesDuration;
+return (
+matchesSearch &&
+matchesLevel &&
+matchesRating &&
+matchesDuration
+);
 });
 
 return this.sortTracks(result);
@@ -145,11 +171,20 @@ this.selectedSort = 'Most Popular';
 private sortTracks(tracks: TrackItem[]): TrackItem[] {
 switch (this.selectedSort) {
 case 'Most Popular':
-return [...tracks].sort((a, b) => b.rating - a.rating);
+return [...tracks].sort(
+(a, b) => b.rating - a.rating
+);
+
 case 'A-Z':
-return [...tracks].sort((a, b) => a.title.localeCompare(b.title));
+return [...tracks].sort((a, b) =>
+a.title.localeCompare(b.title)
+);
+
 case 'Most Courses':
-return [...tracks].sort((a, b) => b.courses - a.courses);
+return [...tracks].sort(
+(a, b) => b.courses - a.courses
+);
+
 default:
 return tracks;
 }
