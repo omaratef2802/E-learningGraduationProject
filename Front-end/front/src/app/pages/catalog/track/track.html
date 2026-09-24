@@ -8,9 +8,12 @@
 <a routerLink="/catalog/web-development">Categories</a>
 <span class="sep">›</span>
 <strong>Web Development</strong>
+<span class="sep">›</span>
+<a class="tracks-breadcrumb-link" routerLink="/catalog/web-development/front-end/tracks"
+>Front-End Tracks</a
+>
 </div>
 </section>
-
 <section class="track-header">
 <div class="container">
 <div class="track-header-card">
@@ -38,7 +41,6 @@
 </div>
 </div>
 </section>
-
 <section class="courses-section">
 <div class="container">
 <div class="course-toolbar">
@@ -47,12 +49,33 @@
 <input type="text" [(ngModel)]="searchText" placeholder="Search subcategories..." />
 </div>
 <div class="filter-buttons">
-<button [class.active]="selectedCategory === 'All'" (click)="setCategory('All')">All</button>
-<button [class.active]="selectedCategory === 'programming'" (click)="setCategory('programming')">Programming</button>
-<button [class.active]="selectedCategory === 'front-end'" (click)="setCategory('front-end')">Frontend</button>
-<button [class.active]="selectedCategory === 'back-end'" (click)="setCategory('back-end')">Backend</button>
-<button [class.active]="selectedCategory === 'full-stack'" (click)="setCategory('full-stack')">Full-Stack</button>
-<button [class.active]="selectedCategory === 'mobile'" (click)="setCategory('mobile')">Mobile</button>
+<button [class.active]="selectedCategory === 'All'" (click)="setCategory('All')">
+All
+</button>
+<button
+[class.active]="selectedCategory === 'programming'"
+(click)="setCategory('programming')"
+>
+Programming
+</button>
+<button
+[class.active]="selectedCategory === 'front-end'"
+(click)="setCategory('front-end')"
+>
+Frontend
+</button>
+<button [class.active]="selectedCategory === 'back-end'" (click)="setCategory('back-end')">
+Backend
+</button>
+<button
+[class.active]="selectedCategory === 'full-stack'"
+(click)="setCategory('full-stack')"
+>
+Full-Stack
+</button>
+<button [class.active]="selectedCategory === 'mobile'" (click)="setCategory('mobile')">
+Mobile
+</button>
 </div>
 <div class="sort-area">
 <span>Sort:</span>
@@ -64,7 +87,6 @@
 </select>
 </div>
 </div>
-
 @if (filteredCourses.length > 0) {
 <div class="course-grid">
 @for (course of filteredCourses; track course.title) {
@@ -75,7 +97,10 @@
 </a>
 <div class="course-content">
 <div class="course-meta">
-<span><b class="course-meta-icon">{{ course.icon }}</b> {{ course.lessons }} Tracks • {{ course.students }}</span>
+<span
+><b class="course-meta-icon">{{ course.icon }}</b> {{ course.lessons }} Tracks •
+{{ course.students }}</span
+>
 <span class="course-level">{{ course.displayLevel }}</span>
 </div>
 <a class="course-title" [routerLink]="course.route">{{ course.title }}</a>
@@ -95,4 +120,3 @@
 }
 </div>
 </section>
-
