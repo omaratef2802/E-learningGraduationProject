@@ -7,6 +7,7 @@ const wishlistSchema = new mongoose.Schema({
   courses: [
     {
       type: mongoose.Schema.Types.ObjectId,
+      ref: "Course",
       required: true,
     },
   ],

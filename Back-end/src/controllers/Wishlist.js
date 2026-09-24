@@ -35,7 +35,7 @@ const addToWishlist = async (req, res, next) => {
 const getWishlist = async (req, res, next) => {
   try {
     const userId = req.id;
-    const wishlist = await Wishlist.findOne({ userId });
+    const wishlist = await Wishlist.findOne({ userId }).populate({path:"courses",populate:{path:"instructorId"}});
     if (!wishlist) {
       throw new ApiError(404, "Wishlist is empty");
     }

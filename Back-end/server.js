@@ -4,7 +4,7 @@ const mongoose = require("mongoose");
 const app = require("./src/app");
 
 mongoose
-  .connect(process.env.MONGODB_URI)
+  .connect(process.env.URL_MONGO)
   .then(() => {
     console.log("MongoDB connected successfully");
 

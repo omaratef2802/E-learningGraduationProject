@@ -44,10 +44,18 @@ const addToCart = async (req, res, next) => {
 const getCart = async (req, res, next) => {
   try {
     const userId = req.id;
-    const cart = await Cart.findOne({ userId });
+
+    const cart = await Cart.findOne({ userId }).populate({
+      path: "courses.courseId",
+      populate: {
+        path: "instructorId",
+      },
+    });
+
     if (!cart) {
       throw new ApiError(404, "Cart is empty");
     }
+
     res.status(200).json(cart);
   } catch (error) {
     next(error);
@@ -97,4 +105,4 @@ const clearCart = async (req, res, next) => {
     next(error);
   }
 };
-module.exports = { addToCart, getCart, removeFromCart, clearCart};
+module.exports = { addToCart, getCart, removeFromCart, clearCart };

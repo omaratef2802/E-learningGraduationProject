@@ -3,7 +3,7 @@ const Order = require("../modules/Order");
 const ApiError = require("../utils/ApiError");
 const createPayment = async (req, res, next) => {
   try {
-    const userId = req.user.id;
+    const userId = req.id;
     const { orderId, paymentMethod } = req.body;
     const order = await Order.findOne({
       _id: orderId,
@@ -29,7 +29,7 @@ const createPayment = async (req, res, next) => {
 };
 const updatePayment = async (req, res, next) => {
   try {
-    const userId = req.user.id;
+    const userId = req.id;
     const payment = await Payment.findOne({
       _id: req.params.id,
       userId: userId,
@@ -64,7 +64,7 @@ const updatePayment = async (req, res, next) => {
 };
 const getPaymentHistory = async (req, res, next) => {
   try {
-    const userId = req.user.id;
+    const userId = req.id;
     const payments = await Payment.find({
       userId: userId,
     });
