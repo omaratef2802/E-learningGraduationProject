@@ -1,0 +1,78 @@
+<section class="card course-header-card">
+  <!-- Badges and Last updated row -->
+  <div class="header-top-row">
+    <div class="badge-group">
+      <span class="badge badge-purple">{{ course.level }}</span>
+      @if (course.badge) {
+        <span class="badge badge-purple">{{ course.badge }}</span>
+      }
+    </div>
+    @if (course.lastUpdated) {
+      <div class="last-updated">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"></circle>
+          <polyline points="12 6 12 12 16 14"></polyline>
+        </svg>
+        <span>Last updated {{ course.lastUpdated }}</span>
+      </div>
+    }
+  </div>
+
+  <!-- Main Title -->
+  <h1 class="course-title">{{ course.title }}</h1>
+
+  <!-- Description paragraph -->
+  <p class="course-description">{{ course.description }}</p>
+
+  <!-- Meta info bar -->
+  <div class="course-meta-bar">
+    <div class="meta-item rating">
+      <app-star-rating [rating]="course.rating" [size]="15" />
+      <strong class="rating-number">{{ course.rating }}</strong>
+      <span class="meta-sub">({{ course.reviews }} reviews)</span>
+    </div>
+
+    <div class="meta-divider">•</div>
+
+    <div class="meta-item">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+        <circle cx="9" cy="7" r="4"></circle>
+        <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+        <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+      </svg>
+      <span>{{ course.students }} Students</span>
+    </div>
+
+    <div class="meta-divider">•</div>
+
+    <div class="meta-item">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10"></circle>
+        <polyline points="12 6 12 12 16 14"></polyline>
+      </svg>
+      <span>{{ course.hours }} Hours</span>
+    </div>
+
+    <div class="meta-divider">•</div>
+
+    <div class="meta-item">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+        <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+      </svg>
+      <span>{{ course.lessonCount }} Lessons</span>
+    </div>
+
+    <div class="meta-divider">•</div>
+
+    <div class="meta-item">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10"></circle>
+        <line x1="2" y1="12" x2="22" y2="12"></line>
+        <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+      </svg>
+      <span>{{ course.language }}</span>
+    </div>
+  </div>
+</section>

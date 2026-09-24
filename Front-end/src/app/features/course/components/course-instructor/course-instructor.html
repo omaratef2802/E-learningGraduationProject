@@ -1,0 +1,42 @@
+<section class="card instructor-card">
+  <div class="section-card-header">
+    <h2>Instructor</h2>
+    @if (instructor.badge) {
+      <span class="badge badge-purple">{{ instructor.badge }}</span>
+    }
+  </div>
+
+  <div class="instructor-body">
+    <div class="instructor-avatar-wrap">
+      <img [src]="instructor.avatar" [alt]="instructor.name" class="instructor-avatar" />
+    </div>
+    <div class="instructor-details">
+      <h3 class="instructor-name">{{ instructor.name }}</h3>
+      <p class="instructor-role">{{ instructor.role }}</p>
+      
+      <div class="instructor-stats">
+        @if (instructor.rating) {
+          <div class="stat-badge">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="#f59e0b" stroke="#f59e0b"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+            <span>{{ instructor.rating }} Instructor Rating</span>
+          </div>
+          <span class="stats-bullet">•</span>
+        }
+        @if (instructor.studentsCount) {
+          <div class="stat-badge">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+              <circle cx="9" cy="7" r="4"></circle>
+            </svg>
+            <span>{{ instructor.studentsCount }}</span>
+          </div>
+        }
+      </div>
+
+      <p class="instructor-bio">{{ instructor.bio }}</p>
+    </div>
+    <div class="instructor-actions">
+      <button type="button" class="btn-profile">View Profile</button>
+    </div>
+  </div>
+</section>

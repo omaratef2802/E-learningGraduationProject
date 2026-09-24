@@ -1,0 +1,11 @@
+<section class="card requirements-card">
+  <h2 class="section-title-simple">Requirements</h2>
+  <ul class="requirements-list">
+    @for (req of requirements; track req) {
+      <li class="req-item">
+        <span class="bullet-dot"></span>
+        <span class="req-text">{{ req }}</span>
+      </li>
+    }
+  </ul>
+</section>

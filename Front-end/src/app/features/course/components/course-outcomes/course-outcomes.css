@@ -1,0 +1,123 @@
+.what-learn-card {
+  background: var(--card-bg, #ffffff);
+  border-radius: var(--card-radius, 20px);
+  padding: 30px 34px;
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--border-color, #dce2ec);
+}
+
+.section-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 22px;
+}
+
+.section-card-header h2 {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-main, #0f172a);
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+
+.title-with-icon {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.sparkle-icon {
+  color: var(--primary-purple, #5b4dff);
+}
+
+.outcome-tag {
+  font-size: 12px;
+  color: var(--primary-purple, #5b4dff);
+  font-weight: 700;
+  background: linear-gradient(180deg, #f7f6ff 0%, #ecebff 100%);
+  padding: 5px 12px;
+  border-radius: 8px;
+  border: 1px solid #dcd8ff;
+  box-shadow: 0 1px 2px rgba(91, 77, 255, 0.06), inset 0 1px 0 #ffffff;
+}
+
+.outcomes-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px 18px;
+}
+
+.outcome-box {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 16px 18px;
+  background: linear-gradient(180deg, #ffffff 0%, #f9fbfd 100%);
+  border-radius: 14px;
+  border: 1px solid #dce2ec;
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.04), 0 1px 2px rgba(15, 23, 42, 0.03), inset 0 1px 0 #ffffff;
+  transition: all 0.2s ease;
+}
+
+.outcome-box:hover {
+  border-color: #cbd5e1;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(15, 23, 42, 0.06), inset 0 1px 0 #ffffff;
+}
+
+.check-circle-icon {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #685aff 0%, #4a3bf2 100%);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 1px;
+  box-shadow: 0 2px 6px rgba(74, 59, 242, 0.35);
+}
+
+.outcome-text {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-secondary, #334155);
+  line-height: 1.45;
+}
+
+.show-more-wrap {
+  margin-top: 20px;
+}
+
+.show-more-link {
+  background: none;
+  border: none;
+  color: var(--primary-purple, #5b4dff);
+  font-size: 13.5px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  padding: 0;
+}
+
+.show-more-link:hover {
+  text-decoration: underline;
+}
+
+.chevron-icon {
+  transition: transform 0.2s ease;
+}
+
+.chevron-icon.rotated {
+  transform: rotate(180deg);
+}
+
+@media (max-width: 768px) {
+  .outcomes-grid {
+    grid-template-columns: 1fr;
+  }
+}

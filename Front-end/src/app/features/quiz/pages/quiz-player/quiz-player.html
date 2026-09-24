@@ -1,0 +1,201 @@
+<div class="quiz-page-container">
+  <!-- Top Exam Navigation Bar -->
+  <header class="quiz-top-bar">
+    <div class="top-bar-left">
+      <button type="button" class="back-circle-btn" (click)="goBack()" title="Back to course">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="15 18 9 12 15 6"></polyline>
+        </svg>
+      </button>
+      <div class="title-meta-wrap">
+        <div class="breadcrumb-tracker">
+          <span class="highlight-crumb">COURSE PLAYER • MASTERY CHECK</span>
+          <span class="crumb-sep">•</span>
+          <span class="course-name-crumb">{{ quiz().courseTitle }}</span>
+        </div>
+        <h1 class="exam-title">{{ quiz().sectionTitle }}</h1>
+      </div>
+    </div>
+
+    <div class="top-bar-right">
+      <span class="pass-requirement-badge">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+          <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+        </svg>
+        <span>Pass requirement: {{ quiz().passingScore }}%</span>
+      </span>
+    </div>
+  </header>
+
+  <!-- Main Quiz Area -->
+  <main class="quiz-main-content">
+    
+    <!-- Assessment Question Card -->
+    @if (!isSubmitted()) {
+      <div class="card quiz-card-3d">
+        
+        <!-- Card Header Info -->
+        <div class="quiz-card-header">
+          <span class="assessment-pill">{{ quiz().assessmentBadge }}</span>
+          <span class="question-tracker">
+            Question {{ currentQuestionIndex() + 1 }} / {{ totalQuestions() }} 
+            <span class="dot-sep">•</span> 
+            {{ totalQuestions() }} Questions 
+            <span class="dot-sep">•</span> 
+            Passing Score: {{ quiz().passingScore }}%
+          </span>
+        </div>
+
+        <!-- Progress Bar Track -->
+        <div class="progress-bar-track">
+          <div class="progress-bar-fill" [style.width.%]="progressPercentage()"></div>
+        </div>
+
+        <!-- Question Counter & Title -->
+        <div class="question-body">
+          <div class="question-sub-label">QUESTION {{ currentQuestionIndex() + 1 }} OF {{ totalQuestions() }}</div>
+          <h2 class="question-heading">{{ currentQuestion().question }}</h2>
+
+          <!-- Options Grid -->
+          <div class="options-container">
+            @for (opt of currentQuestion().options; track $index) {
+              <button
+                type="button"
+                class="option-pill-btn"
+                [class.selected]="isOptionSelected($index)"
+                (click)="selectOption($index)"
+              >
+                <span class="radio-indicator">
+                  <span class="radio-inner-dot"></span>
+                </span>
+                <span class="option-text">{{ opt }}</span>
+              </button>
+            }
+          </div>
+        </div>
+
+        <!-- Bottom Controls -->
+        <div class="quiz-card-footer">
+          <div class="footer-left">
+            <button
+              type="button"
+              class="btn-nav btn-prev"
+              [disabled]="isFirstQuestion()"
+              (click)="previousQuestion()"
+            >
+              &lt; Previous
+            </button>
+          </div>
+
+          <div class="footer-center">
+            <button type="button" class="btn-demo-helper" (click)="autoFillHigh()" title="Auto-fill high score for quick demo">
+              [Auto-Fill High Score]
+            </button>
+            <button type="button" class="btn-demo-helper" (click)="autoFillLow()" title="Auto-fill low score for quick demo">
+              [Auto-Fill Low Score]
+            </button>
+          </div>
+
+          <div class="footer-right">
+            @if (!isLastQuestion()) {
+              <button
+                type="button"
+                class="btn-primary-action btn-next"
+                [disabled]="!hasAnsweredCurrentQuestion()"
+                (click)="nextQuestion()"
+                [title]="!hasAnsweredCurrentQuestion() ? 'Please choose an answer to proceed' : 'Go to next question'"
+              >
+                Next &gt;
+              </button>
+            } @else {
+              <!-- On Question 10, the button turns into 'Finish' as instructed by the Team Leader! -->
+              <button
+                type="button"
+                class="btn-primary-action btn-finish"
+                [disabled]="!hasAnsweredCurrentQuestion()"
+                (click)="finishQuiz()"
+                [title]="!hasAnsweredCurrentQuestion() ? 'Please choose an answer to submit' : 'Submit and see result'"
+              >
+                Finish
+              </button>
+            }
+          </div>
+        </div>
+
+      </div>
+    } @else {
+      <!-- Exam Result Card -->
+      <div class="card quiz-card-3d result-card-view">
+        <div class="result-badge-wrap">
+          <div class="result-icon-circle" [class.passed]="isPassed()" [class.failed]="!isPassed()">
+            @if (isPassed()) {
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+            } @else {
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+            }
+          </div>
+        </div>
+
+        <h2 class="result-title">
+          @if (isPassed()) {
+            {{ quiz().isFinalCapstone ? 'Capstone Exam Passed! 🎉' : 'Section Assessment Passed! 🎉' }}
+          } @else {
+            {{ quiz().isFinalCapstone ? 'Capstone Exam Not Passed' : 'Assessment Not Passed' }}
+          }
+        </h2>
+
+        <p class="result-subtext">
+          @if (isPassed()) {
+            Great work! You scored {{ calculatedScore() }}% and successfully passed the requirement. The next curriculum content is now unlocked.
+          } @else {
+            @if (quiz().isFinalCapstone) {
+              You scored {{ calculatedScore() }}%, which is below the overall {{ quiz().passingScore }}% passing requirement. You must achieve at least {{ quiz().passingScore }}% to earn your completion certificate.
+            } @else {
+              You scored {{ calculatedScore() }}%, which is below the {{ quiz().passingScore }}% passing requirement needed to unlock the next section.
+            }
+          }
+        </p>
+
+        <div class="score-display-box" [class.fail-box]="!isPassed()">
+          <div class="score-num" [class.passed-text]="isPassed()" [class.failed-text]="!isPassed()">
+            {{ calculatedScore() }}%
+          </div>
+          <div class="score-lbl">
+            Your Final Score • Minimum Required: {{ quiz().passingScore }}%
+          </div>
+          <div class="score-status-badge" [class.badge-pass]="isPassed()" [class.badge-fail]="!isPassed()">
+            {{ isPassed() ? 'Passed (≥ ' + quiz().passingScore + '%)' : 'Did Not Meet Passing Threshold (< ' + quiz().passingScore + '%)' }}
+          </div>
+        </div>
+
+        <div class="result-actions-row">
+          @if (!isPassed()) {
+            <button type="button" class="btn-primary-action btn-retry" (click)="restartQuiz()">
+              Retake Assessment ↺
+            </button>
+            <button type="button" class="btn-secondary-action" (click)="goBack()">
+              Back to Course Curriculum
+            </button>
+          } @else {
+            <button type="button" class="btn-primary-action" (click)="goBack()">
+              Back to Course Curriculum &rarr;
+            </button>
+          }
+        </div>
+      </div>
+    }
+
+  </main>
+
+  <!-- Bottom Page Footer -->
+  <footer class="quiz-page-footer">
+    <span class="footer-brand-info">PathwayEd Course Player • React Fundamentals Mastery Path</span>
+    <span class="footer-hint">Each question has one valid answer. Autosaved in real-time.</span>
+  </footer>
+</div>

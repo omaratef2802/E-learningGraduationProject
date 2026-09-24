@@ -1,0 +1,46 @@
+<section class="card reviews-card">
+  <div class="section-card-header">
+    <h2>Student Reviews</h2>
+    <button type="button" class="link-btn">View All Reviews</button>
+  </div>
+
+  <div class="rating-overview-grid">
+    <!-- Rating Score Box -->
+    <div class="score-summary-box">
+      <div class="big-score">{{ rating }}</div>
+      <app-star-rating [rating]="rating" [size]="16" />
+      <span class="score-label">Course Rating</span>
+    </div>
+
+    <!-- Rating Progress Bars -->
+    <div class="score-bars-container">
+      @for (bar of distribution; track bar.stars) {
+        <div class="bar-row">
+          <span class="stars-label">{{ bar.stars }} stars</span>
+          <div class="progress-track">
+            <div class="progress-fill" [style.width.%]="bar.percent"></div>
+          </div>
+          <span class="percentage-label">{{ bar.percent }}%</span>
+        </div>
+      }
+    </div>
+  </div>
+
+  <!-- Review Quotes Grid -->
+  <div class="reviews-list-grid">
+    @for (rev of reviews; track rev.id) {
+      <div class="review-item-card">
+        <div class="reviewer-header">
+          <div class="reviewer-avatar">{{ rev.avatarText }}</div>
+          <div class="reviewer-info">
+            <div class="reviewer-name">{{ rev.name }}</div>
+            <div class="reviewer-role">{{ rev.role }}</div>
+          </div>
+          <app-star-rating [rating]="rev.rating" [size]="13" [gap]="1" />
+        </div>
+        <p class="review-comment">"{{ rev.comment }}"</p>
+        <span class="review-date">{{ rev.date }}</span>
+      </div>
+    }
+  </div>
+</section>

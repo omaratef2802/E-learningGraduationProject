@@ -1,0 +1,57 @@
+<div class="course-page-wrapper">
+  <!-- Top Breadcrumb Navigation -->
+  <nav class="breadcrumb-nav">
+    <ol class="breadcrumb-list">
+      <li><a href="#" class="breadcrumb-link">Home</a></li>
+      <li class="separator">/</li>
+      <li><a href="#" class="breadcrumb-link">Categories</a></li>
+      <li class="separator">/</li>
+      <li><a href="#" class="breadcrumb-link">Web Development</a></li>
+      <li class="separator">/</li>
+      <li><a href="#" class="breadcrumb-link">React</a></li>
+      <li class="separator">/</li>
+      <li class="active">{{ course().title }}</li>
+    </ol>
+  </nav>
+
+  <!-- Main 2-Column Grid Layout -->
+  <div class="course-layout-grid">
+    <!-- Left Column (Content Cards) -->
+    <main class="course-main-content">
+      <!-- 1. Header Card (Title, Badges, Meta stats) -->
+      <app-course-header [course]="course()" />
+
+      <!-- 2. What you'll learn Component -->
+      <app-course-outcomes [outcomes]="course().outcomes" />
+
+      <!-- 3. Curriculum / Course Content Component -->
+      <app-course-curriculum [sections]="sections()" [lessons]="lessons()" />
+
+      <!-- 4. Instructor Component -->
+      <app-course-instructor [instructor]="course().instructor" />
+
+      <!-- 5. Requirements Component -->
+      <app-course-requirements [requirements]="course().requirements" />
+
+      <!-- 6. Student Reviews Component -->
+      <app-course-reviews
+        [rating]="course().rating"
+        [reviewsCount]="course().reviews"
+        [distribution]="course().ratingDistribution"
+        [reviews]="reviews()"
+      />
+
+      <!-- 7. Related Courses Component -->
+      <app-course-related [courses]="relatedCourses()" />
+    </main>
+
+    <!-- Right Column (Sticky Sidebar Card) -->
+    <aside class="course-sidebar-col">
+      <app-course-sidebar
+        [course]="course()"
+        (enroll)="onEnroll()"
+        (addToCart)="onAddToCart()"
+      />
+    </aside>
+  </div>
+</div>

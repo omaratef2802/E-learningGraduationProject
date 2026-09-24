@@ -1,0 +1,57 @@
+:root {
+  --font-family: 'Plus Jakarta Sans', 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --bg-page: #ebedf3;
+  --card-bg: #ffffff;
+  --border-color: #dce2ec;
+  --border-subtle: #edf2f7;
+  --text-main: #0f172a;
+  --text-muted: #64748b;
+  --text-secondary: #334155;
+  --primary-purple: #5b4dff;
+  --primary-purple-hover: #493bf2;
+  --primary-purple-light: #ecebff;
+  --primary-purple-tint: #f5f4ff;
+  --accent-amber: #f59e0b;
+  --badge-red-bg: #fee2e2;
+  --badge-red-text: #ef4444;
+  --card-radius: 20px;
+  
+  /* Modern Tactile / Soft 3D Shadows */
+
+    --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.05), inset 0 1px 0 #ffffff;
+  --shadow-md:
+    0 1px 1px rgba(15, 23, 42, 0.04),
+    0 8px 16px -4px rgba(15, 23, 42, 0.12),
+    0 20px 40px -12px rgba(15, 23, 42, 0.14),
+    0 6px 0 rgba(15, 23, 42, 0.045),
+    inset 0 1px 0 #ffffff;
+  --shadow-lg:
+    0 2px 4px rgba(15, 23, 42, 0.05),
+    0 16px 32px -8px rgba(15, 23, 42, 0.18),
+    0 28px 56px -16px rgba(91, 77, 255, 0.12),
+    0 8px 0 rgba(15, 23, 42, 0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 0.95);
+  --shadow-3d-box:
+    0 2px 4px rgba(15, 23, 42, 0.05),
+    0 10px 24px -6px rgba(15, 23, 42, 0.14),
+    0 7px 0 rgba(15, 23, 42, 0.05),
+    inset 0 1px 0 #ffffff;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background-color: var(--bg-page);
+  color: var(--text-main);
+  font-family: var(--font-family);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+button {
+  font-family: inherit;
+}

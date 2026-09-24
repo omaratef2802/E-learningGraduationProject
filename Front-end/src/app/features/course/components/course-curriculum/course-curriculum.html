@@ -1,0 +1,136 @@
+<section class="curriculum-card">
+  <div class="curriculum-header">
+    <div class="header-left">
+      <h2>Course Content</h2>
+      <p class="curriculum-meta">{{ sections.length }} Sections • {{ lessons.length }} Lessons • {{ formatDuration(totalDuration) }}</p>
+    </div>
+    <div class="header-actions">
+      <button type="button" class="expand-all-btn" (click)="toggleAll()">
+        {{ allExpanded ? 'Collapse All Sections' : 'Expand All Sections' }}
+      </button>
+    </div>
+  </div>
+
+  @if (lockedNotice) {
+    <div class="locked-alert-banner">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+        <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+      </svg>
+      <span>{{ lockedNotice }}</span>
+    </div>
+  }
+
+  <div class="sections-list">
+    @for (sec of sections; track sec._id) {
+      <div 
+        class="section-item" 
+        [class.is-open]="isOpen(sec._id)"
+        [class.is-locked]="!isUnlocked(sec._id)"
+        [class.is-completed]="isPassed(sec._id)"
+      >
+        <button class="section-trigger" type="button" (click)="toggle(sec._id)">
+          <div class="section-title-wrap">
+            @if (isUnlocked(sec._id)) {
+              <svg class="chevron-icon" [class.rotated]="isOpen(sec._id)" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="9 18 15 12 9 6"></polyline>
+              </svg>
+            } @else {
+              <!-- Locked Icon -->
+              <span class="locked-mini-icon" title="Section is locked">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                  <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                </svg>
+              </span>
+            }
+            <span class="section-title">{{ sec.title }}</span>
+          </div>
+
+          <div class="section-meta-wrap">
+            @if (!isUnlocked(sec._id)) {
+              <span class="badge-locked-pill">🔒 Locked</span>
+            } @else if (isPassed(sec._id)) {
+              <span class="badge-passed-pill">✓ Exam Passed</span>
+            }
+            <span class="section-meta">{{ lessonsOf(sec._id).length }} lessons • {{ formatDuration(sectionDuration(sec._id)) }}</span>
+          </div>
+        </button>
+
+        @if (isOpen(sec._id)) {
+          <ul class="lessons-list">
+            <!-- Lessons of this section -->
+            @for (les of lessonsOf(sec._id); track les._id) {
+              <li class="lesson-row">
+                <div class="lesson-info">
+                  <span class="play-icon-wrap">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                    </svg>
+                  </span>
+                  <span class="lesson-title">{{ les.title }}</span>
+                </div>
+                <div class="lesson-actions">
+                  @if (les.isFree) {
+                    <span class="preview-badge">Preview</span>
+                  }
+                  <span class="lesson-duration">{{ formatDuration(les.duration) }}</span>
+                </div>
+              </li>
+            }
+
+            <!-- At the end of each section: The Section Assessment / Quiz Row -->
+            <li class="lesson-row quiz-exam-row" [class.capstone-row]="sec._id === 's3'">
+              <div class="lesson-info">
+                <span class="quiz-badge-icon" [class.capstone-badge]="sec._id === 's3'">
+                  @if (sec._id === 's3') {
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <circle cx="12" cy="8" r="6"></circle>
+                      <path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"></path>
+                    </svg>
+                  } @else {
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                      <polyline points="14 2 14 8 20 8"></polyline>
+                      <line x1="16" y1="13" x2="8" y2="13"></line>
+                      <line x1="16" y1="17" x2="8" y2="17"></line>
+                      <polyline points="10 9 9 9 8 9"></polyline>
+                    </svg>
+                  }
+                </span>
+                <div class="quiz-text-meta">
+                  <span class="lesson-title quiz-title-highlight">
+                    {{ sec._id === 's3' ? 'Capstone Final Assessment & Certification' : sec.title + ' — Exam' }}
+                  </span>
+                  <span class="quiz-subtext-info">
+                    10 Questions • 60% passing score • Autosaved
+                  </span>
+                </div>
+              </div>
+              <div class="lesson-actions">
+                <a
+                  [routerLink]="['/quiz', sec._id]"
+                  class="btn-start-exam"
+                  [class.capstone-cta]="sec._id === 's3'"
+                >
+                  {{ sec._id === 's3' ? 'Start Capstone Exam 🎓' : 'Take Exam ↗' }}
+                </a>
+              </div>
+            </li>
+          </ul>
+        }
+      </div>
+    }
+  </div>
+
+  <div class="curriculum-footer">
+    <div class="demo-helpers-row">
+      <button type="button" class="demo-state-btn" (click)="resetDemoProgress()" title="Lock sections 2 and 3 to test fresh progression">
+        ↺ Reset Progression (Test Locked State)
+      </button>
+      <button type="button" class="demo-state-btn" (click)="unlockAllDemo()" title="Unlock all sections for preview">
+        🔓 Unlock All Sections (Preview Mode)
+      </button>
+    </div>
+  </div>
+</section>

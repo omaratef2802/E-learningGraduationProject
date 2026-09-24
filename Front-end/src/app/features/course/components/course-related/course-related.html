@@ -1,0 +1,27 @@
+<section class="card related-courses-card">
+  <div class="section-card-header">
+    <h2>Related Courses</h2>
+    <button type="button" class="link-btn">Explore complementary topics</button>
+  </div>
+
+  <div class="related-courses-grid">
+    @for (courseItem of courses; track courseItem.id) {
+      <div class="related-course-item">
+        <div class="related-thumb-wrap">
+          <img [src]="courseItem.image" [alt]="courseItem.title" class="related-thumb-img" />
+          @if (courseItem.tag) {
+            <span class="related-tag">{{ courseItem.tag }}</span>
+          }
+        </div>
+        <div class="related-info">
+          <h4 class="related-title">{{ courseItem.title }}</h4>
+          <p class="related-instructor">{{ courseItem.instructor }}</p>
+          <div class="related-bottom">
+            <span class="related-price">${{ courseItem.price }}</span>
+            <a href="#" class="view-course-link">View ↗</a>
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+</section>
