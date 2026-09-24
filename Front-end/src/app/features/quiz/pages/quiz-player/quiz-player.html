@@ -144,18 +144,28 @@
 
         <h2 class="result-title">
           @if (isPassed()) {
-            {{ quiz().isFinalCapstone ? 'Capstone Exam Passed! 🎉' : 'Section Assessment Passed! 🎉' }}
+            {{ quiz().isFinalCapstone ? 'Capstone Exam Passed! 🎉' : quiz().lessonId ? 'Lesson Quiz Passed! 🎉' : 'Section Assessment Passed! 🎉' }}
           } @else {
-            {{ quiz().isFinalCapstone ? 'Capstone Exam Not Passed' : 'Assessment Not Passed' }}
+            {{ quiz().isFinalCapstone ? 'Capstone Exam Not Passed' : quiz().lessonId ? 'Lesson Quiz Not Passed' : 'Assessment Not Passed' }}
           }
         </h2>
 
         <p class="result-subtext">
           @if (isPassed()) {
-            Great work! You scored {{ calculatedScore() }}% and successfully passed the requirement. The next curriculum content is now unlocked.
+            @if (quiz().isFinalCapstone) {
+              Great work! You scored {{ calculatedScore() }}% and earned your verified graduation certificate.
+            } @else if (nextSectionExamId()) {
+              🎉 Congratulations! You scored {{ calculatedScore() }}% and completed all lessons in this section. You have unlocked the {{ nextSectionExamId() === 's3' ? 'Final Capstone Exam' : 'Section Comprehensive Exam' }}!
+            } @else if (quiz().lessonId) {
+              Great work! You scored {{ calculatedScore() }}% and passed this lesson quiz. The next lesson is now unlocked.
+            } @else {
+              Great work! You scored {{ calculatedScore() }}% and passed this section comprehensive exam. The next section is now unlocked!
+            }
           } @else {
             @if (quiz().isFinalCapstone) {
               You scored {{ calculatedScore() }}%, which is below the overall {{ quiz().passingScore }}% passing requirement. You must achieve at least {{ quiz().passingScore }}% to earn your completion certificate.
+            } @else if (quiz().lessonId) {
+              You scored {{ calculatedScore() }}%, which is below the {{ quiz().passingScore }}% passing requirement. You must score at least {{ quiz().passingScore }}% to unlock the next lesson.
             } @else {
               You scored {{ calculatedScore() }}%, which is below the {{ quiz().passingScore }}% passing requirement needed to unlock the next section.
             }
@@ -183,7 +193,17 @@
               Back to Course Curriculum
             </button>
           } @else {
-            <button type="button" class="btn-primary-action" (click)="goBack()">
+            @if (nextSectionExamId()) {
+              <button type="button" class="btn-primary-action btn-next-exam" (click)="goToNextExam()">
+                {{ nextSectionExamTitle() }}
+              </button>
+            }
+            <button 
+              type="button" 
+              [class.btn-primary-action]="!nextSectionExamId()" 
+              [class.btn-secondary-action]="nextSectionExamId()" 
+              (click)="goBack()"
+            >
               Back to Course Curriculum &rarr;
             </button>
           }

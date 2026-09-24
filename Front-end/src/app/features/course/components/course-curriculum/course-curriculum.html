@@ -1,8 +1,16 @@
 <section class="curriculum-card">
+  <!-- Header -->
   <div class="curriculum-header">
     <div class="header-left">
       <h2>Course Content</h2>
-      <p class="curriculum-meta">{{ sections.length }} Sections • {{ lessons.length }} Lessons • {{ formatDuration(totalDuration) }}</p>
+      <p class="curriculum-meta">
+        {{ sections.length }} Sections • {{ lessons.length }} Lessons • {{ formatDuration(totalDuration) }}
+        @if (isEnrolled()) {
+          <span class="enrolled-status-chip">✓ Enrolled</span>
+        } @else {
+          <span class="locked-status-chip">🔒 Unenrolled (Payment Required)</span>
+        }
+      </p>
     </div>
     <div class="header-actions">
       <button type="button" class="expand-all-btn" (click)="toggleAll()">
@@ -11,6 +19,23 @@
     </div>
   </div>
 
+  <!-- Enrollment Required Banner (Shown if user has not purchased/enrolled) -->
+  @if (!isEnrolled()) {
+    <div class="enrollment-required-banner">
+      <div class="banner-left">
+        <div class="banner-lock-icon">🔒</div>
+        <div class="banner-text">
+          <h3>Course Content Locked — Enrollment Required</h3>
+          <p>You must purchase and enroll in this course to access the lectures, unlock lesson micro-quizzes, and earn your certificate.</p>
+        </div>
+      </div>
+      <button type="button" class="btn-banner-enroll" (click)="enrollNow()">
+        Enroll Now ($49.99)
+      </button>
+    </div>
+  }
+
+  <!-- Notice/Alert Banner -->
   @if (lockedNotice) {
     <div class="locked-alert-banner">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -21,6 +46,7 @@
     </div>
   }
 
+  <!-- Sections List -->
   <div class="sections-list">
     @for (sec of sections; track sec._id) {
       <div 
@@ -29,6 +55,7 @@
         [class.is-locked]="!isUnlocked(sec._id)"
         [class.is-completed]="isPassed(sec._id)"
       >
+        <!-- Section Accordion Header -->
         <button class="section-trigger" type="button" (click)="toggle(sec._id)">
           <div class="section-title-wrap">
             @if (isUnlocked(sec._id)) {
@@ -48,8 +75,10 @@
           </div>
 
           <div class="section-meta-wrap">
-            @if (!isUnlocked(sec._id)) {
-              <span class="badge-locked-pill">🔒 Locked</span>
+            @if (!isEnrolled()) {
+              <span class="badge-locked-pill">🔒 Enrollment Required</span>
+            } @else if (!isUnlocked(sec._id)) {
+              <span class="badge-locked-pill">🔒 Section Locked</span>
             } @else if (isPassed(sec._id)) {
               <span class="badge-passed-pill">✓ Exam Passed</span>
             }
@@ -57,39 +86,88 @@
           </div>
         </button>
 
+        <!-- Section Content (Lessons + Section Exam) -->
         @if (isOpen(sec._id)) {
           <ul class="lessons-list">
             <!-- Lessons of this section -->
             @for (les of lessonsOf(sec._id); track les._id) {
-              <li class="lesson-row">
-                <div class="lesson-info">
-                  <span class="play-icon-wrap">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                      <polygon points="5 3 19 12 5 21 5 3"></polygon>
-                    </svg>
+              <li 
+                class="lesson-row"
+                [class.lesson-locked]="!isLessonUnlocked(les._id)"
+                [class.lesson-watched]="isLessonWatched(les._id)"
+              >
+                <!-- Left: Lesson Status & Title -->
+                <div class="lesson-info" (click)="openLesson(les)">
+                  <span class="play-icon-wrap" [class.watched-icon]="isLessonWatched(les._id)">
+                    @if (!isLessonUnlocked(les._id)) {
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                        <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                      </svg>
+                    } @else if (isLessonWatched(les._id)) {
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                      </svg>
+                    } @else {
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                      </svg>
+                    }
                   </span>
-                  <span class="lesson-title">{{ les.title }}</span>
+                  <div class="lesson-titles-wrap">
+                    <span class="lesson-title">{{ les.title }}</span>
+                    <span class="lesson-duration-sub">{{ formatDuration(les.duration) }}</span>
+                  </div>
                 </div>
-                <div class="lesson-actions">
-                  @if (les.isFree) {
-                    <span class="preview-badge">Preview</span>
+
+                <!-- Right: Action Buttons (Watch Lesson & Micro-Quiz) -->
+                <div class="lesson-actions-group">
+                  <!-- 1. Watch Status / Action -->
+                  @if (!isLessonUnlocked(les._id)) {
+                    <span class="badge-step-locked" title="Pass previous quiz first">🔒 Lesson Locked</span>
+                  } @else if (isLessonWatched(les._id)) {
+                    <button type="button" class="btn-review-lecture" (click)="openLesson(les)">
+                      ✓ Watched
+                    </button>
+                  } @else {
+                    <button type="button" class="btn-watch-lecture" (click)="openLesson(les)">
+                      Watch Lesson ▶
+                    </button>
                   }
-                  <span class="lesson-duration">{{ formatDuration(les.duration) }}</span>
+
+                  <!-- 2. Lesson Micro-Quiz Status / Action -->
+                  <div class="lesson-quiz-slot">
+                    @if (isLessonQuizPassed(les._id)) {
+                      <span class="badge-quiz-passed">✓ Quiz Passed</span>
+                    } @else if (isLessonQuizUnlocked(les._id)) {
+                      <a [routerLink]="['/quiz', 'quiz_' + les._id]" class="btn-take-quiz">
+                        Take Quiz (3 Qs) ↗
+                      </a>
+                    } @else {
+                      <span class="badge-quiz-locked" title="Watch lesson first to unlock quiz">
+                        🔒 Quiz Locked
+                      </span>
+                    }
+                  </div>
                 </div>
               </li>
             }
 
-            <!-- At the end of each section: The Section Assessment / Quiz Row -->
-            <li class="lesson-row quiz-exam-row" [class.capstone-row]="sec._id === 's3'">
+            <!-- At the end of each section: The Section Assessment / Comprehensive Exam -->
+            <li 
+              class="lesson-row quiz-exam-row" 
+              [class.capstone-row]="sec._id === 's3'"
+              [class.unlocked-ready]="isSectionExamUnlocked(sec._id) && !isPassed(sec._id)"
+            >
               <div class="lesson-info">
                 <span class="quiz-badge-icon" [class.capstone-badge]="sec._id === 's3'">
                   @if (sec._id === 's3') {
-                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                       <circle cx="12" cy="8" r="6"></circle>
                       <path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"></path>
                     </svg>
                   } @else {
-                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                       <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
                       <polyline points="14 2 14 8 20 8"></polyline>
                       <line x1="16" y1="13" x2="8" y2="13"></line>
@@ -100,21 +178,30 @@
                 </span>
                 <div class="quiz-text-meta">
                   <span class="lesson-title quiz-title-highlight">
-                    {{ sec._id === 's3' ? 'Capstone Final Assessment & Certification' : sec.title + ' — Exam' }}
+                    {{ sec._id === 's3' ? 'Capstone Final Assessment & Certification' : sec.title + ' — Comprehensive Exam' }}
                   </span>
                   <span class="quiz-subtext-info">
-                    10 Questions • 60% passing score • Autosaved
+                    10 Questions • 60% passing threshold • {{ sec._id === 's3' ? 'Required to earn your Certificate' : 'Pass to unlock Section ' + (sec._id === 's1' ? '2' : '3') }}
                   </span>
                 </div>
               </div>
+
               <div class="lesson-actions">
-                <a
-                  [routerLink]="['/quiz', sec._id]"
-                  class="btn-start-exam"
-                  [class.capstone-cta]="sec._id === 's3'"
-                >
-                  {{ sec._id === 's3' ? 'Start Capstone Exam 🎓' : 'Take Exam ↗' }}
-                </a>
+                @if (isPassed(sec._id)) {
+                  <span class="badge-exam-passed-chip">✓ Exam Passed (≥ 60%)</span>
+                } @else if (isSectionExamUnlocked(sec._id)) {
+                  <a
+                    [routerLink]="['/quiz', sec._id]"
+                    class="btn-start-exam"
+                    [class.capstone-cta]="sec._id === 's3'"
+                  >
+                    {{ sec._id === 's3' ? 'Start Capstone Exam 🎓' : 'Take Section Exam (10 Qs) ↗' }}
+                  </a>
+                } @else {
+                  <span class="badge-exam-locked" title="Pass all lesson quizzes in this section first">
+                    🔒 Complete all lesson quizzes above
+                  </span>
+                }
               </div>
             </li>
           </ul>
@@ -123,13 +210,87 @@
     }
   </div>
 
+  <!-- Interactive Fast Lesson Test Viewer Modal -->
+  @if (activeLesson()) {
+    <div class="lesson-modal-backdrop" (click)="closeLessonModal()">
+      <div class="card lesson-modal-card-3d" (click)="$event.stopPropagation()">
+        
+        <div class="modal-top-bar">
+          <div class="modal-badge-track">
+            <span class="lesson-tag">LECTURE PREVIEW</span>
+            <span class="modal-duration-tag">⏱ {{ formatDuration(activeLesson()!.duration) }}</span>
+          </div>
+          <button type="button" class="btn-close-modal" (click)="closeLessonModal()">✕</button>
+        </div>
+
+        <h2 class="modal-lesson-title">{{ activeLesson()!.title }}</h2>
+
+        <!-- Simulated Video Screen Player (Fast testing without uploading real heavy videos) -->
+        <div class="simulated-video-player">
+          <div class="video-screen">
+            <div class="play-overlay-icon">
+              <svg width="42" height="42" viewBox="0 0 24 24" fill="white">
+                <polygon points="5 3 19 12 5 21 5 3"></polygon>
+              </svg>
+            </div>
+            <div class="video-timeline-bar">
+              <div class="video-timeline-fill" [style.width]="isLessonWatched(activeLesson()!._id) ? '100%' : '65%'"></div>
+            </div>
+            <span class="video-time-indicator">
+              {{ isLessonWatched(activeLesson()!._id) ? formatDuration(activeLesson()!.duration) : '04:20' }} / {{ formatDuration(activeLesson()!.duration) }}
+            </span>
+          </div>
+        </div>
+
+        <!-- Lesson Objectives Box -->
+        <div class="lesson-summary-box">
+          <h4>Key Lecture Objectives:</h4>
+          <p>
+            Explore core mental models, code patterns, and production-tested practices covered in this module. Complete this lecture to unlock its dedicated quiz.
+          </p>
+        </div>
+
+        <!-- Modal Actions Footer -->
+        <div class="modal-actions-footer">
+          @if (!isLessonWatched(activeLesson()!._id)) {
+            <button type="button" class="btn-complete-lesson" (click)="completeLesson(activeLesson()!._id)">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+              <span>Mark as Watched &amp; Unlock Quiz</span>
+            </button>
+          } @else {
+            <div class="watched-success-banner">
+              ✓ Lesson Watched! Quiz is now unlocked.
+            </div>
+            <a
+              [routerLink]="['/quiz', 'quiz_' + activeLesson()!._id]"
+              (click)="closeLessonModal()"
+              class="btn-take-quiz-primary"
+            >
+              Take Lesson Quiz (3 Questions) ↗
+            </a>
+          }
+          <button type="button" class="btn-cancel-modal" (click)="closeLessonModal()">
+            Close
+          </button>
+        </div>
+
+      </div>
+    </div>
+  }
+
+  <!-- Demo Progression & Enrollment Controls -->
   <div class="curriculum-footer">
     <div class="demo-helpers-row">
-      <button type="button" class="demo-state-btn" (click)="resetDemoProgress()" title="Lock sections 2 and 3 to test fresh progression">
-        ↺ Reset Progression (Test Locked State)
+      <button type="button" class="demo-state-btn" (click)="resetDemoProgress()" title="Reset to fresh state (Unenrolled & Locked)">
+        ↺ Reset (Unenrolled &amp; Locked)
       </button>
-      <button type="button" class="demo-state-btn" (click)="unlockAllDemo()" title="Unlock all sections for preview">
-        🔓 Unlock All Sections (Preview Mode)
+      <button type="button" class="demo-state-btn" (click)="toggleEnrollment()" title="Toggle enrolled/paid state">
+        💳 Toggle Enrollment ({{ isEnrolled() ? 'Currently: Enrolled ✓' : 'Currently: Not Paid 🔒' }})
+      </button>
+      <button type="button" class="demo-state-btn" (click)="unlockAllDemo()" title="Unlock all lessons and exams for instant review">
+        🔓 Unlock All (Demo Mode)
       </button>
     </div>
   </div>

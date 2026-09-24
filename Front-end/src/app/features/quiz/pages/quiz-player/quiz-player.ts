@@ -31,11 +31,31 @@ export class QuizPlayer implements OnInit {
   isFirstQuestion = computed(() => this.currentQuestionIndex() === 0);
   progressPercentage = computed(() => ((this.currentQuestionIndex() + 1) / this.totalQuestions()) * 100);
 
+  // Directly link from last lesson quiz of a section to the Section Comprehensive Exam!
+  nextSectionExamId = computed(() => {
+    const qId = this.quiz().id;
+    if (qId === 'quiz_l3') return 's1'; // Section 1 Comprehensive Exam
+    if (qId === 'quiz_l6') return 's2'; // Section 2 Comprehensive Exam
+    if (qId === 'quiz_l8') return 's3'; // Section 3 Final Capstone Exam
+    return null;
+  });
+
+  nextSectionExamTitle = computed(() => {
+    const nextExam = this.nextSectionExamId();
+    if (nextExam === 's1') return 'Take Section 1 Comprehensive Exam (10 Questions) ↗';
+    if (nextExam === 's2') return 'Take Section 2 Comprehensive Exam (10 Questions) ↗';
+    if (nextExam === 's3') return 'Start Capstone Final Exam & Certification (10 Questions) 🎓';
+    return null;
+  });
+
   ngOnInit(): void {
-    const sectionId = this.route.snapshot.paramMap.get('sectionId') || 's1';
-    if (ALL_QUIZZES[sectionId]) {
-      this.quiz.set(ALL_QUIZZES[sectionId]);
-    }
+    this.route.paramMap.subscribe((params) => {
+      const qId = params.get('sectionId') || 's1';
+      if (ALL_QUIZZES[qId]) {
+        this.quiz.set(ALL_QUIZZES[qId]);
+        this.restartQuiz();
+      }
+    });
   }
 
   selectOption(optionIndex: number): void {
@@ -57,9 +77,7 @@ export class QuizPlayer implements OnInit {
   }
 
   nextQuestion(): void {
-    if (!this.hasAnsweredCurrentQuestion()) {
-      return; // Must answer current question first
-    }
+    if (!this.hasAnsweredCurrentQuestion()) return;
     if (!this.isLastQuestion()) {
       this.currentQuestionIndex.update((i) => i + 1);
     }
@@ -72,9 +90,7 @@ export class QuizPlayer implements OnInit {
   }
 
   finishQuiz(): void {
-    if (!this.hasAnsweredCurrentQuestion()) {
-      return; // Must answer last question before finishing
-    }
+    if (!this.hasAnsweredCurrentQuestion()) return;
 
     // Calculate total score percentage
     const answers = this.selectedAnswers();
@@ -92,17 +108,11 @@ export class QuizPlayer implements OnInit {
     this.isPassed.set(passed);
     this.isSubmitted.set(true);
 
-    const nextSectionMap: Record<string, string> = {
-      s1: 's2',
-      s2: 's3',
-    };
-    const nextSec = nextSectionMap[this.quiz().sectionId];
-
-    // If passed >= 60%, unlock the next section!
     if (passed) {
-      this.progressService.passSection(this.quiz().sectionId, nextSec);
+      // ONLY pass the quiz itself by its specific unique ID!
+      this.progressService.passQuiz(this.quiz().id);
 
-      // If this is the Final Capstone Quiz (Section 3), transition to the Certificate page!
+      // If this is the Final Capstone Quiz (Section 3 Exam), transition directly to Certificate page!
       if (this.quiz().isFinalCapstone) {
         this.router.navigate(['/certificate'], {
           queryParams: {
@@ -115,6 +125,15 @@ export class QuizPlayer implements OnInit {
     }
   }
 
+  goToNextExam(): void {
+    const nextExam = this.nextSectionExamId();
+    if (nextExam && ALL_QUIZZES[nextExam]) {
+      this.quiz.set(ALL_QUIZZES[nextExam]);
+      this.restartQuiz();
+      this.router.navigate(['/quiz', nextExam]);
+    }
+  }
+
   // Quick dev / demo helpers requested in mockup
   autoFillHigh(): void {
     const allCorrect: Record<number, number> = {};
@@ -122,15 +141,15 @@ export class QuizPlayer implements OnInit {
       allCorrect[q.id] = q.correctAnswer;
     });
     this.selectedAnswers.set(allCorrect);
-    // jump to last question to test Finish
     this.currentQuestionIndex.set(this.totalQuestions() - 1);
   }
 
   autoFillLow(): void {
     const mostlyWrong: Record<number, number> = {};
+    const total = this.totalQuestions();
     this.quiz().questions.forEach((q, idx) => {
-      // Pick correct for 4 questions (40%), wrong for rest to test < 60% failure
-      mostlyWrong[q.id] = idx < 4 ? q.correctAnswer : (q.correctAnswer + 1) % 4;
+      const shouldBeCorrect = total <= 3 ? idx === 0 : idx < Math.floor(total * 0.4);
+      mostlyWrong[q.id] = shouldBeCorrect ? q.correctAnswer : (q.correctAnswer + 1) % q.options.length;
     });
     this.selectedAnswers.set(mostlyWrong);
     this.currentQuestionIndex.set(this.totalQuestions() - 1);

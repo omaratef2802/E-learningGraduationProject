@@ -9,10 +9,11 @@ export interface IQuizQuestion {
 export interface IQuiz {
   id: string;
   sectionId: string;
+  lessonId?: string;
   courseTitle: string;
   sectionTitle: string;
   assessmentBadge: string;
-  passingScore: number; // e.g. 80
+  passingScore: number; // e.g. 60
   questions: IQuizQuestion[];
   isFinalCapstone: boolean;
 }

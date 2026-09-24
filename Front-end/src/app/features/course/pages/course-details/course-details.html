@@ -49,6 +49,7 @@
     <aside class="course-sidebar-col">
       <app-course-sidebar
         [course]="course()"
+        [isEnrolled]="progressService.isEnrolled()"
         (enroll)="onEnroll()"
         (addToCart)="onAddToCart()"
       />

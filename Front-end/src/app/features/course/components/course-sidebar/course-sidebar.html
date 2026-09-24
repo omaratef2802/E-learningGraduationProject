@@ -40,9 +40,15 @@
 
   <!-- Action CTA Buttons -->
   <div class="action-buttons-group">
-    <button type="button" class="btn-enroll-primary" (click)="onEnroll()">
-      Enroll Now
-    </button>
+    @if (!isEnrolled) {
+      <button type="button" class="btn-enroll-primary" (click)="onEnroll()">
+        Enroll Now
+      </button>
+    } @else {
+      <button type="button" class="btn-enroll-primary enrolled-active" (click)="onEnroll()">
+        ✓ Enrolled &amp; Active
+      </button>
+    }
     <div class="cart-wishlist-row">
       <button type="button" class="btn-cart-secondary" (click)="onAddToCart()">
         Add to Cart

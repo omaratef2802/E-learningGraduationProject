@@ -141,6 +141,16 @@
   box-shadow: 0 2px 8px rgba(74, 59, 242, 0.35);
 }
 
+.btn-enroll-primary.enrolled-active {
+  background: linear-gradient(180deg, #10b981 0%, #059669 100%);
+  border-color: #047857;
+  box-shadow: 0 5px 16px rgba(16, 185, 129, 0.35), inset 0 1px 1px rgba(255, 255, 255, 0.4);
+}
+
+.btn-enroll-primary.enrolled-active:hover {
+  box-shadow: 0 8px 22px rgba(16, 185, 129, 0.45);
+}
+
 .cart-wishlist-row {
   display: flex;
   gap: 10px;

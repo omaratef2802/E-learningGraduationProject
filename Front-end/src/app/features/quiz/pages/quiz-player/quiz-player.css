@@ -488,6 +488,18 @@
   color: var(--text-main, #0f172a);
 }
 
+.btn-primary-action.btn-next-exam {
+  background: linear-gradient(180deg, #7c3aed 0%, #6d28d9 100%);
+  border-color: #5b21b6;
+  box-shadow: 0 4px 14px rgba(124, 58, 237, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  font-weight: 800;
+}
+
+.btn-primary-action.btn-next-exam:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(124, 58, 237, 0.5);
+}
+
 /* Page Footer */
 .quiz-page-footer {
   display: flex;

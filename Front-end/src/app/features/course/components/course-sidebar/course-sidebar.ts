@@ -11,6 +11,7 @@ import { ICourseDetails } from '../../models';
 })
 export class CourseSidebarComponent {
   @Input({ required: true }) course!: ICourseDetails;
+  @Input() isEnrolled: boolean = false;
 
   @Output() enroll = new EventEmitter<void>();
   @Output() addToCart = new EventEmitter<void>();

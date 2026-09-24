@@ -23,7 +23,7 @@ import { CourseReviewsComponent } from '../../components/course-reviews/course-r
 import { CourseRelatedComponent } from '../../components/course-related/course-related';
 import { CourseSidebarComponent } from '../../components/course-sidebar/course-sidebar';
 import { Router } from '@angular/router';
-import { AuthService } from '../../../../core/auth.service';
+import { CourseProgressService } from '../../course-progress';
 
 @Component({
   selector: 'app-course-details',
@@ -49,22 +49,17 @@ export class CourseDetails {
   lessons = signal<ILesson[]>(MOCK_LESSONS);
   reviews = signal<IReview[]>(MOCK_REVIEWS);
   relatedCourses = signal<IRelatedCourse[]>(MOCK_RELATED_COURSES);
+  progressService = inject(CourseProgressService);
   private router = inject(Router);
-  private auth = inject(AuthService);
 
   onEnroll(): void {
-    const courseId = this.course()._id;
-
-    if (!this.auth.isLoggedIn()) {
-      sessionStorage.setItem(
-        'pendingAction',
-        JSON.stringify({ type: 'enroll', courseId })
-      );
-      this.router.navigate(['/login']);
-      return;
+    if (!this.progressService.isEnrolled()) {
+      this.progressService.enroll();
+      alert('🎉 Payment verified! You are now enrolled in the course. Section 1, Lesson 1 is now unlocked.');
+    } else {
+      const el = document.querySelector('app-course-curriculum');
+      if (el) el.scrollIntoView({ behavior: 'smooth' });
     }
-
-    this.router.navigate(['/cart'], { queryParams: { courseId } });
   }
 
   onAddToCart(): void {
