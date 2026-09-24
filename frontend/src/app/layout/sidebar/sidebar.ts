@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+﻿import { Component, signal } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import {
@@ -6,6 +6,7 @@ import {
   lucideBookOpen,
   lucideCheckSquare,
   lucideBadgeCheck,
+  lucideBell,
   lucideBookmark,
   lucideSettings,
   lucideLogOut
@@ -22,6 +23,7 @@ import { NavItem, UserProfile } from '../../core/models';
       lucideBookOpen,
       lucideCheckSquare,
       lucideBadgeCheck,
+      lucideBell,
       lucideBookmark,
       lucideSettings,
       lucideLogOut
@@ -31,14 +33,12 @@ import { NavItem, UserProfile } from '../../core/models';
   styleUrl: './sidebar.css'
 })
 export class SidebarComponent {
-  readonly primaryNavItems = signal<NavItem[]>([
+  readonly navItems = signal<NavItem[]>([
     { label: 'Dashboard', route: '/dashboard', icon: 'lucideLayoutGrid' },
     { label: 'My Courses', route: '/courses', icon: 'lucideBookOpen' },
     { label: 'Assessments', route: '/assessments', icon: 'lucideCheckSquare' },
-    { label: 'Certificates', route: '/certificates', icon: 'lucideBadgeCheck' }
-  ]);
-
-  readonly secondaryNavItems = signal<NavItem[]>([
+    { label: 'Certificates', route: '/certificates', icon: 'lucideBadgeCheck' },
+    { label: 'Notifications', route: '/notifications', icon: 'lucideBell' },
     { label: 'Wishlist', route: '/wishlist', icon: 'lucideBookmark' },
     { label: 'Settings', route: '/settings', icon: 'lucideSettings' }
   ]);

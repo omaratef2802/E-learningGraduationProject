@@ -1,0 +1,20 @@
+﻿<div class="stat-card">
+  <div class="stat-info">
+    <span class="stat-title">{{ stat.title }}</span>
+    <div class="stat-value">{{ stat.value }}</div>
+    <p
+      class="stat-desc"
+      [class.text-indigo-600]="stat.descriptionColor === 'indigo'"
+      [class.text-slate-400]="stat.descriptionColor === 'gray'"
+    >
+      {{ stat.description }}
+    </p>
+  </div>
+
+  <div
+    class="stat-icon-wrapper"
+    [ngClass]="[stat.iconBgColor, stat.iconColor]"
+  >
+    <ng-icon [name]="stat.icon" size="1.2rem" />
+  </div>
+</div>

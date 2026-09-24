@@ -1,4 +1,4 @@
-<aside class="w-64 h-screen sticky top-0 flex flex-col justify-between p-5 bg-[#F4F5F8]/80 backdrop-blur-sm border-r border-slate-200/60 select-none">
+﻿<aside class="w-64 h-screen sticky top-0 flex flex-col justify-between p-5 bg-[#F4F5F8]/80 backdrop-blur-sm border-r border-slate-200/60 select-none">
   <!-- Top Section: Brand & Navigation -->
   <div class="flex flex-col">
     <!-- Brand Header -->
@@ -20,51 +20,33 @@
       </div>
     </div>
 
-    <!-- Navigation Lists -->
-    <nav class="mt-4 flex flex-col space-y-6">
-      <!-- Primary Navigation -->
+    <nav class="mt-4">
       <ul class="space-y-1">
-        @for (item of primaryNavItems(); track item.route) {
+        @for (item of navItems(); track item.route) {
           <li>
             <a
               [routerLink]="item.route"
               routerLinkActive="active-nav-link"
               [routerLinkActiveOptions]="{ exact: false }"
-              class="group flex items-center gap-3.5 px-3.5 py-2.5 rounded-2xl text-[14px] font-medium text-slate-500 transition-all duration-200 hover:text-slate-900 hover:bg-white/70"
+              class="group flex items-center justify-between px-3.5 py-2.5 rounded-2xl text-[14px] font-medium text-slate-500 transition-all duration-200 hover:text-slate-900 hover:bg-white/70"
             >
-              <ng-icon
-                [name]="item.icon"
-                size="1.2rem"
-                class="shrink-0 transition-transform duration-200 group-hover:scale-105"
-              />
-              <span class="tracking-tight">{{ item.label }}</span>
-            </a>
-          </li>
-        }
-      </ul>
-
-      <!-- Secondary Navigation -->
-      <div class="pt-2 border-t border-slate-200/50">
-        <ul class="space-y-1">
-          @for (item of secondaryNavItems(); track item.route) {
-            <li>
-              <a
-                [routerLink]="item.route"
-                routerLinkActive="active-nav-link"
-                [routerLinkActiveOptions]="{ exact: false }"
-                class="group flex items-center gap-3.5 px-3.5 py-2.5 rounded-2xl text-[14px] font-medium text-slate-500 transition-all duration-200 hover:text-slate-900 hover:bg-white/70"
-              >
+              <div class="flex items-center gap-3.5 min-w-0">
                 <ng-icon
                   [name]="item.icon"
                   size="1.2rem"
                   class="shrink-0 transition-transform duration-200 group-hover:scale-105"
                 />
-                <span class="tracking-tight">{{ item.label }}</span>
-              </a>
-            </li>
-          }
-        </ul>
-      </div>
+                <span class="tracking-tight truncate">{{ item.label }}</span>
+              </div>
+              @if (item.badge) {
+                <span class="px-2 py-0.5 text-[11px] font-semibold rounded-full bg-indigo-50 text-indigo-600 border border-indigo-100">
+                  {{ item.badge }}
+                </span>
+              }
+            </a>
+          </li>
+        }
+      </ul>
     </nav>
   </div>
 
