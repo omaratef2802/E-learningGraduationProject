@@ -1,0 +1,15 @@
+.students-container{padding:.75rem 2rem 2.5rem;max-width:84rem;margin:0 auto;display:flex;flex-direction:column;gap:1.5rem;user-select:none}
+.search-input{width:100%;padding:.55rem 1rem .55rem 2.45rem;background-color:rgba(255,255,255,.95);border:1px solid rgba(226,232,240,.9);border-radius:9999px;font-size:.8125rem;color:#1e293b;box-shadow:0 1px 2px rgba(0,0,0,.02);transition:all .2s ease}
+.search-input:focus{outline:none;border-color:#6366f1;box-shadow:0 0 0 3px rgba(99,102,241,.12)}
+.custom-select{appearance:none;padding:.5rem 2.25rem .5rem 1rem;border-radius:9999px;background-color:rgba(255,255,255,.95);border:1px solid rgba(226,232,240,.9);font-size:.75rem;font-weight:500;color:#475569;cursor:pointer;box-shadow:0 1px 2px rgba(0,0,0,.02);transition:all .2s ease}
+.custom-select:focus{outline:none;border-color:#6366f1}
+.students-table{width:100%;border-collapse:collapse;text-align:left}
+.students-table th{padding:1rem 1.25rem;font-size:.6875rem;font-weight:700;letter-spacing:.08em;color:#94a3b8}
+.students-table td{padding:.875rem 1.25rem;vertical-align:middle}
+.progress-fill{height:100%;border-radius:9999px;background:linear-gradient(90deg,#818cf8,#6366f1)}
+.view-action-btn{padding:.35rem 1rem;border-radius:9999px;background-color:rgba(241,245,249,.9);color:#475569;border:1px solid rgba(226,232,240,.85);font-size:.75rem;font-weight:600;cursor:pointer;transition:all .2s ease}
+.view-action-btn:hover{background-color:#eef2ff;border-color:#c7d2fe;color:#4f46e5}
+.page-btn{padding:.35rem .75rem;border-radius:.5rem;font-size:.75rem;font-weight:600;cursor:pointer;transition:all .15s ease;background-color:#fff;border:1px solid rgba(226,232,240,.9);color:#64748b}
+.page-btn:hover:not(:disabled){background-color:#f8fafc;color:#0f172a}
+.page-btn:disabled{opacity:.4;cursor:not-allowed}
+.page-number-btn.active{background-color:#6366f1;color:#fff;border-color:#6366f1;box-shadow:0 2px 6px rgba(99,102,241,.25)}

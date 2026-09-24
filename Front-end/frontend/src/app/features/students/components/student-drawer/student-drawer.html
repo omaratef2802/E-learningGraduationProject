@@ -1,0 +1,132 @@
+<!-- Backdrop / Overlay -->
+@if (isOpen) {
+  <div
+    class="drawer-backdrop"
+    (click)="onClose()"
+    aria-hidden="true"
+  ></div>
+}
+
+<!-- Slide-out Drawer Panel -->
+<aside
+  class="student-drawer"
+  [class.drawer-open]="isOpen"
+  [attr.aria-hidden]="!isOpen"
+>
+  @if (student) {
+    <!-- Drawer Header -->
+    <div class="drawer-header">
+      <div class="header-titles">
+        <h2 class="drawer-title">Student Details</h2>
+        <p class="drawer-subtitle">Enrollee overview and assessment progress</p>
+      </div>
+      <button
+        type="button"
+        (click)="onClose()"
+        class="close-btn"
+        title="Close details"
+        aria-label="Close details"
+      >
+        <ng-icon name="lucideX" size="1.1rem" />
+      </button>
+    </div>
+
+    <!-- Drawer Body -->
+    <div class="drawer-body">
+      <!-- 1. Student Identity Card -->
+      <div class="student-profile-card">
+        <img
+          [src]="student.avatarUrl"
+          [alt]="student.name"
+          class="student-avatar"
+        />
+        <div class="profile-info">
+          <div class="name-status-row">
+            <h3 class="student-name">{{ student.name }}</h3>
+            <span class="status-pill status-active">
+              {{ student.status }}
+            </span>
+          </div>
+          <p class="student-email">{{ student.email }}</p>
+          <p class="enrolled-date">Enrolled: {{ student.enrolledDate }}</p>
+        </div>
+      </div>
+
+      <!-- 2. Enrolled Course -->
+      <div class="section-group">
+        <span class="section-heading">ENROLLED COURSE</span>
+        <div class="course-card-inner">
+          <div class="course-info-row">
+            <span class="course-title">{{ student.courseTitle }}</span>
+            <span class="course-percent">{{ student.progressPercent }}%</span>
+          </div>
+          <div class="progress-bar-track">
+            <div
+              class="progress-bar-fill"
+              [style.width.%]="student.progressPercent"
+            ></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3. Academic Breakdown -->
+      <div class="section-group">
+        <span class="section-heading">ACADEMIC BREAKDOWN</span>
+        <div class="breakdown-card">
+          <!-- Item 1: Lessons -->
+          <div class="breakdown-item">
+            <div class="item-left">
+              <span class="item-icon-wrap">
+                <ng-icon name="lucidePlay" size="0.85rem" />
+              </span>
+              <span class="item-label">Completed Lessons</span>
+            </div>
+            <span class="item-value">{{ student.completedLessons }} of {{ student.totalLessons }}</span>
+          </div>
+
+          <!-- Item 2: Exams -->
+          <div class="breakdown-item">
+            <div class="item-left">
+              <span class="item-icon-wrap">
+                <ng-icon name="lucideCheckSquare" size="0.85rem" />
+              </span>
+              <span class="item-label">Section Exams Completed</span>
+            </div>
+            <span class="item-value">{{ student.examsPassed }} of {{ student.totalExams }} Passed</span>
+          </div>
+
+          <!-- Item 3: Final Assessment -->
+          <div class="breakdown-item">
+            <div class="item-left">
+              <span class="item-icon-wrap">
+                <ng-icon name="lucideAward" size="0.85rem" />
+              </span>
+              <span class="item-label">Final Assessment Status</span>
+            </div>
+            <span class="item-value status-in-progress-text">{{ student.finalAssessmentStatus }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 4. Actions -->
+      <div class="drawer-actions">
+        <button
+          type="button"
+          (click)="onSendMessage()"
+          class="send-msg-btn"
+        >
+          <ng-icon name="lucideMail" size="0.95rem" />
+          <span>Send Message to Student</span>
+        </button>
+
+        <button
+          type="button"
+          (click)="onClose()"
+          class="dismiss-btn"
+        >
+          Dismiss
+        </button>
+      </div>
+    </div>
+  }
+</aside>

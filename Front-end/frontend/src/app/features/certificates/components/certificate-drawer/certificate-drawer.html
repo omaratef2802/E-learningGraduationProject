@@ -1,0 +1,143 @@
+<!-- Backdrop / Overlay -->
+@if (isOpen) {
+  <div
+    class="drawer-backdrop"
+    (click)="onClose()"
+    aria-hidden="true"
+  ></div>
+}
+
+<!-- Slide-out Drawer Panel -->
+<aside
+  class="certificate-drawer"
+  [class.drawer-open]="isOpen"
+  [attr.aria-hidden]="!isOpen"
+>
+  @if (certificate) {
+    <!-- Drawer Header -->
+    <div class="flex items-start justify-between p-6 pb-4 border-b border-slate-100">
+      <div class="flex flex-col">
+        <div class="inline-flex items-center gap-1 text-[11px] font-bold tracking-wider text-indigo-600 uppercase mb-1">
+          <ng-icon name="lucideShieldCheck" size="0.85rem" />
+          <span>VERIFIED CREDENTIAL</span>
+        </div>
+        <h2 class="text-lg font-extrabold text-slate-900 tracking-tight">Certificate Details</h2>
+        <p class="text-xs text-slate-400 mt-0.5">Credential verification and score summary</p>
+      </div>
+      <button
+        type="button"
+        (click)="onClose()"
+        class="close-btn"
+        title="Close details"
+        aria-label="Close details"
+      >
+        <ng-icon name="lucideX" size="1.1rem" />
+      </button>
+    </div>
+
+    <!-- Drawer Body -->
+    <div class="p-6 flex flex-col gap-4">
+      <!-- 1. Student Identity Card -->
+      <div class="flex items-center gap-3.5 p-3.5 bg-slate-50/80 border border-slate-200/80 rounded-2xl">
+        <img
+          [src]="certificate.avatarUrl"
+          [alt]="certificate.studentName"
+          class="w-12 h-12 rounded-full object-cover border-2 border-white shadow-xs"
+        />
+        <div class="flex flex-col min-w-0 flex-1">
+          <h3 class="text-sm font-bold text-slate-900 truncate">{{ certificate.studentName }}</h3>
+          <p class="text-xs text-slate-500 truncate mb-1">{{ certificate.studentEmail }}</p>
+          <div class="flex items-center gap-1.5 text-[11px] font-semibold text-indigo-600">
+            <ng-icon name="lucideGraduationCap" size="0.8rem" />
+            <span>Learner ID: {{ certificate.learnerId }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2. Certified Program -->
+      <div class="flex flex-col gap-1.5">
+        <span class="text-[11px] font-bold tracking-wider text-slate-400 uppercase">Certified Program</span>
+        <h4 class="text-sm font-extrabold text-slate-900">{{ certificate.courseTitle }}</h4>
+
+        <div class="grid grid-cols-2 gap-2.5 mt-1">
+          <!-- Box 1: Completion Date -->
+          <div class="p-3 bg-slate-50/80 border border-slate-200/80 rounded-xl flex flex-col gap-1">
+            <span class="text-[11px] text-slate-400 font-medium">Completion Date</span>
+            <span class="text-xs font-bold text-slate-900">{{ certificate.formattedDate }}</span>
+          </div>
+
+          <!-- Box 2: Final Assessment -->
+          <div class="p-3 bg-slate-50/80 border border-slate-200/80 rounded-xl flex flex-col gap-1">
+            <span class="text-[11px] text-slate-400 font-medium">Final Assessment</span>
+            <span class="text-xs font-bold text-slate-900">
+              <span class="text-indigo-600 font-extrabold">{{ certificate.finalScore }}%</span>
+              <span class="text-slate-400 font-normal"> ({{ certificate.grade }})</span>
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3. Certificate Identifier -->
+      <div class="flex flex-col gap-2">
+        <span class="text-[11px] font-bold tracking-wider text-slate-400 uppercase">Certificate Identifier</span>
+
+        <!-- Identifier Box with Copy Action -->
+        <div class="flex items-center justify-between p-2.5 px-3 bg-slate-50/90 border border-slate-200/80 rounded-xl">
+          <span class="font-mono text-xs font-bold text-slate-700 tracking-tight">{{ certificate.certificateId }}</span>
+          <button
+            type="button"
+            (click)="copyCertificateId(certificate.certificateId)"
+            class="p-1 rounded-md text-slate-400 hover:text-slate-700 hover:bg-slate-200/70 transition-colors cursor-pointer"
+            [title]="copied() ? 'Copied!' : 'Copy Certificate ID'"
+          >
+            @if (copied()) {
+              <ng-icon name="lucideCheck" size="0.9rem" class="text-emerald-600" />
+            } @else {
+              <ng-icon name="lucideCopy" size="0.9rem" />
+            }
+          </button>
+        </div>
+
+        <!-- Ledger Verification Banner -->
+        <div class="flex items-center gap-3 p-3 bg-emerald-50/70 border border-emerald-200/60 rounded-xl">
+          <div class="text-emerald-600 flex items-center">
+            <ng-icon name="lucideCheckCircle2" size="1.2rem" />
+          </div>
+          <div class="flex flex-col">
+            <span class="text-xs font-bold text-emerald-800">Verified & Immutable</span>
+            <span class="text-[11px] text-slate-500">Validated on PathwayEd cryptographic ledger</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 4. Instructor Endorsement -->
+      <div class="p-3.5 bg-slate-50/80 border border-slate-200/80 rounded-xl flex flex-col gap-1.5">
+        <div class="flex items-center gap-1.5 text-slate-900 font-bold text-xs">
+          <ng-icon name="lucideAward" size="0.95rem" class="text-indigo-600" />
+          <span>Instructor Endorsement</span>
+        </div>
+        <p class="text-[11px] text-slate-500 leading-relaxed">{{ certificate.endorsementText }}</p>
+      </div>
+
+      <!-- 5. Action Buttons -->
+      <div class="flex flex-col gap-2 pt-1">
+        <button
+          type="button"
+          (click)="onViewDocument()"
+          class="view-doc-btn"
+        >
+          <ng-icon name="lucideExternalLink" size="0.95rem" />
+          <span>View Certificate Document</span>
+        </button>
+
+        <button
+          type="button"
+          (click)="onClose()"
+          class="dismiss-btn"
+        >
+          Dismiss
+        </button>
+      </div>
+    </div>
+  }
+</aside>

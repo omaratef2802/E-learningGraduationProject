@@ -3,6 +3,7 @@ import { AppLayoutComponent } from './layout';
 import {
   DashboardComponent,
   MyLearningComponent,
+  StudentsComponent,
   CoursesComponent,
   AssessmentsComponent,
   CertificatesComponent,
@@ -19,6 +20,7 @@ export const routes: Routes = [
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
       { path: 'dashboard', component: DashboardComponent },
       { path: 'my-learning', component: MyLearningComponent },
+      { path: 'students', component: StudentsComponent },
       { path: 'courses', component: CoursesComponent },
       { path: 'assessments', component: AssessmentsComponent },
       { path: 'certificates', component: CertificatesComponent },

@@ -1,0 +1,9 @@
+.drawer-backdrop{position:fixed;inset:0;background-color:rgba(15,23,42,.25);backdrop-filter:blur(2px);z-index:50}
+.certificate-drawer{position:fixed;top:0;right:0;bottom:0;width:100%;max-width:25rem;background-color:#fff;border-left:1px solid rgba(226,232,240,.8);box-shadow:-8px 0 24px rgba(15,23,42,.08);z-index:60;display:flex;flex-direction:column;transform:translateX(100%);transition:transform .3s cubic-bezier(.16,1,.3,1);overflow-y:auto}
+.certificate-drawer.drawer-open{transform:translateX(0)}
+.close-btn{padding:.35rem;border-radius:.5rem;color:#94a3b8;background:transparent;border:none;cursor:pointer}
+.close-btn:hover{background-color:#f1f5f9;color:#334155}
+.view-doc-btn{display:flex;align-items:center;justify-content:center;gap:.5rem;padding:.75rem 1rem;background-color:#6366f1;color:#fff;font-size:.8125rem;font-weight:600;border-radius:.75rem;border:none;cursor:pointer;box-shadow:0 4px 12px rgba(99,102,241,.25);transition:all .2s ease}
+.view-doc-btn:hover{background-color:#4f46e5}
+.dismiss-btn{padding:.65rem 1rem;background-color:#fff;color:#64748b;font-size:.8125rem;font-weight:600;border-radius:.75rem;border:1px solid rgba(226,232,240,.9);cursor:pointer;transition:all .2s ease}
+.dismiss-btn:hover{background-color:#f8fafc;color:#0f172a}

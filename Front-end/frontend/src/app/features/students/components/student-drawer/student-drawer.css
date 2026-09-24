@@ -1,0 +1,38 @@
+.drawer-backdrop{position:fixed;inset:0;background-color:rgba(15,23,42,.25);backdrop-filter:blur(2px);z-index:50}
+.student-drawer{position:fixed;top:0;right:0;bottom:0;width:100%;max-width:25rem;background-color:#fff;border-left:1px solid rgba(226,232,240,.8);box-shadow:-8px 0 24px rgba(15,23,42,.08);z-index:60;display:flex;flex-direction:column;transform:translateX(100%);transition:transform .3s cubic-bezier(.16,1,.3,1);overflow-y:auto}
+.student-drawer.drawer-open{transform:translateX(0)}
+.drawer-header{display:flex;align-items:flex-start;justify-content:space-between;padding:1.5rem 1.5rem 1.25rem;border-bottom:1px solid rgba(241,245,249,.9)}
+.drawer-title{font-size:1.125rem;font-weight:800;color:#0f172a;letter-spacing:-.02em;margin:0}
+.drawer-subtitle{font-size:.75rem;color:#94a3b8;margin:.2rem 0 0}
+.close-btn{padding:.35rem;border-radius:.5rem;color:#94a3b8;background:transparent;border:none;cursor:pointer}
+.close-btn:hover{background-color:#f1f5f9;color:#334155}
+.drawer-body{padding:1.5rem;display:flex;flex-direction:column;gap:1.5rem}
+.student-profile-card{display:flex;align-items:center;gap:1rem;padding:1rem;background-color:rgba(248,250,252,.8);border:1px solid rgba(226,232,240,.8);border-radius:1.25rem}
+.student-avatar{width:3.25rem;height:3.25rem;border-radius:9999px;object-fit:cover;border:2px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.06)}
+.profile-info{display:flex;flex-direction:column;min-width:0;flex:1}
+.name-status-row{display:flex;align-items:center;gap:.5rem;margin-bottom:.15rem}
+.student-name{font-size:.9375rem;font-weight:700;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin:0}
+.status-pill{padding:.15rem .5rem;border-radius:9999px;font-size:.625rem;font-weight:700;letter-spacing:.04em}
+.status-active{background-color:#dcfce7;color:#15803d;border:1px solid rgba(134,239,172,.6)}
+.student-email{font-size:.75rem;color:#64748b;margin:0 0 .2rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.enrolled-date{font-size:.6875rem;color:#94a3b8;margin:0}
+.section-group{display:flex;flex-direction:column;gap:.5rem}
+.section-heading{font-size:.6875rem;font-weight:700;letter-spacing:.08em;color:#94a3b8;text-transform:uppercase}
+.course-card-inner{padding:1rem 1.15rem;background-color:#fff;border:1px solid rgba(226,232,240,.85);border-radius:1rem;box-shadow:0 1px 3px rgba(0,0,0,.02)}
+.course-info-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:.5rem}
+.course-title{font-size:.8125rem;font-weight:700;color:#0f172a}
+.course-percent{font-size:.8125rem;font-weight:700;color:#4f46e5}
+.progress-bar-track{width:100%;height:.375rem;background-color:#f1f5f9;border-radius:9999px;overflow:hidden}
+.progress-bar-fill{height:100%;border-radius:9999px;background:linear-gradient(90deg,#818cf8,#6366f1)}
+.breakdown-card{padding:.75rem 1.15rem;background-color:#fff;border:1px solid rgba(226,232,240,.85);border-radius:1rem;display:flex;flex-direction:column;gap:.75rem;box-shadow:0 1px 3px rgba(0,0,0,.02)}
+.breakdown-item{display:flex;align-items:center;justify-content:space-between;font-size:.75rem}
+.item-left{display:flex;align-items:center;gap:.5rem}
+.item-icon-wrap{color:#6366f1;display:flex;align-items:center}
+.item-label{color:#475569;font-weight:500}
+.item-value{color:#0f172a;font-weight:700}
+.status-in-progress-text{color:#d97706}
+.drawer-actions{display:flex;flex-direction:column;gap:.65rem;margin-top:.5rem}
+.send-msg-btn{display:flex;align-items:center;justify-content:center;gap:.5rem;padding:.75rem 1rem;background-color:#6366f1;color:#fff;font-size:.8125rem;font-weight:600;border-radius:.75rem;border:none;cursor:pointer;box-shadow:0 4px 12px rgba(99,102,241,.25);transition:all .2s ease}
+.send-msg-btn:hover{background-color:#4f46e5}
+.dismiss-btn{padding:.65rem 1rem;background-color:#fff;color:#64748b;font-size:.8125rem;font-weight:600;border-radius:.75rem;border:1px solid rgba(226,232,240,.9);cursor:pointer;transition:all .2s ease}
+.dismiss-btn:hover{background-color:#f8fafc;color:#0f172a}
