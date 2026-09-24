@@ -44,7 +44,7 @@
 }
 
 .search-box input:focus {
-  border-color: #086b5d;
+  border-color: #6c5ce7;
 }
 
 .search-icon {
@@ -52,6 +52,7 @@
   left: 15px;
   top: 13px;
   font-size: 18px;
+  color: #6c5ce7;
 }
 
 .clear-search {
@@ -65,9 +66,13 @@
   color: #777;
 }
 
+.clear-search:hover {
+  color: #6c5ce7;
+}
+
 .success-message {
-  background-color: #e8f7f3;
-  color: #086b5d;
+  background-color: #f0edff;
+  color: #6c5ce7;
   padding: 12px 15px;
   border-radius: 6px;
   margin-bottom: 20px;
@@ -90,8 +95,8 @@
 .spinner {
   width: 35px;
   height: 35px;
-  border: 4px solid #ddd;
-  border-top-color: #086b5d;
+  border: 4px solid #e5e1ff;
+  border-top-color: #6c5ce7;
   border-radius: 50%;
   margin: 0 auto 15px;
   animation: spin 1s linear infinite;
@@ -121,14 +126,14 @@
 
 .course-card:hover {
   transform: translateY(-3px);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 8px 20px rgba(108, 92, 231, 0.12);
 }
 
 .course-image-container {
   position: relative;
   height: 190px;
   overflow: hidden;
-  background-color: #f3f3f3;
+  background-color: #f5f3ff;
 }
 
 .course-image {
@@ -146,14 +151,14 @@
   border: none;
   border-radius: 50%;
   background-color: white;
-  color: #e53935;
+  color: #6c5ce7;
   font-size: 19px;
   cursor: pointer;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
 .remove-button:hover {
-  background-color: #e53935;
+  background-color: #6c5ce7;
   color: white;
 }
 
@@ -169,8 +174,8 @@
 }
 
 .level {
-  background-color: #e8f7f3;
-  color: #086b5d;
+  background-color: #f0edff;
+  color: #6c5ce7;
   padding: 5px 10px;
   border-radius: 5px;
   font-size: 12px;
@@ -219,7 +224,7 @@
 }
 
 .instructor-placeholder {
-  background-color: #086b5d;
+  background-color: #6c5ce7;
   color: white;
   display: flex;
   justify-content: center;
@@ -243,21 +248,22 @@
 .price {
   font-size: 18px;
   font-weight: bold;
-  color: #086b5d;
+  color: #6c5ce7;
 }
 
 .view-button {
   border: none;
-  background-color: #086b5d;
+  background-color: #6c5ce7;
   color: white;
   padding: 9px 13px;
   border-radius: 6px;
   cursor: pointer;
   font-size: 13px;
+  transition: background-color 0.2s ease;
 }
 
 .view-button:hover {
-  background-color: #064f45;
+  background-color: #5849c7;
 }
 
 .empty-state {
@@ -268,6 +274,7 @@
 .empty-icon {
   font-size: 55px;
   margin-bottom: 15px;
+  color: #6c5ce7;
 }
 
 .empty-state h2 {
@@ -284,16 +291,17 @@
 
 .browse-button {
   border: none;
-  background-color: #086b5d;
+  background-color: #6c5ce7;
   color: white;
   padding: 12px 22px;
   border-radius: 7px;
   cursor: pointer;
   font-size: 14px;
+  transition: background-color 0.2s ease;
 }
 
 .browse-button:hover {
-  background-color: #064f45;
+  background-color: #5849c7;
 }
 
 @media (max-width: 1000px) {

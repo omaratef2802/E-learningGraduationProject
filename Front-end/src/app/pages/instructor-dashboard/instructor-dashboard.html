@@ -1,0 +1,591 @@
+<div class="dashboard">
+  <aside class="sidebar">
+    <div>
+      <div class="brand">
+        <div class="brand-icon">
+          <i class="fa-solid fa-book-open"></i>
+        </div>
+
+        <div>
+          <h1>PathwayEd</h1>
+          <p>INSTRUCTOR PORTAL</p>
+        </div>
+      </div>
+
+      <nav class="navigation">
+        @for (item of navItems(); track item.id) {
+          <button
+            class="nav-item"
+            [class.active]="activeNav() === item.id"
+            (click)="changeNav(item.id)"
+          >
+            <span class="nav-icon">
+              <i [class]="item.icon"></i>
+            </span>
+
+            <span>
+              {{ item.label }}
+            </span>
+
+            @if (item.badge) {
+              <span class="badge">
+                {{ item.badge }}
+              </span>
+            }
+          </button>
+        }
+      </nav>
+    </div>
+
+    <div class="user-section">
+      <div class="user-card">
+        <img
+          src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=120"
+          alt="Instructor"
+        />
+
+        <div>
+          <h4>Instructor</h4>
+          <p>INSTRUCTOR</p>
+        </div>
+
+        <button class="logout" type="button">
+          <i class="fa-solid fa-arrow-right-from-bracket"></i>
+        </button>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main-content">
+    <header class="header">
+      <div>
+        <h2>Instructor Dashboard</h2>
+
+        <p>Welcome back, Instructor</p>
+      </div>
+
+      <div class="header-actions">
+        <div class="search-box">
+          <i class="fa-solid fa-magnifying-glass"></i>
+
+          <input
+            type="text"
+            [value]="searchQuery()"
+            (input)="updateSearch($event)"
+            placeholder="Search courses..."
+          />
+        </div>
+
+        <button class="notification" type="button">
+          <i class="fa-regular fa-bell"></i>
+
+          <span></span>
+        </button>
+
+        <img
+          src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=120"
+          alt="Instructor"
+          class="header-avatar"
+        />
+      </div>
+    </header>
+
+    @if (errorMessage()) {
+      <div class="error-message">
+        <i class="fa-solid fa-circle-exclamation"></i>
+
+        {{ errorMessage() }}
+      </div>
+    }
+
+    @if (successMessage()) {
+      <div class="success-message">
+        <i class="fa-solid fa-circle-check"></i>
+
+        {{ successMessage() }}
+      </div>
+    }
+
+    <section class="overview">
+      <div class="overview-header">
+        <div>
+          <p class="section-label">OVERVIEW & METRICS</p>
+
+          <h3>Welcome back, Instructor</h3>
+
+          <p class="section-description">
+            Manage your courses and track your learners across all enrolled pathways.
+          </p>
+        </div>
+
+        <div class="cohort">
+          <span></span>
+
+          Spring Cohort Active
+        </div>
+      </div>
+
+      <div class="metrics-grid">
+        <div class="metric-card">
+          <div class="metric-top">
+            <div>
+              <span> Total Courses </span>
+
+              <h4>
+                {{ totalCourses() }}
+              </h4>
+            </div>
+
+            <div class="metric-icon purple">
+              <i class="fa-solid fa-book"></i>
+            </div>
+          </div>
+
+          <div class="metric-footer">{{ publishedCourses() }} published</div>
+        </div>
+
+        <div class="metric-card">
+          <div class="metric-top">
+            <div>
+              <span> Total Students </span>
+
+              <h4>
+                {{ totalStudents() | number }}
+              </h4>
+            </div>
+
+            <div class="metric-icon blue">
+              <i class="fa-solid fa-users"></i>
+            </div>
+          </div>
+
+          <div class="metric-footer">Across all courses</div>
+        </div>
+
+        <div class="metric-card">
+          <div class="metric-top">
+            <div>
+              <span> Published Courses </span>
+
+              <h4>
+                {{ publishedCourses() }}
+              </h4>
+            </div>
+
+            <div class="metric-icon violet">
+              <i class="fa-solid fa-circle-check"></i>
+            </div>
+          </div>
+
+          <div class="metric-footer">{{ draftCourses() }} drafts in review</div>
+        </div>
+
+        <div class="metric-card">
+          <div class="metric-top">
+            <div>
+              <span> Average Rating </span>
+
+              <h4>
+                {{ averageRating() }}
+              </h4>
+            </div>
+
+            <div class="metric-icon yellow">
+              <i class="fa-solid fa-star"></i>
+            </div>
+          </div>
+
+          <div class="metric-footer">{{ totalReviews() }} total reviews</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="courses-section">
+      <div class="section-heading">
+        <div class="course-title">
+          <h3>My Courses</h3>
+
+          <span> {{ filteredCourses().length }} Courses </span>
+        </div>
+
+        <button class="view-all" type="button" (click)="searchQuery.set('')">
+          View All
+          <i class="fa-solid fa-arrow-right"></i>
+        </button>
+      </div>
+
+      @if (loading() && courses().length === 0) {
+        <div class="loading-state">
+          <i class="fa-solid fa-spinner fa-spin"></i>
+
+          <p>Loading courses...</p>
+        </div>
+      } @else {
+        <div class="course-list">
+          @for (course of filteredCourses(); track course._id) {
+            <div class="course-card">
+              <div class="course-image">
+                <img
+                  [src]="
+                    course.image ||
+                    'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?auto=format&fit=crop&q=80&w=600'
+                  "
+                  [alt]="course.title"
+                />
+
+                <span>
+                  {{ course.level }}
+                </span>
+              </div>
+
+              <div class="course-content">
+                <div>
+                  <div class="course-top">
+                    <p>
+                      @if (typeof course.track === 'object') {
+                        {{ course.track.title }}
+                      } @else {
+                        {{ course.level }}
+                      }
+                    </p>
+
+                    <span class="status" [class.draft]="course.status === 'draft'">
+                      {{ course.status }}
+                    </span>
+                  </div>
+
+                  <h4>
+                    {{ course.title }}
+                  </h4>
+
+                  <p class="description">
+                    {{ course.description }}
+                  </p>
+                </div>
+
+                <div class="course-footer">
+                  <div class="course-stats">
+                    <span>
+                      <i class="fa-solid fa-users"></i>
+
+                      <b>
+                        {{ totalStudents() }}
+                      </b>
+
+                      Students
+                    </span>
+
+                    <span>
+                      <i class="fa-solid fa-star"></i>
+
+                      <b>
+                        {{ course.rating }}
+                      </b>
+                    </span>
+                  </div>
+
+                  <button class="manage-btn" type="button" (click)="openManageModal(course)">
+                    Manage
+
+                    <i class="fa-solid fa-gear"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          }
+
+          @if (filteredCourses().length === 0 && !loading()) {
+            <div class="no-results">
+              <i class="fa-solid fa-book-open"></i>
+
+              <h3>No courses found</h3>
+
+              <p>Try another search term.</p>
+            </div>
+          }
+        </div>
+      }
+    </section>
+
+    <div class="bottom-grid">
+      <div class="chart-card">
+        <div class="chart-header">
+          <div>
+            <h4>Course Performance</h4>
+
+            <p>Enrollments vs Completions overview</p>
+          </div>
+
+          <div class="chart-info">
+            <span>
+              <i class="fa-solid fa-circle"></i>
+
+              Enrollments:
+
+              <b>
+                {{ totalStudents() }}
+              </b>
+            </span>
+
+            <span>
+              <i class="fa-solid fa-circle"></i>
+
+              Completions:
+
+              <b>
+                {{ totalStudents() * 0.54 | number: '1.0-0' }}
+              </b>
+            </span>
+
+            <button type="button">Last 30 Days</button>
+          </div>
+        </div>
+
+        <div class="chart">
+          <div class="chart-line"></div>
+
+          <div class="chart-dashed"></div>
+
+          <span class="point p1"></span>
+          <span class="point p2"></span>
+          <span class="point p3"></span>
+          <span class="point p4"></span>
+          <span class="point p5"></span>
+        </div>
+
+        <div class="chart-labels">
+          <span> Week 1 </span>
+
+          <span> Week 2 </span>
+
+          <span> Week 3 </span>
+
+          <span> Week 4 (Current) </span>
+        </div>
+      </div>
+
+      <div class="quick-card">
+        <div>
+          <div class="quick-header">
+            <h4>Quick Actions</h4>
+
+            <span>
+              <i class="fa-solid fa-bolt"></i>
+            </span>
+          </div>
+
+          <p class="quick-description">
+            Launch authoring flows or organize curricular materials directly.
+          </p>
+
+          <div class="actions">
+            <button class="action-btn" type="button" (click)="showCreateModal.set(true)">
+              <div class="action-icon main">
+                <i class="fa-solid fa-plus"></i>
+              </div>
+
+              <div>
+                <h5>Create New Course</h5>
+
+                <p>Syllabus builder, lessons & quizzes</p>
+              </div>
+
+              <span>
+                <i class="fa-solid fa-arrow-right"></i>
+              </span>
+            </button>
+
+            <button class="action-btn" type="button" (click)="activeNav.set('courses')">
+              <div class="action-icon">
+                <i class="fa-solid fa-book"></i>
+              </div>
+
+              <div>
+                <h5>Manage Courses</h5>
+
+                <p>Edit modules, status & visibility</p>
+              </div>
+
+              <span>
+                <i class="fa-solid fa-arrow-right"></i>
+              </span>
+            </button>
+          </div>
+        </div>
+
+        <div class="tip">
+          <i class="fa-solid fa-lightbulb"></i>
+
+          <p>
+            <b> Need curriculum templates? </b>
+
+            PathwayEd formats conform to industry standards.
+          </p>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- CREATE COURSE MODAL -->
+
+  @if (showCreateModal()) {
+    <div class="modal-overlay">
+      <div class="modal">
+        <div class="modal-header">
+          <h3>Create New Course</h3>
+
+          <button type="button" (click)="closeCreateModal()">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+
+        <div class="form-group">
+          <label> Course Title </label>
+
+          <input #titleInput type="text" placeholder="e.g. Advanced Angular Masterclass" />
+        </div>
+
+        <div class="form-group">
+          <label> Category / Tag </label>
+
+          <input #tagInput type="text" placeholder="Category ID" />
+        </div>
+
+        <div class="form-group">
+          <label> Track </label>
+
+          <input #trackInput type="text" placeholder="Track ID" />
+        </div>
+
+        <div class="form-group">
+          <label> Price </label>
+
+          <input #priceInput type="number" min="0" placeholder="Course price" />
+        </div>
+
+        <div class="form-group">
+          <label> Level </label>
+
+          <select #levelInput>
+            <option value="beginner">Beginner</option>
+
+            <option value="intermediate">Intermediate</option>
+
+            <option value="advanced">Advanced</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label> Description </label>
+
+          <textarea #descInput rows="3" placeholder="Brief course overview..."></textarea>
+        </div>
+
+        <div class="modal-actions">
+          <button class="cancel-btn" type="button" (click)="closeCreateModal()">Cancel</button>
+
+          <button
+            class="publish-btn"
+            type="button"
+            [disabled]="loading()"
+            (click)="
+              addNewCourse(
+                titleInput.value,
+                tagInput.value,
+                descInput.value,
+                priceInput.value,
+                levelInput.value,
+                tagInput.value,
+                trackInput.value
+              )
+            "
+          >
+            @if (loading()) {
+              <i class="fa-solid fa-spinner fa-spin"></i>
+
+              Creating...
+            } @else {
+              <i class="fa-solid fa-paper-plane"></i>
+
+              Publish Course
+            }
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- MANAGE COURSE MODAL -->
+
+  @if (selectedCourse()) {
+    <div class="modal-overlay">
+      <div class="modal">
+        <div class="modal-header">
+          <h3>Manage Course</h3>
+
+          <button type="button" (click)="closeManageModal()">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+
+        <div class="manage-content">
+          <h4>
+            {{ selectedCourse()?.title }}
+          </h4>
+
+          <p>
+            {{ selectedCourse()?.description }}
+          </p>
+
+          <div class="manage-info">
+            <span>
+              <i class="fa-solid fa-users"></i>
+
+              Students:
+
+              <b>
+                {{ totalStudents() }}
+              </b>
+            </span>
+
+            <span>
+              <i class="fa-solid fa-star"></i>
+
+              Rating:
+
+              <b>
+                {{ selectedCourse()?.rating }}
+              </b>
+            </span>
+
+            <span>
+              <i class="fa-solid fa-circle-info"></i>
+
+              Status:
+
+              <b>
+                {{ selectedCourse()?.status }}
+              </b>
+            </span>
+          </div>
+        </div>
+
+        <div class="modal-actions">
+          <button class="delete-btn" type="button" (click)="deleteCourse(selectedCourse()!)">
+            <i class="fa-solid fa-trash"></i>
+
+            Delete
+          </button>
+
+          <button class="status-btn" type="button" (click)="toggleCourseStatus(selectedCourse()!)">
+            <i class="fa-solid fa-arrows-rotate"></i>
+
+            Change Status
+          </button>
+
+          <button class="cancel-btn" type="button" (click)="closeManageModal()">Close</button>
+        </div>
+      </div>
+    </div>
+  }
+</div>

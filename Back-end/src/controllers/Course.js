@@ -13,7 +13,7 @@ const createCourse = async (req, res) => {
     if (req.role === "admin" && !data.instructorId) {
       return res.status(400).json({
         success: false,
-        message: "Instructor is required"
+        message: "Instructor is required",
       });
     }
 
@@ -22,31 +22,39 @@ const createCourse = async (req, res) => {
     res.status(201).json({
       success: true,
       message: "Course created successfully",
-      data: course
+      data: course,
     });
   } catch (error) {
     res.status(400).json({
       success: false,
-      message: error.message
+      message: error.message,
     });
   }
 };
 
 const getAllCourses = async (req, res) => {
   try {
-    const courses = await Course.find()
+    let filter = {};
+
+    // Instructor sees only his own courses
+    if (req.role === "instructor") {
+      filter.instructorId = req.id;
+    }
+
+    // Admin sees all courses
+    const courses = await Course.find(filter)
       .populate("instructorId", "firstName lastName email")
       .populate("category", "name slug")
       .populate("track", "title slug");
 
     res.status(200).json({
       success: true,
-      data: courses
+      data: courses,
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: error.message
+      message: error.message,
     });
   }
 };
@@ -61,18 +69,18 @@ const getCourseById = async (req, res) => {
     if (!course) {
       return res.status(404).json({
         success: false,
-        message: "Course not found"
+        message: "Course not found",
       });
     }
 
     res.status(200).json({
       success: true,
-      data: course
+      data: course,
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: error.message
+      message: error.message,
     });
   }
 };
@@ -81,7 +89,7 @@ const getCoursesByTrack = async (req, res) => {
   try {
     const courses = await Course.find({
       track: req.params.trackId,
-      status: "published"
+      status: "published",
     })
       .populate("instructorId", "firstName lastName")
       .populate("category", "name")
@@ -89,12 +97,12 @@ const getCoursesByTrack = async (req, res) => {
 
     res.status(200).json({
       success: true,
-      data: courses
+      data: courses,
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: error.message
+      message: error.message,
     });
   }
 };
@@ -103,19 +111,19 @@ const getCoursesByCategory = async (req, res) => {
   try {
     const courses = await Course.find({
       category: req.params.categoryId,
-      status: "published"
+      status: "published",
     })
       .populate("instructorId", "firstName lastName")
       .populate("track", "title");
 
     res.status(200).json({
       success: true,
-      data: courses
+      data: courses,
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: error.message
+      message: error.message,
     });
   }
 };
@@ -127,7 +135,7 @@ const updateCourse = async (req, res) => {
     if (!course) {
       return res.status(404).json({
         success: false,
-        message: "Course not found"
+        message: "Course not found",
       });
     }
 
@@ -138,7 +146,7 @@ const updateCourse = async (req, res) => {
     ) {
       return res.status(403).json({
         success: false,
-        message: "You can only update your own courses"
+        message: "You can only update your own courses",
       });
     }
 
@@ -154,19 +162,22 @@ const updateCourse = async (req, res) => {
       updates,
       {
         new: true,
-        runValidators: true
-      }
-    );
+        runValidators: true,
+      },
+    )
+      .populate("instructorId", "firstName lastName email")
+      .populate("category", "name slug")
+      .populate("track", "title slug");
 
     res.status(200).json({
       success: true,
       message: "Course updated successfully",
-      data: updatedCourse
+      data: updatedCourse,
     });
   } catch (error) {
     res.status(400).json({
       success: false,
-      message: error.message
+      message: error.message,
     });
   }
 };
@@ -178,7 +189,7 @@ const deleteCourse = async (req, res) => {
     if (!course) {
       return res.status(404).json({
         success: false,
-        message: "Course not found"
+        message: "Course not found",
       });
     }
 
@@ -189,7 +200,7 @@ const deleteCourse = async (req, res) => {
     ) {
       return res.status(403).json({
         success: false,
-        message: "You can only delete your own courses"
+        message: "You can only delete your own courses",
       });
     }
 
@@ -197,12 +208,12 @@ const deleteCourse = async (req, res) => {
 
     res.status(200).json({
       success: true,
-      message: "Course deleted successfully"
+      message: "Course deleted successfully",
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: error.message
+      message: error.message,
     });
   }
 };
@@ -214,5 +225,5 @@ module.exports = {
   getCoursesByTrack,
   getCoursesByCategory,
   updateCourse,
-  deleteCourse
+  deleteCourse,
 };

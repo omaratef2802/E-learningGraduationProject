@@ -315,8 +315,8 @@
   width: 80px;
   height: 80px;
   border-radius: 50%;
-  background: #c8e6e2;
-  color: #086b5d;
+  background: #eeeaff;
+  color: #6c5ce7;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -335,8 +335,13 @@
 }
 
 .browse-button {
-  background: #086b5d;
+  background: #6c5ce7;
   color: #ffffff;
+  transition: background-color 0.2s ease;
+}
+
+.browse-button:hover {
+  background: #5849c7;
 }
 
 @media (max-width: 900px) {

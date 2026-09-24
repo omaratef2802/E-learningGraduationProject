@@ -6,16 +6,10 @@
         <p>Loading payment details...</p>
       </div>
     } @else {
-      <!-- @if (errorMessage() && flowState() === 'checkout') {
-        <div class="error-message">
-          <i class="fa-solid fa-circle-exclamation"></i>
-          <span>{{ errorMessage() }}</span>
-        </div>
-      } -->
       @if (flowState() === 'checkout') {
         <div class="payment-header">
           <div>
-            <span class="payment-label">SECURE CHECKOUT</span>
+            <span class="payment-label"> SECURE CHECKOUT </span>
 
             <h1>Complete Your Payment</h1>
 
@@ -24,6 +18,7 @@
 
           <div class="secure-badge">
             <i class="fa-solid fa-lock"></i>
+
             Secure Payment
           </div>
         </div>
@@ -39,7 +34,7 @@
                 <div>
                   <h2>Learner Information</h2>
 
-                  <p>Enter your contact information</p>
+                  <p>Your account information</p>
                 </div>
               </div>
 
@@ -51,16 +46,9 @@
                     id="fullName"
                     type="text"
                     [value]="fullName()"
-                    (input)="updateFullName($event)"
-                    [class.input-error]="fullNameError()"
-                    placeholder="Enter your full name"
+                    readonly
+                    placeholder="Loading..."
                   />
-
-                  @if (fullNameError()) {
-                    <small class="field-error">
-                      {{ fullNameError() }}
-                    </small>
-                  }
                 </div>
 
                 <div class="form-group">
@@ -70,19 +58,13 @@
                     id="email"
                     type="email"
                     [value]="email()"
-                    (input)="updateEmail($event)"
-                    [class.input-error]="emailError()"
-                    placeholder="Enter your email"
+                    readonly
+                    placeholder="Loading..."
                   />
-
-                  @if (emailError()) {
-                    <small class="field-error">
-                      {{ emailError() }}
-                    </small>
-                  }
                 </div>
               </div>
             </section>
+
             <section class="payment-card">
               <div class="section-title">
                 <div class="section-icon">
@@ -92,7 +74,7 @@
                 <div>
                   <h2>Payment Method</h2>
 
-                  <p>Choose how you want to pay</p>
+                  <p>Choose your preferred payment method</p>
                 </div>
               </div>
 
@@ -115,10 +97,12 @@
 
                     <div>
                       <h3>Credit Card</h3>
+
                       <p>Visa, Mastercard</p>
                     </div>
                   </div>
                 </div>
+
                 <div
                   class="method-card"
                   [class.active]="selectedMethod() === 'paypal'"
@@ -137,10 +121,12 @@
 
                     <div>
                       <h3>PayPal</h3>
-                      <p>Pay securely with PayPal</p>
+
+                      <p>PayPal account</p>
                     </div>
                   </div>
                 </div>
+
                 <div
                   class="method-card"
                   [class.active]="selectedMethod() === 'fawry'"
@@ -159,12 +145,14 @@
 
                     <div>
                       <h3>Fawry</h3>
-                      <p>Pay through Fawry</p>
+
+                      <p>Pay using Fawry</p>
                     </div>
                   </div>
                 </div>
               </div>
             </section>
+
             @if (selectedMethod() === 'credit') {
               <section class="payment-card">
                 <div class="section-title">
@@ -272,6 +260,7 @@
                 </label>
               </section>
             }
+
             @if (selectedMethod() === 'paypal') {
               <section class="payment-card alternative-payment">
                 <div class="alternative-icon">
@@ -285,6 +274,7 @@
                 </div>
               </section>
             }
+
             @if (selectedMethod() === 'fawry') {
               <section class="payment-card alternative-payment">
                 <div class="alternative-icon">
@@ -298,6 +288,7 @@
                 </div>
               </section>
             }
+
             @if (errorMessage()) {
               <div class="error-message">
                 <i class="fa-solid fa-circle-exclamation"></i>
@@ -307,6 +298,7 @@
                 </span>
               </div>
             }
+
             <button
               type="button"
               class="pay-button"
@@ -330,6 +322,7 @@
               <span> Your payment information is secure and encrypted. </span>
             </div>
           </div>
+
           <aside class="payment-right">
             <section class="order-card">
               <div class="order-header">
@@ -341,6 +334,7 @@
 
                 <span class="course-count">
                   {{ getCoursesCount() }}
+
                   {{ getCoursesCount() === 1 ? 'Course' : 'Courses' }}
                 </span>
               </div>
@@ -355,10 +349,7 @@
                     <div class="course-info">
                       <h3>Course</h3>
 
-                      <p>
-                        Course ID:
-                        {{ course.courseId }}
-                      </p>
+                      <p>Course ID: {{ course.courseId }}</p>
 
                       <strong> ${{ course.price.toFixed(2) }} </strong>
                     </div>
@@ -397,7 +388,7 @@
             </section>
 
             <section class="benefits-card">
-              <h3>What's included</h3>
+              <h3>Why Learn With Us?</h3>
 
               <div class="benefit-item">
                 <div class="benefit-icon">
@@ -405,21 +396,9 @@
                 </div>
 
                 <div>
-                  <strong>Lifetime Access</strong>
+                  <strong> Lifetime Access </strong>
 
-                  <span> Access the course anytime </span>
-                </div>
-              </div>
-
-              <div class="benefit-item">
-                <div class="benefit-icon">
-                  <i class="fa-solid fa-mobile-screen"></i>
-                </div>
-
-                <div>
-                  <strong>Learn Anywhere</strong>
-
-                  <span> Desktop, tablet and mobile </span>
+                  <span> Learn anytime, anywhere </span>
                 </div>
               </div>
 
@@ -429,7 +408,7 @@
                 </div>
 
                 <div>
-                  <strong>Certificate</strong>
+                  <strong> Certificate </strong>
 
                   <span> Get a certificate after completion </span>
                 </div>
@@ -441,9 +420,9 @@
                 </div>
 
                 <div>
-                  <strong>Support</strong>
+                  <strong> Support </strong>
 
-                  <span> Get help when you need it </span>
+                  <span> Get help whenever you need it </span>
                 </div>
               </div>
             </section>
@@ -451,12 +430,8 @@
         </div>
       }
 
-      <!-- ========================= -->
-      <!-- Pending -->
-      <!-- ========================= -->
-
       @if (flowState() === 'pending') {
-        <section class="result-wrapper">
+        <div class="result-wrapper">
           <div class="result-card pending-card">
             <div class="result-icon">
               <i class="fa-solid fa-clock"></i>
@@ -472,7 +447,9 @@
               <div class="detail-item">
                 <span> Payment ID </span>
 
-                <strong> #{{ paymentId() }} </strong>
+                <strong>
+                  {{ paymentId() }}
+                </strong>
               </div>
 
               <div class="detail-item">
@@ -480,25 +457,17 @@
 
                 <strong> ${{ getTotalPrice().toFixed(2) }} </strong>
               </div>
-
-              <div class="detail-item">
-                <span> Payment Method </span>
-
-                <strong>
-                  {{ selectedMethod() }}
-                </strong>
-              </div>
             </div>
 
-            <button type="button" class="back-button" (click)="backToCheckout()">
+            <button class="back-button" type="button" (click)="backToCheckout()">
               Back to Checkout
             </button>
           </div>
-        </section>
+        </div>
       }
 
       @if (flowState() === 'success') {
-        <section class="result-wrapper">
+        <div class="result-wrapper">
           <div class="result-card success-card">
             <div class="result-icon">
               <i class="fa-solid fa-check"></i>
@@ -506,37 +475,35 @@
 
             <span class="result-label"> PAYMENT SUCCESSFUL </span>
 
-            <h1>Payment Completed!</h1>
+            <h1>Payment Completed</h1>
 
-            <p>Your payment has been completed successfully.</p>
+            <p>Your payment was completed successfully.</p>
 
             <div class="result-details">
               <div class="detail-item">
                 <span> Transaction ID </span>
 
-                <strong> #{{ transactionId() }} </strong>
+                <strong>
+                  {{ transactionId() }}
+                </strong>
               </div>
 
               <div class="detail-item">
-                <span> Amount Paid </span>
+                <span> Amount </span>
 
                 <strong> ${{ getTotalPrice().toFixed(2) }} </strong>
               </div>
-
-              <div class="detail-item">
-                <span> Email </span>
-
-                <strong>
-                  {{ email() }}
-                </strong>
-              </div>
             </div>
+
+            <button class="back-button" type="button" (click)="backToCheckout()">
+              Back to Checkout
+            </button>
           </div>
-        </section>
+        </div>
       }
 
       @if (flowState() === 'failed') {
-        <section class="result-wrapper">
+        <div class="result-wrapper">
           <div class="result-card failed-card">
             <div class="result-icon">
               <i class="fa-solid fa-xmark"></i>
@@ -546,19 +513,21 @@
 
             <h1>Payment Failed</h1>
 
-            <p>We couldn't complete your payment. Please check your information and try again.</p>
+            <p>We couldn't complete your payment.</p>
 
             @if (errorMessage()) {
               <div class="failed-message">
                 <i class="fa-solid fa-circle-exclamation"></i>
 
-                {{ errorMessage() }}
+                <span>
+                  {{ errorMessage() }}
+                </span>
               </div>
             }
 
-            <button type="button" class="back-button" (click)="backToCheckout()">Try Again</button>
+            <button class="back-button" type="button" (click)="backToCheckout()">Try Again</button>
           </div>
-        </section>
+        </div>
       }
     }
   </div>

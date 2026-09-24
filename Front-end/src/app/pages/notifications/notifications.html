@@ -1,0 +1,277 @@
+<div class="page-container">
+
+  <aside class="sidebar">
+    <div>
+
+      <div class="logo">
+        <div class="logo-icon">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.5"
+          >
+            <path d="M12 2L2 7l10 5 10-5-10-5z" />
+            <path d="M2 17l10 5 10-5" />
+            <path d="M2 12l10 5 10-5" />
+          </svg>
+        </div>
+
+        <span>PathwayEd</span>
+      </div>
+      <nav class="navigation">
+        @for (nav of navItems; track nav.id) {
+          <a
+            href="javascript:void(0)"
+            class="nav-item"
+            [class.active]="nav.id === activeNav()"
+            (click)="setActiveNav(nav.id)"
+          >
+            <span>{{ nav.label }}</span>
+
+            @if (nav.id === activeNav()) {
+              <span class="active-dot"></span>
+            }
+          </a>
+        }
+      </nav>
+    </div>
+    <div class="user-card">
+      <div class="user-icon">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+          />
+        </svg>
+      </div>
+
+      <div class="user-info">
+        <h4>Shahd Adel</h4>
+        <p>Student</p>
+      </div>
+    </div>
+  </aside>
+  <main class="main-content">
+    <header class="top-header">
+      <div class="breadcrumb">
+        <span>Student Portal</span>
+
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+        >
+          <path d="M9 5l7 7-7 7" />
+        </svg>
+
+        <span class="current">Overview</span>
+      </div>
+
+      <div class="header-badges">
+        <div class="badge">
+          <span class="badge-dot"></span>
+          Spring Term 2025
+        </div>
+
+        <div class="badge">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+          >
+            <path
+              d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
+            />
+          </svg>
+
+          Enrolled
+        </div>
+      </div>
+    </header>
+    <div class="page-heading">
+      <div>
+        <div class="title-row">
+          <h1>Notifications</h1>
+
+          @if (unreadCount() > 0) {
+            <span class="unread-badge"> {{ unreadCount() }} unread </span>
+          }
+        </div>
+
+        <p>Stay updated with your learning journey.</p>
+      </div>
+
+      <div class="actions">
+        <button class="action-button" [disabled]="unreadCount() === 0" (click)="markAllAsRead()">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+          >
+            <path d="M5 13l4 4L19 7" />
+          </svg>
+
+          Mark all as read
+        </button>
+      </div>
+    </div>
+    <div class="notifications-container">
+      @if (notifications().length > 0) {
+        @for (item of notifications(); track item.id) {
+          <div
+            class="notification-card"
+            [class.unread]="item.unread"
+            (click)="toggleReadStatus(item.id)"
+          >
+            <div class="notification-icon">
+              @switch (item.type) {
+                @case ('enrollment') {
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                  >
+                    <path d="M12 14l9-5-9-5-9 5 9 5z" />
+
+                    <path
+                      d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0112 20.055a11.952 11.952 0 01-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"
+                    />
+                  </svg>
+                }
+
+                @case ('section') {
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                  >
+                    <path d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                  </svg>
+                }
+
+                @case ('exam') {
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                  >
+                    <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                }
+
+                @case ('completion') {
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                  >
+                    <path
+                      d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"
+                    />
+                  </svg>
+                }
+
+                @case ('certificate') {
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                  >
+                    <path
+                      d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"
+                    />
+                  </svg>
+                }
+
+                @case ('new_course') {
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                  >
+                    <path d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                  </svg>
+                }
+              }
+            </div>
+            <div class="notification-content">
+              <h3>
+                {{ item.title }}
+              </h3>
+
+              <p>
+                {{ item.description }}
+              </p>
+            </div>
+            <div class="notification-actions">
+              <span>
+                {{ item.time }}
+              </span>
+
+              @if (item.unread) {
+                <span class="unread-dot"></span>
+              }
+
+              <button
+                class="delete-button"
+                title="Remove notification"
+                (click)="$event.stopPropagation(); deleteNotification(item.id)"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                >
+                  <path d="M12 5v.01M12 12v.01M12 19v.01" />
+
+                  <circle cx="12" cy="6" r="1" />
+                  <circle cx="12" cy="13" r="1" />
+                  <circle cx="12" cy="20" r="1" />
+                </svg>
+              </button>
+            </div>
+          </div>
+        }
+
+      } @else {
+
+        <div class="empty-state">
+          <div class="empty-icon">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+            >
+              <path
+                d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
+              />
+            </svg>
+          </div>
+
+          <h3>No notifications right now</h3>
+
+          <p>You're all caught up! Check back later for updates on your courses.</p>
+        </div>
+      }
+    </div>
+  </main>
+</div>

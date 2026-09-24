@@ -29,11 +29,11 @@ export class Payment implements OnInit {
 
   selectedMethod = signal<PaymentMethod>('credit');
 
+  // User data from database
   fullName = signal('');
   email = signal('');
 
-  fullNameError = signal('');
-  emailError = signal('');
+  profileLoading = signal(false);
 
   cardNumber = signal('');
   cardName = signal('');
@@ -60,7 +60,33 @@ export class Payment implements OnInit {
   constructor(private paymentService: PaymentService) {}
 
   ngOnInit(): void {
+    this.getProfile();
     this.getCart();
+  }
+
+  // Get logged-in user data from database
+  getProfile(): void {
+    this.profileLoading.set(true);
+
+    this.paymentService.getProfile().subscribe({
+      next: (response: { data: any; }) => {
+        const user = response.data || response;
+
+        this.fullName.set(user.firstName + ' ' + user.lastName);
+
+        this.email.set(user.email);
+
+        this.profileLoading.set(false);
+      },
+
+      error: (error: { error: { message: any; }; }) => {
+        console.log('Profile error:', error);
+
+        this.profileLoading.set(false);
+
+        this.errorMessage.set(error.error?.message || 'Failed to load user information');
+      },
+    });
   }
 
   getCart(): void {
@@ -68,7 +94,7 @@ export class Payment implements OnInit {
     this.errorMessage.set('');
 
     this.paymentService.getCart().subscribe({
-      next: (response: Cart | null) => {
+      next: (response: Cart) => {
         this.cart.set(response);
         this.loading.set(false);
       },
@@ -93,26 +119,6 @@ export class Payment implements OnInit {
     this.expiryError.set('');
     this.cvvError.set('');
     this.errorMessage.set('');
-  }
-
-  updateFullName(event: Event): void {
-    const input = event.target as HTMLInputElement;
-
-    this.fullName.set(input.value);
-
-    if (input.value.trim()) {
-      this.fullNameError.set('');
-    }
-  }
-
-  updateEmail(event: Event): void {
-    const input = event.target as HTMLInputElement;
-
-    this.email.set(input.value);
-
-    if (input.value.trim()) {
-      this.emailError.set('');
-    }
   }
 
   updateCardNumber(event: Event): void {
@@ -158,32 +164,10 @@ export class Payment implements OnInit {
   processPayment(): void {
     this.errorMessage.set('');
 
-    this.fullNameError.set('');
-    this.emailError.set('');
-
     this.cardNumberError.set('');
     this.cardNameError.set('');
     this.expiryError.set('');
     this.cvvError.set('');
-
-    let hasError = false;
-
-    if (!this.fullName().trim()) {
-      this.fullNameError.set('Full name is required');
-      hasError = true;
-    }
-
-    if (!this.email().trim()) {
-      this.emailError.set('Email is required');
-      hasError = true;
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.email())) {
-      this.emailError.set('Please enter a valid email');
-      hasError = true;
-    }
-
-    if (hasError) {
-      return;
-    }
 
     const token = localStorage.getItem('token');
 
@@ -193,6 +177,7 @@ export class Payment implements OnInit {
       return;
     }
 
+    // Validate credit card fields
     if (this.selectedMethod() === 'credit') {
       let cardError = false;
 
@@ -239,10 +224,12 @@ export class Payment implements OnInit {
 
     this.loading.set(true);
 
+    // Create Order
     this.paymentService.createOrder().subscribe({
       next: (orderResponse: { order: { _id: string } }) => {
         const orderId = orderResponse.order._id;
 
+        // Create Payment
         this.paymentService.createPayment(orderId, this.selectedMethod()).subscribe({
           next: (paymentResponse: { payment: any }) => {
             this.loading.set(false);
