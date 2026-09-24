@@ -1,0 +1,45 @@
+﻿<div class="course-card">
+  <!-- Top image with tag pill -->
+  <div class="course-media">
+    <img
+      [src]="course.imageUrl"
+      [alt]="course.title"
+      class="course-img"
+    />
+    <span class="course-tag" [ngClass]="course.tagClass">
+      {{ course.tag }}
+    </span>
+  </div>
+
+  <!-- Course details -->
+  <div class="course-body">
+    <h3 class="course-title">{{ course.title }}</h3>
+    <p class="course-instructor">Instructor: {{ course.instructor }}</p>
+    <p class="course-activity">{{ course.lastActive }}</p>
+
+    <!-- Progress info -->
+    <div class="course-progress-header">
+      <span class="lessons-count">{{ course.completedLessons }}/{{ course.totalLessons }} Lessons</span>
+      <span class="progress-percentage">{{ course.progressPercent }}%</span>
+    </div>
+
+    <!-- Progress bar -->
+    <div class="progress-bar-bg">
+      <div
+        class="progress-bar-fill"
+        [ngClass]="course.progressGradient"
+        [style.width.%]="course.progressPercent"
+      ></div>
+    </div>
+  </div>
+
+  <!-- Continue button -->
+  <button
+    type="button"
+    (click)="onContinue()"
+    class="continue-action-btn"
+  >
+    <ng-icon name="lucidePlay" size="0.95rem" />
+    <span>Continue</span>
+  </button>
+</div>
