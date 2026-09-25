@@ -1,0 +1,11 @@
+const express = require("express");
+const router = express.Router();
+const { auth, relasedTo } = require("../middlewares/auth");
+const upload = require("../configs/multer");
+const { createLesson, getCourseLessons, getLessonById, updateLesson, deleteLesson } = require("../controllers/Lesson");
+router.post("/course/:courseId", auth, relasedTo("instructor"), upload.single("video"), createLesson);
+router.get("/course/:courseId", auth, relasedTo("student", "instructor"), getCourseLessons);
+router.get("/:id", auth, relasedTo("student", "instructor"), getLessonById);
+router.patch("/:id", auth, relasedTo("instructor"), upload.single("video"), updateLesson);
+router.delete("/:id", auth, relasedTo("instructor"), deleteLesson);
+module.exports = router;
