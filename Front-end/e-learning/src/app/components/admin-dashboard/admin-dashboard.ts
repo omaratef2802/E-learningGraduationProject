@@ -172,7 +172,7 @@ export class AdminDashboard implements OnInit {
   addCourse(): void {
 
     this.router.navigate([
-      '/admin-courses'
+      '/admin-create-course'
     ]);
 
   }

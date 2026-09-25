@@ -1,3 +1,4 @@
+import Swal from 'sweetalert2';
 import {
   Component,
   inject
@@ -207,9 +208,8 @@ export class InstructorLesson {
       !this.title.trim()
     ) {
 
-      alert(
-        'Please enter a lesson title.'
-      );
+      Swal.fire('Notice', 'Please enter a lesson title.'
+      , 'info');
 
       return;
     }
@@ -218,9 +218,8 @@ export class InstructorLesson {
       !this.description.trim()
     ) {
 
-      alert(
-        'Please enter a lesson description.'
-      );
+      Swal.fire('Notice', 'Please enter a lesson description.'
+      , 'info');
 
       return;
     }
@@ -229,11 +228,10 @@ export class InstructorLesson {
       !this.content.trim()
     ) {
 
-      alert(
-        this.type === 'Video'
+      Swal.fire('Notice', this.type === 'Video'
           ? 'Please add a video URL or upload a video.'
           : 'Please add document content or upload a document.'
-      );
+      , 'info');
 
       return;
     }

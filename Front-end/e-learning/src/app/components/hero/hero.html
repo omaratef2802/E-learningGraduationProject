@@ -19,7 +19,7 @@
         </div>
         <div class="quick-searches">
           <span>Quick search:</span>
-          @for (item of config.quickSearches; track item) {
+          @for (item of quickSearches; track item) {
             <button type="button" (click)="search(item)">{{ item }}</button>
           }
         </div>

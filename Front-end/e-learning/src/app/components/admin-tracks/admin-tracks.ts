@@ -4,6 +4,8 @@ import {
   inject
 } from '@angular/core';
 
+import Swal from 'sweetalert2';
+
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -610,39 +612,27 @@ export class AdminTracks implements OnInit {
     }
 
 
-    const confirmed =
-      window.confirm(
-        `Are you sure you want to delete "${track.name}"?`
-      );
+    Swal.fire({
+      title: 'Are you sure?',
+      text: `Are you sure you want to delete "${track.name}"?`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#ef4444',
+      cancelButtonColor: '#64748b',
+      confirmButtonText: 'Yes, delete it!'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        const removed = this.data.removeAdminTrack(track.id);
 
+        if (!removed) {
+          this.errorMessage = 'This track cannot be deleted because it contains courses or active data.';
+          return;
+        }
 
-    if (!confirmed) {
-
-      return;
-
-    }
-
-
-    const removed =
-      this.data.removeAdminTrack(
-        track.id
-      );
-
-
-    if (!removed) {
-
-      this.errorMessage =
-        'This track cannot be deleted because it contains courses or active data.';
-
-      return;
-    }
-
-
-    this.successMessage =
-      'Track deleted successfully.';
-
-    this.loadTracks();
-
+        this.successMessage = 'Track deleted successfully.';
+        this.loadTracks();
+      }
+    });
   }
 
 

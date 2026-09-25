@@ -11,7 +11,7 @@
         <strong>/ MY COURSES</strong>
       </div>
 
-      <div class="top-user">
+      <div class="top-user" routerLink="/instructor-profile" style="cursor: pointer;">
 
         <div class="mini-avatar">
           <img
@@ -221,7 +221,7 @@
                   <button
                     class="manage-button"
                     type="button"
-                    (click)="openCourse(course.title)"
+                    (click)="openCourse(course.id, course.title)"
                   >
                     ☷
 
@@ -240,7 +240,7 @@
                   <button
                     class="delete-button"
                     type="button"
-                    (click)="deleteCourse(course.title)"
+                    (click)="deleteCourse(course.id, course.title)"
                   >
                     Delete
                   </button>

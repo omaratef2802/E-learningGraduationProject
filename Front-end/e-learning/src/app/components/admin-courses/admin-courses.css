@@ -683,6 +683,81 @@ select {
 }
 
 /* ==========================================================================
+   ADMIN ACTIONS (Professional Buttons)
+   ========================================================================== */
+
+.admin-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.action-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.action-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.action-btn.approve {
+  background-color: #f0fdf4;
+  color: #166534;
+  border-color: #bbf7d0;
+}
+
+.action-btn.approve:hover {
+  background-color: #dcfce7;
+  border-color: #86efac;
+}
+
+.action-btn.reject {
+  background-color: #fffbeb;
+  color: #d97706;
+  border-color: #fde68a;
+}
+
+.action-btn.reject:hover {
+  background-color: #fef3c7;
+  border-color: #fcd34d;
+}
+
+.action-btn.delete-btn {
+  background-color: #fef2f2;
+  color: #dc2626;
+  border-color: #fecaca;
+}
+
+.action-btn.delete-btn:hover {
+  background-color: #fee2e2;
+  border-color: #fca5a5;
+  color: #b91c1c;
+}
+
+/* Modal Footer Actions Enhancement */
+.modal-footer .action-btn.reject {
+  padding: 10px 20px;
+  font-size: 0.875rem;
+}
+
+/* ==========================================================================
    STATES & EMPTY (Matching Empty User Style)
    ========================================================================== */
 

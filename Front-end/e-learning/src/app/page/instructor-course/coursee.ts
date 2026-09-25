@@ -59,19 +59,20 @@ export class InstructorCourses {
      COURSE ACTIONS
   ========================= */
 
-  openCourse(courseTitle: string): void {
+  openCourse(courseId: string, courseTitle: string): void {
     this.router.navigate(
       ['/instructor-course-curriculum'],
       {
         queryParams: {
-          course: courseTitle
+          course: courseTitle,
+          courseId: courseId
         }
       }
     );
   }
 
 
-  deleteCourse(courseTitle: string): void {
+  deleteCourse(courseId: string, courseTitle: string): void {
 
     const confirmed = confirm(
       `Are you sure you want to delete "${courseTitle}"?`
@@ -81,7 +82,7 @@ export class InstructorCourses {
       return;
     }
 
-    this.data.removeCourse(courseTitle);
+    this.data.removeCourse(courseId);
 
     if (this.currentPage > this.totalPages) {
       this.currentPage = this.totalPages;
