@@ -1,0 +1,305 @@
+.preview-page {
+  min-height: 100vh;
+  background: #f8f9fd;
+  color: #30364d;
+}
+
+.preview-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 30px;
+
+  padding: 34px 46px;
+
+  background: #ffffff;
+  border-bottom: 1px solid #edf0f8;
+}
+
+.preview-label {
+  display: inline-block;
+  margin-bottom: 8px;
+
+  color: #6b70ef;
+
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+}
+
+.preview-header h1 {
+  margin: 0;
+
+  color: #30364d;
+
+  font-size: 30px;
+  font-weight: 800;
+}
+
+.preview-header p {
+  margin: 8px 0 0;
+
+  color: #7a7f91;
+
+  font-size: 14px;
+}
+
+.back-button {
+  border: 1px solid #e9eaff;
+
+  padding: 12px 18px;
+
+  border-radius: 12px;
+
+  color: #6b70ef;
+  background: #ffffff;
+
+  cursor: pointer;
+
+  font-size: 13px;
+  font-weight: 700;
+
+  transition: 0.2s ease;
+}
+
+.back-button:hover {
+  background: #e9eaff;
+  transform: translateY(-1px);
+}
+
+.preview-content {
+  width: min(1120px, calc(100% - 40px));
+
+  margin: 35px auto 60px;
+}
+
+.course-hero {
+  display: grid;
+  grid-template-columns: 300px 1fr;
+
+  overflow: hidden;
+
+  border: 1px solid #edf0f8;
+  border-radius: 22px;
+
+  background: #ffffff;
+
+  box-shadow:
+    0 12px 35px rgba(48, 54, 77, 0.06);
+}
+
+.course-hero img {
+  width: 100%;
+  height: 230px;
+
+  object-fit: cover;
+}
+
+.hero-content {
+  padding: 30px 34px;
+}
+
+.status {
+  display: inline-block;
+
+  padding: 6px 10px;
+
+  border-radius: 20px;
+
+  color: #6b70ef;
+  background: #e9eaff;
+
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.hero-content h2 {
+  margin: 15px 0 7px;
+
+  font-size: 25px;
+}
+
+.hero-content p {
+  margin: 0;
+
+  color: #7a7f91;
+
+  font-size: 14px;
+}
+
+.course-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 30px;
+
+  margin-top: 25px;
+}
+
+.course-stats div {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.course-stats strong {
+  color: #30364d;
+  font-size: 18px;
+}
+
+.course-stats span {
+  color: #7a7f91;
+  font-size: 11px;
+}
+
+.curriculum-preview {
+  margin-top: 30px;
+}
+
+.section-heading {
+  margin-bottom: 18px;
+}
+
+.section-heading > span {
+  color: #6b70ef;
+
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+}
+
+.section-heading h2 {
+  margin: 5px 0 0;
+
+  font-size: 23px;
+}
+
+.preview-section {
+  margin-bottom: 18px;
+
+  overflow: hidden;
+
+  border: 1px solid #edf0f8;
+  border-radius: 18px;
+
+  background: #ffffff;
+}
+
+.section-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  padding: 20px 23px;
+
+  background: #f5f7fc;
+}
+
+.section-title span {
+  color: #6b70ef;
+
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 1px;
+}
+
+.section-title h3 {
+  margin: 5px 0 0;
+
+  font-size: 16px;
+}
+
+.section-title small {
+  color: #7a7f91;
+  font-size: 11px;
+}
+
+.items {
+  padding: 5px 20px;
+}
+
+.preview-item {
+  display: flex;
+  align-items: center;
+
+  gap: 13px;
+
+  padding: 17px 5px;
+
+  border-bottom: 1px solid #edf0f8;
+}
+
+.preview-item:last-child {
+  border-bottom: none;
+}
+
+.item-icon {
+  width: 34px;
+  height: 34px;
+
+  display: grid;
+  place-items: center;
+
+  flex-shrink: 0;
+
+  border-radius: 10px;
+
+  color: #6b70ef;
+  background: #e9eaff;
+
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.quiz-icon {
+  color: #ffffff;
+  background: #6b70ef;
+}
+
+.preview-item div:last-child {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.preview-item strong {
+  color: #30364d;
+  font-size: 13px;
+}
+
+.preview-item small {
+  color: #7a7f91;
+  font-size: 11px;
+}
+
+.empty-section,
+.empty-course {
+  padding: 25px;
+
+  text-align: center;
+
+  color: #8a90a1;
+
+  font-size: 12px;
+}
+
+@media (max-width: 800px) {
+
+  .preview-header {
+    align-items: flex-start;
+    flex-direction: column;
+
+    padding: 25px;
+  }
+
+  .course-hero {
+    grid-template-columns: 1fr;
+  }
+
+  .course-hero img {
+    height: 200px;
+  }
+
+  .preview-content {
+    width: calc(100% - 24px);
+  }
+}

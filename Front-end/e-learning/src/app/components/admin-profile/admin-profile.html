@@ -1,0 +1,384 @@
+<div class="profile-shell">
+
+  <app-admin-sidebar></app-admin-sidebar>
+
+
+  <main class="profile-main">
+
+
+    <!-- TOP BAR -->
+
+    <header class="profile-topbar">
+
+      <div class="breadcrumb">
+
+        <span>
+          ADMIN PORTAL
+        </span>
+
+        <strong>
+          / PROFILE
+        </strong>
+
+      </div>
+
+
+      <div class="top-user">
+
+        <div class="mini-avatar">
+
+          {{ data.admin.firstName.charAt(0) }}
+          {{ data.admin.lastName.charAt(0) }}
+
+        </div>
+
+
+        <div>
+
+          <strong>
+            {{ data.admin.firstName }}
+            {{ data.admin.lastName }}
+          </strong>
+
+          <small>
+            {{ data.admin.role }}
+          </small>
+
+        </div>
+
+      </div>
+
+    </header>
+
+
+    <section class="profile-content">
+
+
+      <!-- HERO -->
+
+      <section class="profile-hero">
+
+        <div class="hero-copy">
+
+          <span class="eyebrow">
+            ADMIN ACCOUNT
+          </span>
+
+          <h1>
+            Administrator Profile
+          </h1>
+
+          <p>
+            Manage the administrator account information
+            used across your PathwayEd workspace.
+          </p>
+
+        </div>
+
+
+        <div class="hero-decoration">
+
+          <div class="hero-ring ring-one"></div>
+
+          <div class="hero-ring ring-two"></div>
+
+          <div class="hero-center">
+            {{ getInitials() }}
+          </div>
+
+        </div>
+
+      </section>
+
+
+      <!-- LAYOUT -->
+
+      <section class="profile-layout">
+
+
+        <!-- MAIN PROFILE CARD -->
+
+        <article class="profile-card">
+
+
+          <div class="profile-card-header">
+
+            <div>
+
+              <span class="section-kicker">
+                ACCOUNT INFORMATION
+              </span>
+
+              <h2>
+                Personal Details
+              </h2>
+
+            </div>
+
+
+            @if (!editing) {
+
+              <button
+                type="button"
+                class="edit-button"
+                (click)="startEditing()"
+              >
+                Edit Profile
+              </button>
+
+            }
+
+          </div>
+
+
+          <!-- PROFILE INTRO -->
+
+          <div class="profile-intro">
+
+            <div class="profile-avatar">
+              {{ getInitials() }}
+            </div>
+
+
+            <div>
+
+              <h3>
+                {{ getFullName() }}
+              </h3>
+
+              <span>
+                {{ data.admin.role }}
+              </span>
+
+            </div>
+
+          </div>
+
+
+          <!-- EDIT MODE -->
+
+          @if (editing) {
+
+            <div class="profile-form">
+
+
+              <div class="form-row">
+
+                <div class="form-group">
+
+                  <label>
+                    First Name
+                  </label>
+
+                  <input
+                    type="text"
+                    [(ngModel)]="profile.firstName"
+                    placeholder="First name"
+                  />
+
+                </div>
+
+
+                <div class="form-group">
+
+                  <label>
+                    Last Name
+                  </label>
+
+                  <input
+                    type="text"
+                    [(ngModel)]="profile.lastName"
+                    placeholder="Last name"
+                  />
+
+                </div>
+
+              </div>
+
+
+              <div class="form-group">
+
+                <label>
+                  Role
+                </label>
+
+                <input
+                  type="text"
+                  [(ngModel)]="profile.role"
+                  placeholder="Administrator"
+                />
+
+              </div>
+
+
+              @if (savedMessage) {
+
+                <div
+                  class="save-message"
+                  [class.error]="
+                    savedMessage.includes('Please')
+                  "
+                >
+                  {{ savedMessage }}
+                </div>
+
+              }
+
+
+              <div class="form-actions">
+
+                <button
+                  type="button"
+                  class="cancel-button"
+                  (click)="cancelEditing()"
+                >
+                  Cancel
+                </button>
+
+
+                <button
+                  type="button"
+                  class="save-button"
+                  (click)="saveProfile()"
+                >
+                  Save Changes
+                </button>
+
+              </div>
+
+            </div>
+
+
+          } @else {
+
+
+            <!-- VIEW MODE -->
+
+            <div class="details-grid">
+
+
+              <div class="detail-item">
+
+                <span>
+                  FIRST NAME
+                </span>
+
+                <strong>
+                  {{ data.admin.firstName }}
+                </strong>
+
+              </div>
+
+
+              <div class="detail-item">
+
+                <span>
+                  LAST NAME
+                </span>
+
+                <strong>
+                  {{ data.admin.lastName }}
+                </strong>
+
+              </div>
+
+
+              <div class="detail-item">
+
+                <span>
+                  ROLE
+                </span>
+
+                <strong>
+                  {{ data.admin.role }}
+                </strong>
+
+              </div>
+
+
+              <div class="detail-item">
+
+                <span>
+                  ACCESS
+                </span>
+
+                <strong>
+                  Full Administrator
+                </strong>
+
+              </div>
+
+
+            </div>
+
+
+            @if (savedMessage) {
+
+              <div class="save-message">
+                {{ savedMessage }}
+              </div>
+
+            }
+
+          }
+
+        </article>
+
+
+        <!-- SIDE INFORMATION -->
+
+        <aside class="profile-side-card">
+
+          <div class="side-icon">
+            ◉
+          </div>
+
+
+          <span class="section-kicker">
+            ADMIN ACCESS
+          </span>
+
+
+          <h2>
+            Workspace Control
+          </h2>
+
+
+          <p>
+            Your administrator account manages
+            users, courses, categories, tracks,
+            reports, and platform notifications.
+          </p>
+
+
+          <div class="access-item">
+
+            <span class="access-dot"></span>
+
+            <strong>
+              Administrator
+            </strong>
+
+          </div>
+
+
+          <div class="access-item">
+
+            <span class="access-dot"></span>
+
+            <strong>
+              Full Platform Access
+            </strong>
+
+          </div>
+
+        </aside>
+
+
+      </section>
+
+    </section>
+
+  </main>
+
+</div>

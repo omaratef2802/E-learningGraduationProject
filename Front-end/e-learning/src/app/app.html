@@ -1,0 +1,17 @@
+@if (!isDashboard() && !isAdmin()) {
+  <app-header></app-header>
+}
+
+@if (isHome()) {
+  <app-hero></app-hero>
+  <app-features></app-features>
+  <app-disciplines></app-disciplines>
+  <app-courses></app-courses>
+  <app-how-it-works></app-how-it-works>
+  <app-career></app-career>
+  <app-instructors></app-instructors>
+  <app-cta></app-cta>
+  <app-footer></app-footer>
+}
+
+<router-outlet></router-outlet>
