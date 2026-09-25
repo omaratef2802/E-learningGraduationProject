@@ -1,0 +1,60 @@
+:host {
+  display: block;
+  min-height: 100vh;
+  background: #f4f6fa;
+  color: #0f172a;
+  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+.route-page {
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 100px 24px 60px;
+  text-align: center;
+}
+
+.route-eyebrow {
+  display: inline-block;
+  color: #4f46e5;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+}
+
+.route-page h1 {
+  margin: 14px 0 12px;
+  font-size: clamp(2rem, 5vw, 3.2rem);
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  color: #0f172a;
+}
+
+.route-page p {
+  max-width: 520px;
+  margin: 0 auto 32px;
+  color: #64748b;
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+.back-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 24px;
+  border-radius: 12px;
+  color: #ffffff;
+  background: linear-gradient(135deg, #6366f1, #4f46e5);
+  box-shadow: 0 4px 14px rgba(79, 70, 229, 0.3);
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 700;
+  transition: all 0.2s ease;
+}
+
+.back-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(79, 70, 229, 0.4);
+  background: linear-gradient(135deg, #4f46e5, #4338ca);
+}

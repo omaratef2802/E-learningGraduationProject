@@ -1,0 +1,526 @@
+<div class="create-shell">
+
+  <app-instructor-sidebar></app-instructor-sidebar>
+
+  <main class="create-main">
+
+    <!-- TOPBAR -->
+    <header class="profile-topbar">
+
+      <div class="breadcrumb">
+
+        <span>
+          INSTRUCTOR PORTAL
+        </span>
+
+        <strong>
+          / CREATE COURSE
+        </strong>
+
+      </div>
+
+      <div class="top-user" routerLink="/instructor-profile" style="cursor: pointer;">
+
+        <div class="mini-avatar">
+
+          <img
+            [src]="data.instructor.image"
+            [alt]="
+              data.instructor.firstName +
+              ' ' +
+              data.instructor.lastName
+            "
+          />
+
+        </div>
+
+        <div>
+
+          <strong>
+            {{ data.instructor.firstName }}
+            {{ data.instructor.lastName }}
+          </strong>
+
+          <small>
+            {{ data.instructor.role }}
+          </small>
+
+        </div>
+
+      </div>
+
+    </header>
+
+    <section class="create-content">
+
+      <div class="create-heading">
+
+        <div>
+
+          <a
+            class="back-link"
+            routerLink="/instructor-catalog"
+          >
+            ← Back to My Courses
+          </a>
+
+          <h1>
+            Create New Course
+          </h1>
+
+          <p>
+            Add the basic information for your
+            new course to get started.
+          </p>
+
+        </div>
+
+      </div>
+
+      <form
+        class="course-form"
+        (ngSubmit)="createCourse()"
+      >
+
+        <div class="create-layout">
+
+          <div class="main-form-column">
+
+            <!-- BASIC INFORMATION -->
+
+            <section
+              class="form-panel basic-panel"
+            >
+
+              <div class="panel-title">
+
+                <span class="panel-icon">
+                  ●
+                </span>
+
+                <div>
+
+                  <h2>
+                    Basic Information
+                  </h2>
+
+                  <p>
+                    General details and introductory
+                    information for your course.
+                  </p>
+
+                </div>
+
+              </div>
+
+              <label>
+
+                COURSE TITLE
+
+                <input
+                  name="title"
+                  [(ngModel)]="title"
+                  required
+                  placeholder="e.g. Advanced React Server Architecture"
+                />
+
+              </label>
+
+              <label>
+
+                COURSE DESCRIPTION
+
+                <textarea
+                  name="description"
+                  [(ngModel)]="description"
+                  rows="4"
+                  required
+                  placeholder="Provide a comprehensive summary of what students will learn..."
+                ></textarea>
+
+              </label>
+
+              <div class="form-grid compact-grid">
+
+                <label>
+
+                  CATEGORY
+
+                  <select
+                    name="category"
+                    [(ngModel)]="category"
+                    (ngModelChange)="onCategoryChange()"
+                  >
+
+                    @for (
+                      item of config.categories;
+                      track item
+                    ) {
+
+                      <option
+                        [value]="item"
+                      >
+                        {{ item }}
+                      </option>
+
+                    }
+
+                  </select>
+
+                </label>
+
+                <label>
+
+                  TRACK
+
+                  <select
+                    name="track"
+                    [(ngModel)]="track"
+                    (ngModelChange)="onTrackChange()"
+                  >
+
+                    @for (
+                      item of categoryOptions.tracks;
+                      track item
+                    ) {
+
+                      <option
+                        [value]="item"
+                      >
+                        {{ item }}
+                      </option>
+
+                    }
+
+                  </select>
+
+                </label>
+
+                <label>
+
+                  COURSE LEVEL
+
+                  <select
+                    name="level"
+                    [(ngModel)]="level"
+                  >
+
+                    @for (
+                      item of categoryOptions.levels;
+                      track item
+                    ) {
+
+                      <option
+                        [value]="item"
+                      >
+                        {{ item }}
+                      </option>
+
+                    }
+
+                  </select>
+
+                </label>
+
+                <label>
+
+                  COURSE LANGUAGE
+
+                  <select
+                    name="language"
+                    [(ngModel)]="language"
+                  >
+
+                    <option>
+                      English
+                    </option>
+
+                    <option>
+                      Arabic
+                    </option>
+
+                    <option>
+                      French
+                    </option>
+
+                  </select>
+
+                </label>
+
+              </div>
+
+            </section>
+
+            <!-- OBJECTIVES -->
+
+            <section
+              class="form-panel objectives-panel"
+            >
+
+              <div class="panel-title">
+
+                <span class="panel-icon">
+                  ◆
+                </span>
+
+                <div>
+
+                  <h2>
+                    Learning Objectives &amp;
+                    Prerequisites
+                  </h2>
+
+                  <p>
+                    Set clear expectations for what
+                    students will achieve.
+                  </p>
+
+                </div>
+
+              </div>
+
+              <label>
+
+                LEARNING OBJECTIVES
+
+                <textarea
+                  name="objectives"
+                  [(ngModel)]="objectives"
+                  rows="3"
+                  placeholder="What will students achieve in this course? (Add one per line)"
+                ></textarea>
+
+              </label>
+
+              <label>
+
+                PREREQUISITES
+
+                <textarea
+                  name="prerequisites"
+                  [(ngModel)]="prerequisites"
+                  rows="3"
+                  placeholder="What prior knowledge or tools are required? (Add one per line)"
+                ></textarea>
+
+              </label>
+
+            </section>
+
+          </div>
+
+          <!-- RIGHT COLUMN -->
+
+          <aside class="course-side-column">
+
+            <!-- THUMBNAIL -->
+
+            <section
+              class="form-panel thumbnail-panel"
+            >
+
+              <div class="panel-title">
+
+                <span class="panel-icon">
+                  ▣
+                </span>
+
+                <div>
+
+                  <h2>
+                    Course Thumbnail
+                  </h2>
+
+                  <p>
+                    Upload an engaging cover image.
+                  </p>
+
+                </div>
+
+              </div>
+
+              <input
+                #imageInput
+                class="hidden-file-input"
+                type="file"
+                accept="image/png,image/jpeg"
+                (change)="onImageSelected($event)"
+              />
+
+              <div class="thumbnail-preview">
+
+                <img
+                  *ngIf="imageUrl"
+                  [src]="imageUrl"
+                  alt="Course preview"
+                />
+
+                <span
+                  *ngIf="!imageUrl"
+                >
+                  No preview
+                </span>
+
+              </div>
+
+              <strong class="image-name">
+                {{ imageName }}
+              </strong>
+
+              <small class="upload-note">
+
+                JPG, PNG, or WEBP
+                <br />
+
+                Recommended: 1280 × 720 px
+
+              </small>
+
+              <div class="image-actions">
+
+                <button
+                  type="button"
+                  (click)="chooseImage(imageInput)"
+                >
+                  Change image
+                </button>
+
+                <button
+                  type="button"
+                  class="remove-button"
+                  (click)="removeImage(imageInput)"
+                >
+                  Remove
+                </button>
+
+              </div>
+
+            </section>
+
+            <!-- PRICING -->
+
+            <section
+              class="form-panel pricing-panel"
+            >
+
+              <div class="panel-title">
+
+                <span class="panel-icon">
+                  ▣
+                </span>
+
+                <div>
+
+                  <h2>
+                    Pricing &amp; Schedule
+                  </h2>
+
+                  <p>
+                    Set tuition and time commitment.
+                  </p>
+
+                </div>
+
+              </div>
+
+              <label>
+
+                PRICE ($ USD)
+
+                <input
+                  name="price"
+                  [(ngModel)]="price"
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  placeholder="49.99"
+                />
+
+              </label>
+
+              <label>
+
+                DURATION (HOURS)
+
+                <input
+                  name="duration"
+                  [(ngModel)]="duration"
+                  placeholder="e.g. 24 hours (36 lessons)"
+                />
+
+              </label>
+
+              <label>
+
+                SUBCATEGORY
+
+                <select
+                  name="subcategory"
+                  [(ngModel)]="subcategory"
+                  (ngModelChange)="onSubcategoryChange()"
+                >
+
+                  @for (
+                    item of categoryOptions.subcategories;
+                    track item
+                  ) {
+
+                    <option
+                      [value]="item"
+                    >
+                      {{ item }}
+                    </option>
+
+                  }
+
+                </select>
+
+              </label>
+
+            </section>
+
+          </aside>
+
+        </div>
+
+        <!-- ACTIONS -->
+
+        <div class="form-actions">
+
+          <button
+            class="cancel-button"
+            type="button"
+            routerLink="/instructor-catalog"
+          >
+            Cancel
+          </button>
+
+          <button
+            class="draft-button"
+            type="button"
+            (click)="saveDraft()"
+          >
+            Save as Draft
+          </button>
+
+          <button
+            class="create-button"
+            type="submit"
+          >
+            Create Course &amp; Continue
+
+            <strong>
+              →
+            </strong>
+
+          </button>
+
+        </div>
+
+      </form>
+
+    </section>
+
+  </main>
+
+</div>

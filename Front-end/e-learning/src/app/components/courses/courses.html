@@ -1,0 +1,30 @@
+<section class="courses-section" aria-labelledby="courses-title">
+  <div class="courses-heading">
+    <span class="section-kicker">CURATED FOR YOUR GROWTH</span>
+    <h2 id="courses-title">{{ config.title }}</h2>
+    <p>{{ config.description }}</p>
+  </div>
+
+  <div class="courses-grid">
+    @for (course of coursesList; track course.title) {
+      <article class="course-card" tabindex="0" (click)="openCourse(course.query)" (keydown.enter)="openCourse(course.query)">
+        <div class="course-cover">
+          <img [src]="course.image" [alt]="course.title" />
+          <span class="course-tag">{{ course.tag }}</span>
+          <button class="save-button" type="button" aria-label="Save course" (click)="$event.stopPropagation()">♡</button>
+        </div>
+        <div class="course-body">
+          <div class="course-rating"><span>★</span> {{ course.rating }} <small>({{ course.reviews }})</small></div>
+          <h3>{{ course.title }}</h3>
+          <p class="instructor">{{ course.instructor }}</p>
+          <div class="course-meta"><span>{{ course.level }}</span><span>◷ {{ course.duration }}</span></div>
+          <div class="course-footer"><strong>{{ course.price }}</strong><button type="button" aria-label="Add course to bag" (click)="$event.stopPropagation()">♧</button></div>
+        </div>
+      </article>
+    }
+  </div>
+
+  @if (limit && limit > 0) {
+    <button class="view-all-button" type="button" routerLink="/courses">{{ config.viewAllLabel }} <span>→</span></button>
+  }
+</section>

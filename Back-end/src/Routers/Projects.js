@@ -1,0 +1,10 @@
+const express = require("express");
+const router = express.Router();
+const { auth, relasedTo } = require("../middlewares/auth");
+const { createProject, getProjects, getProjectById, updateProject, deleteProject } = require("../controllers/Projects");
+router.get("/", auth, relasedTo("student", "instructor", "admin"), getProjects);
+router.get("/:projectId", auth, relasedTo("student", "instructor", "admin"), getProjectById);
+router.post("/", auth, relasedTo("instructor"), createProject);
+router.patch("/:projectId", auth, relasedTo("instructor"), updateProject);
+router.delete("/:projectId", auth, relasedTo("instructor"), deleteProject);
+module.exports = router;

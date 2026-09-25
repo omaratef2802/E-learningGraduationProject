@@ -1,0 +1,105 @@
+<div class="catalog-shell">
+
+  <app-instructor-sidebar></app-instructor-sidebar>
+
+  <main class="catalog-main">
+
+    <header class="profile-topbar">
+
+      <div class="breadcrumb">
+        <span>INSTRUCTOR PORTAL</span>
+        <strong>/ MY COURSES</strong>
+      </div>
+
+      <div class="top-user" routerLink="/instructor-profile" style="cursor: pointer;">
+
+        <div class="mini-avatar">
+          <img
+            [src]="data.instructor.image"
+            [alt]="
+              data.instructor.firstName +
+              ' ' +
+              data.instructor.lastName
+            "
+          />
+        </div>
+
+        <div>
+          <strong>
+            {{ data.instructor.firstName }}
+            {{ data.instructor.lastName }}
+          </strong>
+
+          <small>
+            {{ data.instructor.role }}
+          </small>
+        </div>
+
+      </div>
+
+    </header>
+
+    <section class="catalog-content">
+
+      <div class="catalog-heading">
+
+        <div>
+          <span>COURSE CATALOG</span>
+
+          <h1>All Instructor Courses</h1>
+
+          <p>
+            Browse every course in your workspace from one place.
+          </p>
+        </div>
+
+        <a routerLink="/instructor-create-course">
+          ＋ Create Course
+        </a>
+
+      </div>
+
+      <div class="catalog-grid">
+
+        @for (course of data.courses; track course.title) {
+
+          <article class="catalog-card">
+
+            <img
+              [src]="course.image"
+              [alt]="course.title"
+            />
+
+            <div>
+
+              <span>
+                {{ course.category }}
+              </span>
+
+              <h2>
+                {{ course.title }}
+              </h2>
+
+              <p>
+                {{ course.students }} students ·
+                {{ course.rating }} rating ·
+                {{ course.updated }}
+              </p>
+
+              <strong>
+                {{ course.price }}
+              </strong>
+
+            </div>
+
+          </article>
+
+        }
+
+      </div>
+
+    </section>
+
+  </main>
+
+</div>
