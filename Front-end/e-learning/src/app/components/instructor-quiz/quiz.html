@@ -1,0 +1,451 @@
+<div class="editor-shell">
+
+  <app-instructor-sidebar></app-instructor-sidebar>
+
+  <main class="editor-main">
+
+    <header class="editor-topbar">
+
+      <a
+        routerLink="/instructor-course-curriculum"
+        [queryParams]="{
+          course: courseTitle,
+          courseId: courseId
+        }"
+      >
+        ← Back to Course Content
+      </a>
+
+      <span>
+        INSTRUCTOR PORTAL / QUIZ BUILDER
+      </span>
+
+    </header>
+
+
+    <section class="editor-content">
+
+      <div class="editor-heading">
+
+        <div>
+
+          <span>
+            ASSESSMENT BUILDER
+          </span>
+
+          <h1>
+            {{
+              quizId
+                ? 'Edit Quiz'
+                : 'Create Quiz'
+            }}
+          </h1>
+
+          <p>
+            Create lesson quizzes and
+            section final assessments.
+          </p>
+
+        </div>
+
+        <button
+          class="primary-action"
+          type="button"
+          (click)="saveQuiz()"
+        >
+          Save Quiz →
+        </button>
+
+      </div>
+
+
+      <form
+        class="quiz-form"
+        (ngSubmit)="saveQuiz()"
+      >
+
+        <!-- QUIZ INFORMATION -->
+        <section class="quiz-details">
+
+          <h2>
+            Quiz Information
+          </h2>
+
+          <div class="form-grid">
+
+            <label>
+
+              QUIZ TYPE
+
+              <select
+                name="type"
+                [(ngModel)]="type"
+                (ngModelChange)="onQuizTypeChange()"
+              >
+
+                <option value="Lesson">
+                  Lesson Quiz
+                </option>
+
+                <option value="Section">
+                  Section Final Quiz
+                </option>
+
+              </select>
+
+            </label>
+
+
+            @if (type === 'Lesson') {
+
+              <label>
+
+                LESSON
+
+                <select
+                  name="lessonId"
+                  [(ngModel)]="lessonId"
+                >
+
+                  <option
+                    value=""
+                    disabled
+                  >
+                    Select lesson
+                  </option>
+
+                  @for (
+                    lesson of lessons;
+                    track lesson.id
+                  ) {
+
+                    <option
+                      [value]="lesson.id"
+                    >
+                      {{ lesson.title }}
+                    </option>
+
+                  }
+
+                </select>
+
+              </label>
+
+            }
+
+
+            <label>
+
+              QUIZ TITLE
+
+              <input
+                name="title"
+                [(ngModel)]="title"
+                placeholder="HTML Fundamentals Quiz"
+                required
+              />
+
+            </label>
+
+
+            <label>
+
+              PASSING SCORE (%)
+
+              <input
+                name="passingScore"
+                type="number"
+                min="0"
+                max="100"
+                [(ngModel)]="passingScore"
+                required
+              />
+
+            </label>
+
+
+            <label class="full-field">
+
+              DESCRIPTION
+
+              <textarea
+                name="description"
+                [(ngModel)]="description"
+                rows="3"
+                placeholder="Describe what this quiz measures..."
+              ></textarea>
+
+            </label>
+
+
+            <label>
+
+              DURATION
+
+              <input
+                name="duration"
+                [(ngModel)]="duration"
+                placeholder="10 minutes"
+              />
+
+            </label>
+
+          </div>
+
+        </section>
+
+
+        <!-- QUESTIONS -->
+        <section class="questions-section">
+
+          <div class="section-heading">
+
+            <div>
+
+              <span>
+                QUESTIONS
+              </span>
+
+              <h2>
+                {{ questions.length }}
+                Questions
+              </h2>
+
+            </div>
+
+            <button
+              type="button"
+              class="add-question"
+              (click)="addQuestion()"
+            >
+              ＋ Add Question
+            </button>
+
+          </div>
+
+
+          @for (
+            question of questions;
+            track question.id;
+            let questionIndex = $index
+          ) {
+
+            <article
+              class="question-card"
+            >
+
+              <div
+                class="question-heading"
+              >
+
+                <h3>
+                  Question
+                  {{ questionIndex + 1 }}
+                </h3>
+
+                <button
+                  type="button"
+                  (click)="
+                    removeQuestion(
+                      questionIndex
+                    )
+                  "
+                  [disabled]="
+                    questions.length === 1
+                  "
+                >
+                  Delete
+                </button>
+
+              </div>
+
+
+              <label>
+
+                QUESTION TEXT
+
+                <textarea
+                  [name]="
+                    'question-' +
+                    questionIndex
+                  "
+                  [(ngModel)]="
+                    question.text
+                  "
+                  rows="2"
+                  placeholder="Write the question..."
+                  required
+                ></textarea>
+
+              </label>
+
+
+              <div
+                class="options-grid"
+              >
+
+                <label>
+
+                  OPTION A
+
+                  <input
+                    [name]="
+                      'option-a-' +
+                      questionIndex
+                    "
+                    [(ngModel)]="
+                      question.options[0]
+                    "
+                    required
+                  />
+
+                </label>
+
+
+                <label>
+
+                  OPTION B
+
+                  <input
+                    [name]="
+                      'option-b-' +
+                      questionIndex
+                    "
+                    [(ngModel)]="
+                      question.options[1]
+                    "
+                    required
+                  />
+
+                </label>
+
+
+                <label>
+
+                  OPTION C
+
+                  <input
+                    [name]="
+                      'option-c-' +
+                      questionIndex
+                    "
+                    [(ngModel)]="
+                      question.options[2]
+                    "
+                    required
+                  />
+
+                </label>
+
+
+                <label>
+
+                  OPTION D
+
+                  <input
+                    [name]="
+                      'option-d-' +
+                      questionIndex
+                    "
+                    [(ngModel)]="
+                      question.options[3]
+                    "
+                    required
+                  />
+
+                </label>
+
+              </div>
+
+
+              <div
+                class="answer-row"
+              >
+
+                <label>
+
+                  CORRECT ANSWER
+
+                  <select
+                    [name]="
+                      'answer-' +
+                      questionIndex
+                    "
+                    [(ngModel)]="
+                      question.correctAnswer
+                    "
+                    required
+                  >
+
+                    <option
+                      value=""
+                      disabled
+                    >
+                      Select correct answer
+                    </option>
+
+                    @for (
+                      option of question.options;
+                      track $index
+                    ) {
+
+                      @if (
+                        option.trim()
+                      ) {
+
+                        <option
+                          [value]="option"
+                        >
+                          {{ option }}
+                        </option>
+
+                      }
+
+                    }
+
+                  </select>
+
+                </label>
+
+
+                <label>
+
+                  POINTS
+
+                  <input
+                    [name]="
+                      'points-' +
+                      questionIndex
+                    "
+                    type="number"
+                    min="1"
+                    [(ngModel)]="
+                      question.points
+                    "
+                  />
+
+                </label>
+
+              </div>
+
+            </article>
+
+          }
+
+        </section>
+
+
+        <button
+          class="mobile-save"
+          type="submit"
+        >
+          Save Quiz
+        </button>
+
+      </form>
+
+    </section>
+
+  </main>
+
+</div>

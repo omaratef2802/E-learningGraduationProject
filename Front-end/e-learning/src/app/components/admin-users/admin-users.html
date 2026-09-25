@@ -1,0 +1,756 @@
+<div class="users-shell">
+
+  <app-admin-sidebar></app-admin-sidebar>
+
+  <main class="users-main">
+
+    <header class="profile-topbar">
+
+      <div class="breadcrumb">
+        <span>Admin</span>
+        <span>/</span>
+        <strong>Users</strong>
+      </div>
+
+      <div class="top-user">
+
+        <div class="mini-avatar">
+          {{ data.admin.firstName.charAt(0) }}
+        </div>
+
+        <div>
+          <strong>
+            {{ data.admin.firstName }}
+            {{ data.admin.lastName }}
+          </strong>
+
+          <small>Administrator</small>
+        </div>
+
+      </div>
+
+    </header>
+
+
+    <section class="users-content">
+
+      <div class="users-heading">
+
+        <div>
+          <span>User Management</span>
+
+          <h1>Users & Instructors</h1>
+
+          <p>
+            Manage platform users, instructors,
+            access status and account roles.
+          </p>
+        </div>
+
+        <div class="heading-actions">
+
+          <button
+            type="button"
+            class="secondary-action"
+            (click)="openAddUser()"
+          >
+            <span>＋</span>
+            Add User
+          </button>
+
+          <button
+            type="button"
+            class="primary-action"
+            (click)="openAddInstructor()"
+          >
+            <span>＋</span>
+            Add Instructor
+          </button>
+
+        </div>
+
+      </div>
+
+
+      @if (successMessage) {
+
+        <div class="success-message">
+
+          <span class="success-icon">
+            ✓
+          </span>
+
+          <span>
+            {{ successMessage }}
+          </span>
+
+          <button
+            type="button"
+            (click)="successMessage = ''"
+          >
+            ×
+          </button>
+
+        </div>
+
+      }
+
+
+      <div class="users-toolbar">
+
+        <div class="user-search">
+
+          <span>⌕</span>
+
+          <input
+            type="text"
+            [(ngModel)]="searchText"
+            (ngModelChange)="applyFilters()"
+            placeholder="Search by name or email..."
+          />
+
+        </div>
+
+
+        <select
+          [(ngModel)]="selectedRole"
+          (ngModelChange)="applyFilters()"
+          aria-label="Filter by role"
+        >
+          <option value="All">
+            All Roles
+          </option>
+
+          <option value="Student">
+            Students
+          </option>
+
+          <option value="Instructor">
+            Instructors
+          </option>
+
+          <option value="Admin">
+            Admins
+          </option>
+        </select>
+
+
+        <select
+          [(ngModel)]="selectedStatus"
+          (ngModelChange)="applyFilters()"
+          aria-label="Filter by status"
+        >
+          <option value="All">
+            All Status
+          </option>
+
+          <option value="Active">
+            Active
+          </option>
+
+          <option value="Pending">
+            Pending
+          </option>
+
+          <option value="Blocked">
+            Blocked
+          </option>
+        </select>
+
+
+        <button
+          type="button"
+          class="clear-button"
+          (click)="clearFilters()"
+        >
+          Clear
+        </button>
+
+
+        <div class="users-count">
+          {{ filteredUsers.length }}
+          <span>users</span>
+        </div>
+
+      </div>
+
+
+      <div class="users-summary">
+
+        <article class="summary-card">
+          <span>Total Users</span>
+          <strong>
+            {{ getTotalUsers() }}
+          </strong>
+        </article>
+
+        <article class="summary-card">
+          <span>Students</span>
+          <strong>
+            {{ getStudentCount() }}
+          </strong>
+        </article>
+
+        <article class="summary-card">
+          <span>Instructors</span>
+          <strong>
+            {{ getInstructorCount() }}
+          </strong>
+        </article>
+
+        <article class="summary-card">
+          <span>Admins</span>
+          <strong>
+            {{ getAdminCount() }}
+          </strong>
+        </article>
+
+      </div>
+
+
+      @if (loading) {
+
+        <div class="users-state">
+          Loading users...
+        </div>
+
+      }
+
+
+      @if (!loading && errorMessage) {
+
+        <div class="users-state error">
+          {{ errorMessage }}
+        </div>
+
+      }
+
+
+      @if (!loading && !errorMessage) {
+
+        <section class="users-card">
+
+          <div class="users-card-header">
+
+            <div>
+              <span class="card-kicker">
+                Platform Accounts
+              </span>
+
+              <h2>
+                All Users
+              </h2>
+            </div>
+
+            <span class="result-label">
+              {{ filteredUsers.length }}
+              results
+            </span>
+
+          </div>
+
+
+          <div class="users-table-wrapper">
+
+            @if (filteredUsers.length > 0) {
+
+              <table class="users-table">
+
+                <thead>
+
+                  <tr>
+                    <th>User</th>
+                    <th>Role</th>
+                    <th>Status</th>
+                    <th>Joined</th>
+                    <th>Actions</th>
+                  </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                  @for (
+                    user of filteredUsers;
+                    track user.id
+                  ) {
+
+                    <tr>
+
+                      <td>
+
+                        <div class="user-cell">
+
+                          <div class="user-avatar">
+                            {{ getUserInitials(user.name) }}
+                          </div>
+
+                          <div class="user-details">
+
+                            <strong>
+                              {{ user.name }}
+                            </strong>
+
+                            <small>
+                              {{ user.email }}
+                            </small>
+
+                          </div>
+
+                        </div>
+
+                      </td>
+
+
+                      <td>
+
+                        <span
+                          class="role-badge"
+                          [class.student]="
+                            user.role === 'Student'
+                          "
+                          [class.instructor]="
+                            user.role === 'Instructor'
+                          "
+                          [class.admin]="
+                            user.role === 'Admin'
+                          "
+                        >
+                          {{ user.role }}
+                        </span>
+
+                      </td>
+
+
+                      <td>
+
+                        <span
+                          class="status-badge"
+                          [class.pending]="
+                            user.status === 'Pending'
+                          "
+                          [class.blocked]="
+                            user.status === 'Blocked'
+                          "
+                        >
+                          {{ user.status }}
+                        </span>
+
+                      </td>
+
+
+                      <td>
+                        {{ user.joinedAt }}
+                      </td>
+
+
+                      <td>
+
+                        <div class="row-actions">
+
+                          <button
+                            type="button"
+                            class="edit-action"
+                            (click)="openEditUser(user)"
+                          >
+                            Edit
+                          </button>
+
+
+                          @if (
+                            user.status === 'Blocked'
+                          ) {
+
+                            <button
+                              type="button"
+                              class="status-action activate"
+                              (click)="
+                                changeStatus(
+                                  user,
+                                  'Active'
+                                )
+                              "
+                            >
+                              Activate
+                            </button>
+
+                          } @else {
+
+                            <button
+                              type="button"
+                              class="status-action block"
+                              (click)="
+                                changeStatus(
+                                  user,
+                                  'Blocked'
+                                )
+                              "
+                            >
+                              Block
+                            </button>
+
+                          }
+
+
+                          <button
+                            type="button"
+                            class="delete-action"
+                            (click)="deleteUser(user)"
+                          >
+                            Delete
+                          </button>
+
+                        </div>
+
+                      </td>
+
+                    </tr>
+
+                  }
+
+                </tbody>
+
+              </table>
+
+            } @else {
+
+              <div class="empty-users">
+
+                <div class="empty-icon">
+                  ◌
+                </div>
+
+                <h3>
+                  No users found
+                </h3>
+
+                <p>
+                  Try changing your search or filters.
+                </p>
+
+                <button
+                  type="button"
+                  (click)="clearFilters()"
+                >
+                  Clear Filters
+                </button>
+
+              </div>
+
+            }
+
+          </div>
+
+        </section>
+
+      }
+
+    </section>
+
+  </main>
+
+
+  @if (modalOpen) {
+
+    <div
+      class="modal-backdrop"
+      (click)="closeModal()"
+    >
+
+      <section
+        class="user-modal"
+        role="dialog"
+        aria-modal="true"
+        [attr.aria-label]="modalTitle"
+        (click)="$event.stopPropagation()"
+      >
+
+        <div class="modal-header">
+
+          <div>
+
+            <span>
+              Account Management
+            </span>
+
+            <h2>
+              {{ modalTitle }}
+            </h2>
+
+          </div>
+
+          <button
+            type="button"
+            class="modal-close"
+            (click)="closeModal()"
+            aria-label="Close modal"
+          >
+            ×
+          </button>
+
+        </div>
+
+
+        <form
+          class="user-form"
+          (ngSubmit)="submitForm()"
+          novalidate
+        >
+
+          <div class="form-grid">
+
+            <div class="form-field">
+
+              <label for="firstName">
+                First Name
+              </label>
+
+              <input
+                id="firstName"
+                name="firstName"
+                type="text"
+                [(ngModel)]="form.firstName"
+                placeholder="Enter first name"
+                autocomplete="given-name"
+                [class.invalid]="firstNameError"
+              />
+
+              @if (firstNameError) {
+
+                <small class="field-error">
+                  {{ firstNameError }}
+                </small>
+
+              }
+
+            </div>
+
+
+            <div class="form-field">
+
+              <label for="lastName">
+                Last Name
+              </label>
+
+              <input
+                id="lastName"
+                name="lastName"
+                type="text"
+                [(ngModel)]="form.lastName"
+                placeholder="Enter last name"
+                autocomplete="family-name"
+                [class.invalid]="lastNameError"
+              />
+
+              @if (lastNameError) {
+
+                <small class="field-error">
+                  {{ lastNameError }}
+                </small>
+
+              }
+
+            </div>
+
+
+            <div class="form-field full">
+
+              <label for="email">
+                Email Address
+              </label>
+
+              <input
+                id="email"
+                name="email"
+                type="email"
+                [(ngModel)]="form.email"
+                placeholder="name@example.com"
+                autocomplete="email"
+                [class.invalid]="emailError"
+              />
+
+              @if (emailError) {
+
+                <small class="field-error">
+                  {{ emailError }}
+                </small>
+
+              }
+
+            </div>
+
+
+            <div class="form-field">
+
+              <label for="password">
+
+                Password
+
+                @if (isEditMode) {
+                  <span class="optional">
+                    Optional
+                  </span>
+                }
+
+              </label>
+
+              <input
+                id="password"
+                name="password"
+                type="password"
+                [(ngModel)]="form.password"
+                [placeholder]="
+                  isEditMode
+                    ? 'Leave blank to keep current password'
+                    : 'Minimum 8 characters'
+                "
+                autocomplete="new-password"
+                [class.invalid]="passwordError"
+              />
+
+              @if (passwordError) {
+
+                <small class="field-error">
+                  {{ passwordError }}
+                </small>
+
+              }
+
+            </div>
+
+
+            <div class="form-field">
+
+              <label for="confirmPassword">
+                Confirm Password
+              </label>
+
+              <input
+                id="confirmPassword"
+                name="confirmPassword"
+                type="password"
+                [(ngModel)]="form.confirmPassword"
+                placeholder="Confirm password"
+                autocomplete="new-password"
+                [class.invalid]="confirmPasswordError"
+              />
+
+              @if (confirmPasswordError) {
+
+                <small class="field-error">
+                  {{ confirmPasswordError }}
+                </small>
+
+              }
+
+            </div>
+
+
+            <div class="form-field">
+
+              <label for="role">
+                Role
+              </label>
+
+              <select
+                id="role"
+                name="role"
+                [(ngModel)]="form.role"
+                [disabled]="isInstructorMode"
+              >
+
+                <option value="Student">
+                  Student
+                </option>
+
+                <option value="Instructor">
+                  Instructor
+                </option>
+
+                <option value="Admin">
+                  Admin
+                </option>
+
+              </select>
+
+              @if (isInstructorMode) {
+
+                <small class="field-hint">
+                  Instructor role is assigned automatically.
+                </small>
+
+              }
+
+            </div>
+
+
+            <div class="form-field">
+
+              <label for="status">
+                Status
+              </label>
+
+              <select
+                id="status"
+                name="status"
+                [(ngModel)]="form.status"
+                [disabled]="isInstructorMode"
+              >
+
+                <option value="Active">
+                  Active
+                </option>
+
+                <option value="Pending">
+                  Pending
+                </option>
+
+                <option value="Blocked">
+                  Blocked
+                </option>
+
+              </select>
+
+              @if (isInstructorMode) {
+
+                <small class="field-hint">
+                  New instructors start as pending.
+                </small>
+
+              }
+
+            </div>
+
+          </div>
+
+
+          <div class="modal-footer">
+
+            <button
+              type="button"
+              class="cancel-button"
+              (click)="closeModal()"
+            >
+              Cancel
+            </button>
+
+            <button
+              type="submit"
+              class="save-button"
+              [disabled]="!isFormValid"
+            >
+              {{ submitLabel }}
+            </button>
+
+          </div>
+
+        </form>
+
+      </section>
+
+    </div>
+
+  }
+
+</div>

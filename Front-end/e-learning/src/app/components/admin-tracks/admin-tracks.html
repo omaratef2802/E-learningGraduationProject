@@ -1,0 +1,939 @@
+<div class="tracks-shell">
+
+  <app-admin-sidebar></app-admin-sidebar>
+
+
+  <main class="tracks-main">
+
+    <!-- TOP BAR -->
+
+    <header class="profile-topbar">
+
+      <div class="breadcrumb">
+
+        <span>
+          ADMIN PORTAL
+        </span>
+
+        <strong>
+          / TRACKS
+        </strong>
+
+      </div>
+
+
+      <div class="top-user">
+
+        <div class="mini-avatar">
+
+          {{ data.admin.firstName.charAt(0) }}
+          {{ data.admin.lastName.charAt(0) }}
+
+        </div>
+
+
+        <div>
+
+          <strong>
+            {{ data.admin.firstName }}
+            {{ data.admin.lastName }}
+          </strong>
+
+          <small>
+            {{ data.admin.role }}
+          </small>
+
+        </div>
+
+      </div>
+
+    </header>
+
+
+    <!-- CONTENT -->
+
+    <section class="tracks-content">
+
+
+      <!-- HERO -->
+
+      <section class="tracks-hero">
+
+        <div class="hero-copy">
+
+          <span class="eyebrow">
+            TRACK MANAGEMENT
+          </span>
+
+
+          <h1>
+
+            Learning Tracks
+
+            <span>
+              {{ getTotalTracks() }}
+            </span>
+
+          </h1>
+
+
+          <p>
+            Manage structured learning paths and keep every
+            track connected to its category, subcategory,
+            courses, and learners.
+          </p>
+
+
+          <button
+            type="button"
+            class="primary-action"
+            (click)="addTrack()"
+          >
+
+            <span>+</span>
+
+            Add New Track
+
+          </button>
+
+        </div>
+
+
+        <div class="hero-decoration">
+
+          <div class="orbit orbit-one"></div>
+          <div class="orbit orbit-two"></div>
+
+          <div class="hero-dot dot-one"></div>
+          <div class="hero-dot dot-two"></div>
+          <div class="hero-dot dot-three"></div>
+
+          <div class="hero-center">
+            ◇
+          </div>
+
+        </div>
+
+      </section>
+
+
+      <!-- SUCCESS -->
+
+      @if (successMessage) {
+
+        <div class="tracks-state success-message">
+
+          <span>✓</span>
+
+          {{ successMessage }}
+
+          <button
+            type="button"
+            (click)="successMessage = ''"
+          >
+            ×
+          </button>
+
+        </div>
+
+      }
+
+
+      <!-- ERROR -->
+
+      @if (errorMessage) {
+
+        <div class="tracks-state error">
+
+          <span>!</span>
+
+          {{ errorMessage }}
+
+          <button
+            type="button"
+            (click)="errorMessage = ''"
+          >
+            ×
+          </button>
+
+        </div>
+
+      }
+
+
+      <!-- STATS -->
+
+      <section class="track-stats">
+
+        <article class="stat-card featured">
+
+          <div class="stat-icon">
+            ◇
+          </div>
+
+          <div>
+
+            <span>
+              Total Tracks
+            </span>
+
+            <strong>
+              {{ getTotalTracks() }}
+            </strong>
+
+            <small>
+              Structured learning paths
+            </small>
+
+          </div>
+
+        </article>
+
+
+        <article class="stat-card">
+
+          <div class="stat-icon active">
+            ✓
+          </div>
+
+          <div>
+
+            <span>
+              Active
+            </span>
+
+            <strong>
+              {{ getActiveTracks() }}
+            </strong>
+
+            <small>
+              Currently available
+            </small>
+
+          </div>
+
+        </article>
+
+
+        <article class="stat-card">
+
+          <div class="stat-icon courses">
+            ▣
+          </div>
+
+          <div>
+
+            <span>
+              Courses
+            </span>
+
+            <strong>
+              {{ getTotalCourses() }}
+            </strong>
+
+            <small>
+              Inside all tracks
+            </small>
+
+          </div>
+
+        </article>
+
+
+        <article class="stat-card">
+
+          <div class="stat-icon students">
+            ♙
+          </div>
+
+          <div>
+
+            <span>
+              Learners
+            </span>
+
+            <strong>
+              {{ getTotalStudents() }}
+            </strong>
+
+            <small>
+              Across all tracks
+            </small>
+
+          </div>
+
+        </article>
+
+      </section>
+
+
+      <!-- TOOLBAR -->
+
+      <section class="tracks-toolbar">
+
+        <div class="search-box">
+
+          <span>
+            ⌕
+          </span>
+
+          <input
+            type="text"
+            [(ngModel)]="searchText"
+            (input)="applyFilters()"
+            placeholder="Search tracks, categories..."
+          />
+
+        </div>
+
+
+        <select
+          [(ngModel)]="selectedCategory"
+          (change)="onFilterCategoryChange()"
+        >
+
+          <option value="All">
+            All Categories
+          </option>
+
+
+          @for (
+            category of categories;
+            track category
+          ) {
+
+            <option [value]="category">
+              {{ category }}
+            </option>
+
+          }
+
+        </select>
+
+
+        <select
+          [(ngModel)]="selectedSubcategory"
+          (change)="applyFilters()"
+        >
+
+          <option value="All">
+            All Subcategories
+          </option>
+
+
+          @for (
+            subcategory of getFilterSubcategories();
+            track subcategory
+          ) {
+
+            <option [value]="subcategory">
+              {{ subcategory }}
+            </option>
+
+          }
+
+        </select>
+
+
+        <select
+          [(ngModel)]="selectedStatus"
+          (change)="applyFilters()"
+        >
+
+          <option value="All">
+            All Status
+          </option>
+
+          <option value="Active">
+            Active
+          </option>
+
+          <option value="Inactive">
+            Inactive
+          </option>
+
+        </select>
+
+
+        <button
+          type="button"
+          class="clear-button"
+          (click)="clearFilters()"
+        >
+          Clear
+        </button>
+
+      </section>
+
+
+      <!-- RESULTS -->
+
+      <div class="results-bar">
+
+        <div>
+
+          <span class="results-kicker">
+            TRACK DIRECTORY
+          </span>
+
+          <strong>
+
+            {{ filteredTracks.length }}
+
+            {{
+              filteredTracks.length === 1
+                ? 'track'
+                : 'tracks'
+            }}
+
+          </strong>
+
+        </div>
+
+
+        <div class="status-summary">
+
+          <span class="summary-dot active-dot"></span>
+
+          {{ getActiveTracks() }}
+          active
+
+
+          @if (getInactiveTracks() > 0) {
+
+            <span class="summary-dot inactive-dot"></span>
+
+            {{ getInactiveTracks() }}
+            inactive
+
+          }
+
+        </div>
+
+      </div>
+
+
+      <!-- LOADING -->
+
+      @if (loading) {
+
+        <div class="tracks-state">
+          Loading tracks...
+        </div>
+
+      }
+
+
+      <!-- TRACK GRID -->
+
+      @if (!loading) {
+
+        @if (filteredTracks.length > 0) {
+
+          <section class="track-grid">
+
+            @for (
+              track of filteredTracks;
+              track track.id
+            ) {
+
+              <article class="track-card">
+
+                <!-- CARD TOP -->
+
+                <div class="track-card-top">
+
+                  <div class="track-symbol">
+                    {{ getTrackInitial(track.name) }}
+                  </div>
+
+
+                  <button
+                    type="button"
+                    class="status-badge status-button"
+                    [class.inactive]="track.status === 'Inactive'"
+                    (click)="toggleTrackStatus(track)"
+                    [title]="
+                      track.status === 'Active'
+                        ? 'Make inactive'
+                        : 'Make active'
+                    "
+                  >
+
+                    <span class="status-dot"></span>
+
+                    {{ track.status }}
+
+                  </button>
+
+                </div>
+
+
+                <!-- BODY -->
+
+                <div class="track-body">
+
+                  <span class="track-kicker">
+                    LEARNING TRACK
+                  </span>
+
+
+                  <h2>
+                    {{ track.name }}
+                  </h2>
+
+
+                  <div class="hierarchy-info">
+
+                    <div>
+
+                      <span>
+                        CATEGORY
+                      </span>
+
+                      <strong>
+                        {{
+                          track.categoryName ||
+                          track.category
+                        }}
+                      </strong>
+
+                    </div>
+
+
+                    <div>
+
+                      <span>
+                        SUBCATEGORY
+                      </span>
+
+                      <strong>
+                        {{ track.subcategoryName }}
+                      </strong>
+
+                    </div>
+
+                  </div>
+
+
+                  <p>
+                    {{
+                      track.description ||
+                      'No description available.'
+                    }}
+                  </p>
+
+
+                  <!-- METRICS -->
+
+                  <div class="track-metrics">
+
+                    <div class="metric">
+
+                      <div class="metric-icon course-icon">
+                        ▣
+                      </div>
+
+                      <div>
+
+                        <strong>
+                          {{ track.coursesCount }}
+                        </strong>
+
+                        <small>
+                          {{ getCourseLabel(track.coursesCount) }}
+                        </small>
+
+                      </div>
+
+                    </div>
+
+
+                    <div class="metric">
+
+                      <div class="metric-icon student-icon">
+                        ♙
+                      </div>
+
+                      <div>
+
+                        <strong>
+                          {{ track.studentsCount }}
+                        </strong>
+
+                        <small>
+                          {{ getStudentLabel(track.studentsCount) }}
+                        </small>
+
+                      </div>
+
+                    </div>
+
+                  </div>
+
+                </div>
+
+
+                <!-- FOOTER -->
+
+                <div class="track-footer">
+
+                  <span>
+
+                    {{
+                      track.status === 'Active'
+                        ? 'Available for learners'
+                        : 'Currently unavailable'
+                    }}
+
+                  </span>
+
+
+                  <div class="track-actions">
+
+                    <button
+                      type="button"
+                      title="View"
+                      (click)="viewTrack(track.id)"
+                    >
+                      View
+                    </button>
+
+
+                    <button
+                      type="button"
+                      title="Edit"
+                      class="edit-action"
+                      (click)="editTrack(track.id)"
+                    >
+                      Edit
+                    </button>
+
+
+                    <button
+                      type="button"
+                      title="Delete"
+                      class="delete-action"
+                      (click)="deleteTrack(track)"
+                    >
+                      Delete
+                    </button>
+
+                  </div>
+
+                </div>
+
+              </article>
+
+            }
+
+          </section>
+
+
+        } @else {
+
+          <div class="empty-tracks">
+
+            <div class="empty-icon">
+              ◇
+            </div>
+
+
+            <h2>
+              No tracks found
+            </h2>
+
+
+            <p>
+              Try changing your search, category,
+              subcategory, or status filter.
+            </p>
+
+
+            <button
+              type="button"
+              (click)="clearFilters()"
+            >
+              Clear Filters
+            </button>
+
+          </div>
+
+        }
+
+      }
+
+
+    </section>
+
+  </main>
+
+</div>
+
+
+<!-- =========================================================
+     ADD / EDIT TRACK MODAL
+========================================================= -->
+
+@if (showTrackModal) {
+
+  <div
+    class="track-modal-overlay"
+    (click)="closeTrackModal()"
+  >
+
+    <div
+      class="track-modal"
+      (click)="$event.stopPropagation()"
+    >
+
+      <!-- MODAL HEADER -->
+
+      <div class="modal-header">
+
+        <div>
+
+          <span class="modal-eyebrow">
+            TRACK MANAGEMENT
+          </span>
+
+          <h2>
+            {{
+              isEditMode
+                ? 'Edit Learning Track'
+                : 'Create New Track'
+            }}
+          </h2>
+
+          <p>
+            {{
+              isEditMode
+                ? 'Update the track information and hierarchy.'
+                : 'Create a new learning path and connect it to a category.'
+            }}
+          </p>
+
+        </div>
+
+
+        <button
+          type="button"
+          class="modal-close"
+          (click)="closeTrackModal()"
+        >
+          ×
+        </button>
+
+      </div>
+
+
+      <!-- MODAL BODY -->
+
+      <div class="modal-body">
+
+        @if (errorMessage) {
+
+          <div class="modal-error">
+            {{ errorMessage }}
+          </div>
+
+        }
+
+
+        <!-- TRACK NAME -->
+
+        <div class="form-group">
+
+          <label>
+            Track Name
+            <span>*</span>
+          </label>
+
+          <input
+            type="text"
+            [(ngModel)]="trackForm.name"
+            placeholder="e.g. Frontend Development"
+            maxlength="100"
+          />
+
+        </div>
+
+
+        <!-- CATEGORY + SUBCATEGORY -->
+
+        <div class="form-row">
+
+          <div class="form-group">
+
+            <label>
+              Category
+              <span>*</span>
+            </label>
+
+            <select
+              [(ngModel)]="trackForm.categoryId"
+              (change)="onFormCategoryChange()"
+            >
+
+              <option value="">
+                Select category
+              </option>
+
+
+              @for (
+                category of allCategories;
+                track category.id
+              ) {
+
+                <option [value]="category.id">
+                  {{ category.name }}
+                </option>
+
+              }
+
+            </select>
+
+          </div>
+
+
+          <div class="form-group">
+
+            <label>
+              Subcategory
+              <span>*</span>
+            </label>
+
+            <select
+              [(ngModel)]="trackForm.subcategoryId"
+              [disabled]="!trackForm.categoryId"
+            >
+
+              <option value="">
+                {{
+                  trackForm.categoryId
+                    ? 'Select subcategory'
+                    : 'Select category first'
+                }}
+              </option>
+
+
+              @for (
+                subcategory of getFormSubcategories();
+                track subcategory.id
+              ) {
+
+                <option [value]="subcategory.id">
+                  {{ subcategory.name }}
+                </option>
+
+              }
+
+            </select>
+
+          </div>
+
+        </div>
+
+
+        <!-- DESCRIPTION -->
+
+        <div class="form-group">
+
+          <label>
+            Description
+          </label>
+
+          <textarea
+            [(ngModel)]="trackForm.description"
+            placeholder="Describe what learners will learn in this track..."
+            rows="4"
+            maxlength="500"
+          ></textarea>
+
+          <small class="field-hint">
+            Keep the description clear and concise.
+          </small>
+
+        </div>
+
+
+        <!-- STATUS -->
+
+        <div class="form-group">
+
+          <label>
+            Status
+          </label>
+
+          <div class="status-options">
+
+            <button
+              type="button"
+              [class.selected]="trackForm.status === 'Active'"
+              (click)="trackForm.status = 'Active'"
+            >
+
+              <span class="option-dot active"></span>
+
+              Active
+
+            </button>
+
+
+            <button
+              type="button"
+              [class.selected]="trackForm.status === 'Inactive'"
+              (click)="trackForm.status = 'Inactive'"
+            >
+
+              <span class="option-dot inactive"></span>
+
+              Inactive
+
+            </button>
+
+          </div>
+
+        </div>
+
+      </div>
+
+
+      <!-- MODAL FOOTER -->
+
+      <div class="modal-footer">
+
+        <button
+          type="button"
+          class="modal-cancel"
+          (click)="closeTrackModal()"
+        >
+          Cancel
+        </button>
+
+
+        <button
+          type="button"
+          class="modal-save"
+          (click)="saveTrack()"
+        >
+
+          <span>
+            {{ isEditMode ? '✓' : '+' }}
+          </span>
+
+          {{
+            isEditMode
+              ? 'Update Track'
+              : 'Create Track'
+          }}
+
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+
+}

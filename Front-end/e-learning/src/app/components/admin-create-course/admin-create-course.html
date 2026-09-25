@@ -1,0 +1,507 @@
+<div class="create-course-shell">
+
+  <main class="create-course-main">
+
+    <header class="page-header">
+
+      <div>
+
+        <a
+          routerLink="/admin-courses"
+          class="back-link"
+        >
+          ← Back to Courses
+        </a>
+
+        <span class="eyebrow">
+          COURSE MANAGEMENT
+        </span>
+
+        <h1>
+          Create & Assign Course
+        </h1>
+
+        <p>
+          Create a course and assign it directly
+          to an instructor so they can start
+          preparing the curriculum.
+        </p>
+
+      </div>
+
+    </header>
+
+    @if (errorMessage) {
+
+      <div class="error-message">
+        <span>!</span>
+        {{ errorMessage }}
+      </div>
+
+    }
+
+    <form
+      class="course-form"
+      (ngSubmit)="createCourse()"
+    >
+
+      <div class="form-layout">
+
+        <!-- BASIC INFORMATION -->
+
+        <section class="form-card">
+
+          <div class="card-heading">
+
+            <div class="card-icon">
+              ▣
+            </div>
+
+            <div>
+              <h2>
+                Basic Information
+              </h2>
+
+              <p>
+                Add the main information
+                about the course.
+              </p>
+            </div>
+
+          </div>
+
+          <div class="form-group full">
+
+            <label>
+              COURSE TITLE
+              <span>*</span>
+            </label>
+
+            <input
+              type="text"
+              name="title"
+              [(ngModel)]="title"
+              placeholder="e.g. Advanced React Development"
+              required
+            />
+
+          </div>
+
+          <div class="form-group full">
+
+            <label>
+              DESCRIPTION
+              <span>*</span>
+            </label>
+
+            <textarea
+              name="description"
+              [(ngModel)]="description"
+              rows="5"
+              placeholder="Describe what students will learn in this course..."
+              required
+            ></textarea>
+
+          </div>
+
+          <div class="form-grid">
+
+            <div class="form-group">
+
+              <label>
+                CATEGORY
+                <span>*</span>
+              </label>
+
+              <select
+                name="category"
+                [(ngModel)]="category"
+                (change)="onCategoryChange()"
+                required
+              >
+
+                @for (
+                  item of categories;
+                  track item
+                ) {
+
+                  <option [value]="item">
+                    {{ item }}
+                  </option>
+
+                }
+
+              </select>
+
+            </div>
+
+            <div class="form-group">
+
+              <label>
+                TRACK
+              </label>
+
+              <select
+                name="track"
+                [(ngModel)]="track"
+              >
+
+                @for (
+                  item of tracks;
+                  track item
+                ) {
+
+                  <option [value]="item">
+                    {{ item }}
+                  </option>
+
+                }
+
+              </select>
+
+            </div>
+
+            <div class="form-group">
+
+              <label>
+                LEVEL
+              </label>
+
+              <select
+                name="level"
+                [(ngModel)]="level"
+              >
+
+                <option value="Beginner">
+                  Beginner
+                </option>
+
+                <option value="Intermediate">
+                  Intermediate
+                </option>
+
+                <option value="Advanced">
+                  Advanced
+                </option>
+
+              </select>
+
+            </div>
+
+            <div class="form-group">
+
+              <label>
+                LANGUAGE
+              </label>
+
+              <select
+                name="language"
+                [(ngModel)]="language"
+              >
+
+                <option value="English">
+                  English
+                </option>
+
+                <option value="Arabic">
+                  Arabic
+                </option>
+
+                <option value="French">
+                  French
+                </option>
+
+              </select>
+
+            </div>
+
+          </div>
+
+        </section>
+
+        <!-- INSTRUCTOR ASSIGNMENT -->
+
+        <section class="form-card assignment-card">
+
+          <div class="card-heading">
+
+            <div class="card-icon assignment">
+              ♙
+            </div>
+
+            <div>
+              <h2>
+                Assign Instructor
+              </h2>
+
+              <p>
+                Choose the instructor who will
+                prepare the course content.
+              </p>
+            </div>
+
+          </div>
+
+          <div class="form-group">
+
+            <label>
+              INSTRUCTOR
+              <span>*</span>
+            </label>
+
+            <select
+              name="instructor"
+              [(ngModel)]="selectedInstructorId"
+              required
+            >
+
+              <option
+                value=""
+                disabled
+              >
+                Select an instructor
+              </option>
+
+              @for (
+                instructor of instructors;
+                track instructor.id
+              ) {
+
+                <option
+                  [value]="instructor.id"
+                >
+                  {{ instructor.name }}
+                  —
+                  {{ instructor.email }}
+                </option>
+
+              }
+
+            </select>
+
+          </div>
+
+          @if (selectedInstructorId) {
+
+            <div class="assignment-note">
+
+              <div class="note-icon">
+                ✓
+              </div>
+
+              <div>
+
+                <strong>
+                  Course assignment
+                </strong>
+
+                <p>
+                  The selected instructor will receive
+                  a notification after the course is created.
+                </p>
+
+              </div>
+
+            </div>
+
+          }
+
+        </section>
+
+        <!-- PRICING -->
+
+        <section class="form-card">
+
+          <div class="card-heading">
+
+            <div class="card-icon">
+              $
+            </div>
+
+            <div>
+              <h2>
+                Pricing & Schedule
+              </h2>
+
+              <p>
+                Set the course price and duration.
+              </p>
+            </div>
+
+          </div>
+
+          <div class="form-grid">
+
+            <div class="form-group">
+
+              <label>
+                PRICE (USD)
+              </label>
+
+              <input
+                type="number"
+                name="price"
+                [(ngModel)]="price"
+                min="0"
+                step="0.01"
+                placeholder="79.99"
+              />
+
+            </div>
+
+            <div class="form-group">
+
+              <label>
+                DURATION
+              </label>
+
+              <input
+                type="text"
+                name="duration"
+                [(ngModel)]="duration"
+                placeholder="e.g. 24 hours"
+              />
+
+            </div>
+
+          </div>
+
+        </section>
+
+        <!-- IMAGE -->
+
+        <section class="form-card">
+
+          <div class="card-heading">
+
+            <div class="card-icon">
+              ◈
+            </div>
+
+            <div>
+              <h2>
+                Course Image
+              </h2>
+
+              <p>
+                Add a cover image for the course.
+              </p>
+            </div>
+
+          </div>
+
+          <div class="image-preview">
+
+            <img
+              [src]="imageUrl"
+              alt="Course preview"
+            />
+
+          </div>
+
+          <div class="form-group">
+
+            <label>
+              IMAGE URL
+            </label>
+
+            <input
+              type="text"
+              name="image"
+              [(ngModel)]="imageUrl"
+              placeholder="https://..."
+            />
+
+          </div>
+
+        </section>
+
+        <!-- LEARNING INFORMATION -->
+
+        <section class="form-card">
+
+          <div class="card-heading">
+
+            <div class="card-icon">
+              ◆
+            </div>
+
+            <div>
+              <h2>
+                Learning Information
+              </h2>
+
+              <p>
+                Define the expected learning outcomes.
+              </p>
+            </div>
+
+          </div>
+
+          <div class="form-group">
+
+            <label>
+              LEARNING OBJECTIVES
+            </label>
+
+            <textarea
+              name="objectives"
+              [(ngModel)]="objectives"
+              rows="4"
+              placeholder="Add the main learning objectives..."
+            ></textarea>
+
+          </div>
+
+          <div class="form-group">
+
+            <label>
+              PREREQUISITES
+            </label>
+
+            <textarea
+              name="prerequisites"
+              [(ngModel)]="prerequisites"
+              rows="4"
+              placeholder="What should students know before starting?"
+            ></textarea>
+
+          </div>
+
+        </section>
+
+      </div>
+
+      <!-- ACTIONS -->
+
+      <div class="form-actions">
+
+        <button
+          type="button"
+          class="cancel-button"
+          (click)="cancel()"
+        >
+          Cancel
+        </button>
+
+        <button
+          type="submit"
+          class="create-button"
+          [disabled]="loading"
+        >
+
+          @if (loading) {
+            Creating...
+          } @else {
+            Create & Assign Course →
+          }
+
+        </button>
+
+      </div>
+
+    </form>
+
+  </main>
+
+</div>

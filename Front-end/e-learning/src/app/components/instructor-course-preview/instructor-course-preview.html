@@ -1,0 +1,234 @@
+<div class="preview-page">
+
+  <header class="preview-header">
+
+    <div>
+      <span class="preview-label">
+        COURSE PREVIEW
+      </span>
+
+      <h1>{{ course.title }}</h1>
+
+      <p>
+        This is the student preview of your course.
+      </p>
+    </div>
+
+    <button
+      type="button"
+      class="back-button"
+      (click)="backToCurriculum()"
+    >
+      ← Back to Curriculum
+    </button>
+
+  </header>
+
+
+  <main class="preview-content">
+
+    <section class="course-hero">
+
+      <img
+        [src]="course.image"
+        [alt]="course.title"
+      >
+
+      <div class="hero-content">
+
+        <span class="status">
+          {{ course.status }}
+        </span>
+
+        <h2>
+          {{ course.title }}
+        </h2>
+
+        <p>
+          {{ course.category }}
+        </p>
+
+        <div class="course-stats">
+
+          <div>
+            <strong>
+              {{ data.sections.length }}
+            </strong>
+            <span>Sections</span>
+          </div>
+
+          <div>
+            <strong>
+              {{ totalLessons }}
+            </strong>
+            <span>Lessons</span>
+          </div>
+
+          <div>
+            <strong>
+              {{ totalQuizzes }}
+            </strong>
+            <span>Quizzes</span>
+          </div>
+
+          <div>
+            <strong>
+              {{ course.price }}
+            </strong>
+            <span>Price</span>
+          </div>
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <section class="curriculum-preview">
+
+      <div class="section-heading">
+
+        <span>COURSE CONTENT</span>
+
+        <h2>
+          Course Curriculum
+        </h2>
+
+      </div>
+
+
+      @for (
+        section of data.sections;
+        track section.id;
+        let sectionIndex = $index
+      ) {
+
+        <article class="preview-section">
+
+          <div class="section-title">
+
+            <div>
+
+              <span>
+                SECTION {{ sectionIndex + 1 }}
+              </span>
+
+              <h3>
+                {{ section.title }}
+              </h3>
+
+            </div>
+
+            <small>
+              {{
+                section.lessons.length +
+                section.quizzes.length
+              }}
+              items
+            </small>
+
+          </div>
+
+
+          <div class="items">
+
+            @for (
+              lesson of section.lessons;
+              track lesson.id
+            ) {
+
+              <div class="preview-item">
+
+                <div class="item-icon">
+                  ▶
+                </div>
+
+                <div>
+
+                  <strong>
+                    {{ lesson.title }}
+                  </strong>
+
+                  <small>
+                    {{ lesson.type }}
+                    ·
+                    {{ lesson.duration }}
+
+                    @if (lesson.preview) {
+                      · Preview
+                    }
+                  </small>
+
+                </div>
+
+              </div>
+
+            }
+
+
+            @for (
+              quiz of section.quizzes;
+              track quiz.id
+            ) {
+
+              <div class="preview-item">
+
+                <div class="item-icon quiz-icon">
+                  ?
+                </div>
+
+                <div>
+
+                  <strong>
+                    {{ quiz.title }}
+                  </strong>
+
+                  <small>
+                    {{ quiz.questions.length }}
+                    questions
+                    ·
+                    {{ quiz.passingScore }}%
+                    passing
+                    ·
+                    {{ quiz.duration }}
+                  </small>
+
+                </div>
+
+              </div>
+
+            }
+
+
+            @if (
+              section.lessons.length === 0 &&
+              section.quizzes.length === 0
+            ) {
+
+              <div class="empty-section">
+                This section has no content yet.
+              </div>
+
+            }
+
+          </div>
+
+        </article>
+
+      }
+
+
+      @if (data.sections.length === 0) {
+
+        <div class="empty-course">
+          No curriculum content has been added yet.
+        </div>
+
+      }
+
+    </section>
+
+  </main>
+
+</div>

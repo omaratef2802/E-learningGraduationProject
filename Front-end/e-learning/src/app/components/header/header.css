@@ -1,0 +1,29 @@
+:host { display: block; height: 82px; font-family: "Trebuchet MS", "Segoe UI", sans-serif; }
+.site-header { position:fixed; inset:0 0 auto; z-index:20; display:flex; align-items:center; justify-content:space-between; min-height:72px; padding:0 4vw; background:rgba(246,247,252,.94); border-bottom:1px solid rgba(214,216,230,.7); box-shadow:0 3px 12px rgba(70,74,110,.06); transition:background .3s ease,box-shadow .3s ease,backdrop-filter .3s ease; }
+.brand { display:inline-flex; align-items:center; gap:10px; color:#292b40; text-decoration:none; white-space:nowrap; }
+.brand-icon { display:grid; place-items:center; width:23px; height:23px; color:#fff; background:#6568ee; border-radius:6px; box-shadow:0 5px 12px rgba(101,104,238,.28); font-size:10px; transform:rotate(45deg); }
+.brand-name { font-size:17px; font-weight:800; letter-spacing:-.03em; }
+.nav-pill { display:flex; align-items:center; gap:5px; padding:7px; border-radius:28px; background:rgba(255,255,255,.62); box-shadow:0 7px 16px rgba(74,78,116,.12); }
+.nav-pill a { padding:9px 17px; border-radius:21px; color:#77798a; font-size:11px; text-decoration:none; transition:color .2s ease,background .2s ease,transform .2s ease; }
+.nav-pill a:hover, .nav-pill a.active { color:#6568ee; background:#f4f5ff; transform:translateY(-1px); }
+.header-actions { display:flex; align-items:center; gap:14px; }
+.login-link { color:#686a79; font-size:11px; text-decoration:none; }
+.signup-button { padding:10px 17px; border-radius:20px; color:#686bf0; background:#f9f9ff; box-shadow:0 6px 14px rgba(78,82,120,.12); font-size:11px; font-weight:700; text-decoration:none; }
+.account-button { display:grid; place-items:center; width:25px; height:25px; border-radius:50%; color:#fff; background:#6769ee; font-size:13px; text-decoration:none; }
+@media (max-width:700px) { :host { height:104px; } .site-header { flex-wrap:wrap; gap:14px; padding:10px 20px; } .brand,.header-actions { flex:1; } .header-actions { justify-content:flex-end; } .nav-pill { order:3; width:100%; justify-content:center; } .nav-pill a { padding:8px 12px; } }
+@media (max-width:430px) { .brand-name { font-size:15px; } .login-link { display:none; } .nav-pill a { padding:8px 9px; font-size:10px; } }
+
+.site-header { min-height: 82px; padding-left: 5vw; padding-right: 5vw; }
+.brand { gap: 12px; }
+.brand-icon { width: 28px; height: 28px; font-size: 12px; }
+.brand-name { font-size: 21px; }
+.nav-pill a { padding: 11px 19px; font-size: 13px; }
+.login-link { font-size: 13px; }
+.signup-button { padding: 12px 20px; font-size: 13px; }
+.account-button { width: 30px; height: 30px; font-size: 15px; }
+@media (max-width: 700px) { .site-header { min-height: 76px; } .brand-name { font-size: 19px; } .brand-icon { width: 26px; height: 26px; } .nav-pill a { padding: 10px 14px; font-size: 12px; } .signup-button { padding: 11px 16px; font-size: 12px; } }
+@media (max-width: 430px) { .brand-name { font-size: 17px; } .nav-pill a { padding: 9px 10px; font-size: 11px; } }
+
+.site-header.is-scrolled { background: rgba(238,240,247,.62); border-bottom-color: rgba(255,255,255,.5); box-shadow: 0 10px 26px rgba(55,61,103,.14); backdrop-filter: blur(16px) saturate(135%); }
+.site-header.is-scrolled .nav-pill { background: rgba(255,255,255,.48); box-shadow: 0 5px 14px rgba(74,78,116,.1); }
+.site-header.is-scrolled .signup-button { background: rgba(255,255,255,.7); }
