@@ -24,10 +24,12 @@ const users = require("./Routers/users");
 const categoryRoutes=require("./Routers/Category")
 const trackRoutes=require("./Routers/Track")
 const courseRoutes = require("./Routers/Course");
+const instructorRoutes = require("./Routers/Instructor");
 app.use("/E-learning/users", users);
 app.use("/E-learning/category",categoryRoutes)
 app.use("/E-learning/track",trackRoutes)
 app.use("/E-learning/course",courseRoutes)
+app.use("/E-learning/instructor", instructorRoutes);
 
 const cartRouter = require("./Routers/Cart");
 const wishlistRouter = require("./Routers/Wishlist");

@@ -1,4 +1,4 @@
-import { Component, computed, signal } from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { NgIcon, provideIcons } from '@ng-icons/core';
@@ -10,6 +10,7 @@ import {
 } from '@ng-icons/lucide';
 import { StudentDrawerComponent } from './components/student-drawer/student-drawer';
 import { StudentItem } from './students.model';
+import { InstructorService } from '../../core/services/instructor.service';
 
 @Component({
   selector: 'app-students',
@@ -26,7 +27,9 @@ import { StudentItem } from './students.model';
   templateUrl: './students.html',
   styleUrl: './students.css'
 })
-export class StudentsComponent {
+export class StudentsComponent implements OnInit {
+  private readonly instructorService = inject(InstructorService);
+
   // Search and filter signals
   readonly searchQuery = signal('');
   readonly selectedCourse = signal('All Courses');
@@ -40,129 +43,28 @@ export class StudentsComponent {
   readonly pageSize = signal(8);
   readonly currentPage = signal(1);
 
-  // Student Data matching the reference image
-  readonly students = signal<StudentItem[]>([
-    {
-      id: 'std-1',
-      name: 'Naema Sayed',
-      email: 'naema.learner@example.com',
-      avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80',
-      courseTitle: 'Full-Stack Web Development',
-      progressPercent: 85,
-      status: 'Active',
-      enrolledDate: 'Jan 14, 2025',
-      completedLessons: 31,
-      totalLessons: 36,
-      examsPassed: 3,
-      totalExams: 4,
-      finalAssessmentStatus: 'In Progress'
-    },
-    {
-      id: 'std-2',
-      name: 'Naema Sayed',
-      email: 'naema.learner@example.com',
-      avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80',
-      courseTitle: 'Full-Stack Web Development',
-      progressPercent: 85,
-      status: 'Active',
-      enrolledDate: 'Jan 14, 2025',
-      completedLessons: 31,
-      totalLessons: 36,
-      examsPassed: 3,
-      totalExams: 4,
-      finalAssessmentStatus: 'In Progress'
-    },
-    {
-      id: 'std-3',
-      name: 'Naema Sayed',
-      email: 'naema.learner@example.com',
-      avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80',
-      courseTitle: 'Full-Stack Web Development',
-      progressPercent: 85,
-      status: 'Active',
-      enrolledDate: 'Jan 14, 2025',
-      completedLessons: 31,
-      totalLessons: 36,
-      examsPassed: 3,
-      totalExams: 4,
-      finalAssessmentStatus: 'In Progress'
-    },
-    {
-      id: 'std-4',
-      name: 'Naema Sayed',
-      email: 'naema.learner@example.com',
-      avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80',
-      courseTitle: 'Full-Stack Web Development',
-      progressPercent: 85,
-      status: 'Active',
-      enrolledDate: 'Jan 14, 2025',
-      completedLessons: 31,
-      totalLessons: 36,
-      examsPassed: 3,
-      totalExams: 4,
-      finalAssessmentStatus: 'In Progress'
-    },
-    {
-      id: 'std-5',
-      name: 'Naema Sayed',
-      email: 'naema.learner@example.com',
-      avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80',
-      courseTitle: 'Full-Stack Web Development',
-      progressPercent: 85,
-      status: 'Active',
-      enrolledDate: 'Jan 14, 2025',
-      completedLessons: 31,
-      totalLessons: 36,
-      examsPassed: 3,
-      totalExams: 4,
-      finalAssessmentStatus: 'In Progress'
-    },
-    {
-      id: 'std-6',
-      name: 'Naema Sayed',
-      email: 'naema.learner@example.com',
-      avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80',
-      courseTitle: 'Full-Stack Web Development',
-      progressPercent: 85,
-      status: 'Active',
-      enrolledDate: 'Jan 14, 2025',
-      completedLessons: 31,
-      totalLessons: 36,
-      examsPassed: 3,
-      totalExams: 4,
-      finalAssessmentStatus: 'In Progress'
-    },
-    {
-      id: 'std-7',
-      name: 'Naema Sayed',
-      email: 'naema.learner@example.com',
-      avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80',
-      courseTitle: 'Full-Stack Web Development',
-      progressPercent: 85,
-      status: 'Active',
-      enrolledDate: 'Jan 14, 2025',
-      completedLessons: 31,
-      totalLessons: 36,
-      examsPassed: 3,
-      totalExams: 4,
-      finalAssessmentStatus: 'In Progress'
-    },
-    {
-      id: 'std-8',
-      name: 'Naema Sayed',
-      email: 'naema.learner@example.com',
-      avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80',
-      courseTitle: 'Full-Stack Web Development',
-      progressPercent: 85,
-      status: 'Active',
-      enrolledDate: 'Jan 14, 2025',
-      completedLessons: 31,
-      totalLessons: 36,
-      examsPassed: 3,
-      totalExams: 4,
-      finalAssessmentStatus: 'In Progress'
-    }
-  ]);
+  // Student Data loaded from backend API
+  readonly students = signal<StudentItem[]>([]);
+
+  ngOnInit(): void {
+    this.loadStudents();
+  }
+
+  loadStudents(): void {
+    this.instructorService.getInstructorStudents().subscribe({
+      next: (response) => {
+        if (response && response.data) {
+          this.students.set(response.data);
+        } else {
+          this.students.set([]);
+        }
+      },
+      error: (err) => {
+        console.error('Failed to load instructor students:', err);
+        this.students.set([]);
+      }
+    });
+  }
 
   // Dynamic filter options
   readonly availableCourses = computed(() => [
