@@ -9,23 +9,20 @@ const {
   getCoursesByCategory,
   getCourseById,
   updateCourse,
-  deleteCourse
+  updateCourseStatus,
+  deleteCourse,
 } = require("../controllers/Course");
 
 const { auth, relasedTo } = require("../middlewares/auth");
 
-router.get("/", auth, getAllCourses);
+router.get("/", getAllCourses);
+router.get("/courses", getAllCourses);
+router.get("/track/:trackId", getCoursesByTrack);
+router.get("/category/:categoryId", getCoursesByCategory);
+router.get("/:id", getCourseById);
 
-router.get("/track/:trackId", auth, getCoursesByTrack);
-
-router.get("/category/:categoryId", auth, getCoursesByCategory);
-
-router.get("/:id", auth, getCourseById);
-
-router.post("/", auth, relasedTo("admin"), createCourse);
-
-router.put("/:id", auth, relasedTo("admin"), updateCourse);
-
-router.delete("/:id", auth, relasedTo("admin"), deleteCourse);
-
+router.post("/addCourse", auth, relasedTo("instructor"), createCourse);
+router.put("/updateCourse/:id", auth, relasedTo("instructor"), updateCourse);
+router.patch("/status/:id", auth, relasedTo("instructor"), updateCourseStatus);
+router.delete("/deleteCourse/:id", auth, relasedTo("instructor"), deleteCourse);
 module.exports = router;

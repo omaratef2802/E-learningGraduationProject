@@ -1,51 +1,38 @@
 const dotenv = require("dotenv");
 dotenv.config();
 const express = require("express");
-const app = express();
 const cors = require("cors");
-const mongoose = require("mongoose");
+const connectDb = require("./configs/db");
 const passport = require("./configs/passport");
-// connect db
-mongoose .connect(process.env.URL_MONGO)
-  .then(() => {
-    console.log("the db runing successfuly");
-  })
-  .catch((err) => {
-    console.log(err.message);
-  });
+const mountRoutes = require("./Routers");
 
-app.use(cors());
-app.use(express.json());
-app.use(express.Router());
+const app = express();
+connectDb();
+
+const allowedOrigins = process.env.FRONTEND_URL ? process.env.FRONTEND_URL.split(",").map((origin) => origin.trim()).filter(Boolean) : null;
+app.use(cors({
+  origin: allowedOrigins ? (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) return callback(null, true);
+    return callback(new Error("Origin is not allowed by CORS"));
+  } : true,
+  credentials: true,
+}));
+app.use(express.json({ limit: "2mb" }));
+app.use(express.urlencoded({ extended: true, limit: "2mb" }));
 app.use(passport.initialize());
 
-// require endpoints
-const users = require("./Routers/users");
-const categoryRoutes=require("./Routers/Category")
-const trackRoutes=require("./Routers/Track")
-const courseRoutes = require("./Routers/Course");
-app.use("/E-learning/users", users);
-app.use("/E-learning/category",categoryRoutes)
-app.use("/E-learning/track",trackRoutes)
-app.use("/E-learning/course",courseRoutes)
+mountRoutes(app);
 
-const cartRouter = require("./Routers/Cart");
-const wishlistRouter = require("./Routers/Wishlist");
-const orderRouter = require("./Routers/Order");
-const paymentRouter = require("./Routers/Payment");
-const refundRouter = require("./Routers/Refund");
-const walletRouter = require("./Routers/Wallet");
-const payoutRouter = require("./Routers/Payout");
-app.use("/E-learning/users", users);
-app.use("/cart", cartRouter);
-app.use("/wishlist", wishlistRouter);
-app.use("/orders", orderRouter);
-app.use("/payments", paymentRouter);
-app.use("/refunds", refundRouter);
-app.use("/wallet", walletRouter);
-app.use("/payouts", payoutRouter);
-app.use((err, req, res, next) => {
-  let statusCode = err.statusCode ? err.statusCode : 500;
-  res.status(statusCode).json({ message: err.message });
+app.use((req, res, next) => {
+  res.status(404).json({ message: "Route not found" });
 });
+
+app.use((err, req, res, next) => {
+  let statusCode = err.statusCode || 500;
+  if (err.code === 11000) statusCode = 409;
+  if (err.name === "ValidationError") statusCode = 400;
+  if (err.name === "CastError") statusCode = 400;
+  res.status(statusCode).json({ success: false, message: err.message || "Internal server error" });
+});
+
 module.exports = { app };

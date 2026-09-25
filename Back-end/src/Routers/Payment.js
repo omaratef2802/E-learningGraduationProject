@@ -1,8 +1,9 @@
 const express = require("express");
-const { createPayment, updatePayment, getPaymentHistory} = require("../controllers/Payment");
-const {auth , relasedTo} = require("../middlewares/auth");
 const router = express.Router();
-router.post("/", auth, createPayment);
-router.patch("/:id", relasedTo("admin"), auth, updatePayment);
-router.get("/history", auth, getPaymentHistory);
+const { auth, relasedTo } = require("../middlewares/auth");
+const { createPayment, updatePayment, getPaymentHistory } = require("../controllers/Payment");
+router.post("/", auth, relasedTo("student"), createPayment);
+router.get("/", auth, relasedTo("student"), getPaymentHistory);
+router.patch("/:id", auth, relasedTo("admin"), updatePayment);
+router.patch("/:id/confirm", auth, relasedTo("admin"), updatePayment);
 module.exports = router;
