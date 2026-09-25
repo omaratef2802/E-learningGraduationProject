@@ -1,8 +1,12 @@
 const express = require("express");
-const { createPayout, getPayoutHistory, updatePayout} = require("../controllers/Payout");
-const {auth , relasedTo} = require("../middlewares/auth");
 const router = express.Router();
-router.post("/", auth, createPayout);
-router.get("/", auth, getPayoutHistory);
-router.patch("/:id", relasedTo("admin"), auth, updatePayout);
+const { auth, relasedTo } = require("../middlewares/auth");
+const {
+  createPayout,
+  getPayoutHistory,
+  updatePayout,
+} = require("../controllers/Payout");
+router.post("/", auth, relasedTo("instructor"), createPayout);
+router.get("/", auth, relasedTo("instructor"), getPayoutHistory);
+router.patch("/:id", auth, relasedTo("admin"), updatePayout);
 module.exports = router;

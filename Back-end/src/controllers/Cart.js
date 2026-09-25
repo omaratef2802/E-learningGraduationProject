@@ -1,108 +1,91 @@
 const Cart = require("../modules/Cart");
+const Course = require("../modules/dbCourse");
+const Enrollment = require("../modules/dbEnrollement");
 const ApiError = require("../utils/ApiError");
+
+const recalculateCart = (cart) => {
+  cart.totalPrice = cart.courses.reduce((sum, item) => sum + item.price, 0);
+};
+
 const addToCart = async (req, res, next) => {
   try {
-    const userId = req.id;
-    const { courseId, price } = req.body;
-    let cart = await Cart.findOne({ userId });
-    if (!cart) {
+    const { courseId } = req.body;
+    if (!courseId) return next(new ApiError(400, "courseId is required"));
+    const course = await Course.findOne({ _id: courseId, status: "published" });
+    if (!course)
+      return next(new ApiError(404, "Course not found or not available"));
+    if (await Enrollment.exists({ studentId: req.id, courseId }))
+      return next(new ApiError(409, "You are already enrolled in this course"));
+
+    let cart = await Cart.findOne({ userId: req.id });
+    if (!cart)
       cart = await Cart.create({
-        userId: userId,
-        courses: [
-          {
-            courseId: courseId,
-            price: price,
-          },
-        ],
-        totalPrice: price,
+        userId: req.id,
+        courses: [{ courseId, price: course.price }],
+        totalPrice: course.price,
       });
-      return res.status(201).json({
-        message: "Course added to cart",
-        cart: cart,
-      });
+    else {
+      if (
+        cart.courses.some(
+          (item) => item.courseId.toString() === courseId.toString(),
+        )
+      )
+        return next(new ApiError(400, "Course already in cart"));
+      cart.courses.push({ courseId, price: course.price });
+      recalculateCart(cart);
+      await cart.save();
     }
-    const courseExists = cart.courses.find(
-      (course) => course.courseId.toString() === courseId,
-    );
-    if (courseExists) {
-      throw new ApiError(400, "Course already in cart");
-    }
-    cart.courses.push({
-      courseId: courseId,
-      price: price,
-    });
-    cart.totalPrice = cart.totalPrice + price;
-    await cart.save();
-    res.status(200).json({
-      message: "Course added to cart",
-      cart: cart,
-    });
+    return res.status(201).json({ message: "Course added to cart", cart });
   } catch (error) {
-    next(error);
+    return next(new ApiError(500, error.message));
   }
 };
+
 const getCart = async (req, res, next) => {
   try {
-    const userId = req.id;
-
-    const cart = await Cart.findOne({ userId }).populate({
-      path: "courses.courseId",
-      populate: {
-        path: "instructorId",
-      },
-    });
-
-    if (!cart) {
-      throw new ApiError(404, "Cart is empty");
-    }
-
-    res.status(200).json(cart);
+    const cart = await Cart.findOne({ userId: req.id }).populate(
+      "courses.courseId",
+      "title image price slug status",
+    );
+    if (!cart)
+      return res
+        .status(200)
+        .json({ userId: req.id, courses: [], totalPrice: 0 });
+    return res.status(200).json(cart);
   } catch (error) {
-    next(error);
+    return next(new ApiError(500, error.message));
   }
 };
+
 const removeFromCart = async (req, res, next) => {
   try {
-    const userId = req.id;
-    const courseId = req.params.courseId;
-    const cart = await Cart.findOne({ userId });
-    if (!cart) {
-      throw new ApiError(404, "Cart not found");
-    }
-    const course = cart.courses.find(
-      (course) => course.courseId.toString() === courseId,
+    const cart = await Cart.findOne({ userId: req.id });
+    if (!cart) return next(new ApiError(404, "Cart not found"));
+    const exists = cart.courses.some(
+      (item) => item.courseId.toString() === req.params.courseId,
     );
-    if (!course) {
-      throw new ApiError(404, "Course not found in cart");
-    }
+    if (!exists) return next(new ApiError(404, "Course not found in cart"));
     cart.courses = cart.courses.filter(
-      (course) => course.courseId.toString() !== courseId,
+      (item) => item.courseId.toString() !== req.params.courseId,
     );
-    cart.totalPrice = cart.totalPrice - course.price;
+    recalculateCart(cart);
     await cart.save();
-    res.status(200).json({
-      message: "Course removed from cart",
-      cart: cart,
-    });
+    return res.status(200).json({ message: "Course removed from cart", cart });
   } catch (error) {
-    next(error);
+    return next(new ApiError(500, error.message));
   }
 };
+
 const clearCart = async (req, res, next) => {
   try {
-    const userId = req.id;
-    const cart = await Cart.findOne({ userId });
-    if (!cart) {
-      throw new ApiError(404, "Cart not found");
-    }
+    const cart = await Cart.findOne({ userId: req.id });
+    if (!cart) return res.status(200).json({ message: "Cart cleared" });
     cart.courses = [];
     cart.totalPrice = 0;
     await cart.save();
-    res.status(200).json({
-      message: "Cart cleared",
-    });
+    return res.status(200).json({ message: "Cart cleared" });
   } catch (error) {
-    next(error);
+    return next(new ApiError(500, error.message));
   }
 };
 module.exports = { addToCart, getCart, removeFromCart, clearCart };

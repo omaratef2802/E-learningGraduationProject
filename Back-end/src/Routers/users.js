@@ -1,15 +1,15 @@
 const express = require("express");
 const router = express.Router();
-const { auth, relasedTo } = require("../middlewares/auth");
+const { auth } = require("../middlewares/auth");
+const {
+  authReset,
+  authResetVerified,
+} = require("../middlewares/auhtResetPass");
 const upload = require("../configs/multer");
 const passport = require("../configs/passport");
-
 const {
-  getAllUsers,
-  getAllInstructor,
   getUserById,
-  createUser,
-  deleteUser,
+  creatUser,
   updateUser,
   updatePassword,
   login,
@@ -22,37 +22,21 @@ const {
 
 router.get(
   "/login/google",
-  passport.authenticate("google", {
-    scope: ["profile", "email"],
-  }),
+  passport.authenticate("google", { scope: ["profile", "email"] }),
 );
 router.get(
   "/google/callback",
-  passport.authenticate("google", {
-    session: false,
-  }),
+  passport.authenticate("google", { session: false }),
   googleLogin,
 );
-
-router.post("/signup", createUser);
+router.post("/signup", creatUser);
 router.post("/login", login);
-router.get("/profile", auth, getUserById);
+router.get("/profile/:id", auth, getUserById);
+router.get("/myProfile", auth, getUserById);
 router.patch("/profile", auth, updateUser);
-router.post("/updatePassowrd", auth, updatePassword);
-router.post("/profile/uploadImg", auth, upload.any("file"), uploadImage);
+router.post("/updatePassword", auth, updatePassword);
+router.post("/profile/uploadImg", auth, upload.single("Img"), uploadImage);
 router.post("/forgetPassword", forgetPassword);
-router.post("/verifyOtp", verifyOtp);
-router.post("/changePassword", changePassword);
-
-// //                      admins & instructor
-
-router.get(
-  "/MyUser/:limit/:skip",
-  auth,
-  relasedTo("admin", "instructor"),
-  getAllUsers,
-);
-router.get("/admin/:limit/:skip", auth, relasedTo("admin"), getAllInstructor);
-router.delete("/:id", auth, relasedTo("admin"), deleteUser);
-
+router.post("/verifyOtp", authReset, verifyOtp);
+router.post("/changePassword", authReset, authResetVerified, changePassword);
 module.exports = router;

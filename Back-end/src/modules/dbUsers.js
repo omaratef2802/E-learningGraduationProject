@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
+
 const UserSchema = new mongoose.Schema(
   {
     firstName: {
@@ -20,89 +21,46 @@ const UserSchema = new mongoose.Schema(
     },
     email: {
       type: String,
+      lowercase: true,
+      trim: true,
       validate: {
-       validator: function (email) {
-          return /^[a-zA-Z0-9._%+-]+@(gmail|yahoo|outlook)\.com$/.test(email);
-         },
+        validator: (email) =>
+          /^[a-zA-Z0-9._%+-]+@(gmail|yahoo|outlook)\.com$/.test(email),
         message: (obj) => `${obj.value} is not valid`,
       },
       required: [true, "the email is required"],
       unique: [true, "the email must be unique"],
     },
-    dateBirth: {
-      type: Date,
-    },
+    dateBirth: { type: Date },
     password: {
       type: String,
       required: function () {
         return this.authProvider === "local";
       },
     },
-    googleId: {
-      type: String,
-      unique: true,
-      sparse: true,
-    },
-    appleId: {
-      type: String,
-      unique: true,
-      sparse: true,
-    },
-    role: {
-      type: String,
-      enum: ["admin", "user", "instructor"],
-      default: "user",
-    },
-    img: {
-      type: String,
-      default: null,
-    },
-    authProvider: {
-      type: String,
-      enum: ["local", "google"],
-      default: "local",
-    },
-    phone: {
-      type: String,
-      default: null,
-    },
+    googleId: { type: String, unique: true, sparse: true },
+    verifiedSkills: { type: [mongoose.Schema.Types.Mixed], default: [] },
+    role: { type: String, enum: ["student", "instructor"], default: "student" },
+    img: { type: String, default: null },
+    authProvider: { type: String, enum: ["local", "google"], default: "local" },
+    phone: { type: String, default: null },
     level: {
       type: String,
       enum: ["beginner", "intermediate", "advanced"],
       default: "beginner",
     },
-    isActive: {
-      type: Boolean,
-      default: true,
-    },
-    currentStreak: {
-      type: Number,
-      default: 0,
-      min: [0, "Current streak cannot be negative"],
-    },
-    longestStreak: {
-      type: Number,
-      default: 0,
-      min: [0, "Longest streak cannot be negative"],
-    },
-    lastActiveDate: {
-      type: Date,
-      default: null,
-    },
-    bio: {
-      type: String,
-      min: [5, "the mi of bio is 5"],
-      max: [100, "the max of bio is 100"],
-    },
+    isActive: { type: Boolean, default: true },
+    currentStreak: { type: Number, default: 0, min: 0 },
+    longestStreak: { type: Number, default: 0, min: 0 },
+    lastActiveDate: { type: Date, default: null },
+    bio: { type: String, min: 5, max: 100 },
     trackId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Track",
+      ref: "tracks",
       default: null,
     },
   },
-  {
-    timestamps: true,
-  },
+  { timestamps: true },
 );
 
 UserSchema.pre("save", async function () {
@@ -111,5 +69,4 @@ UserSchema.pre("save", async function () {
   }
 });
 
-const userModel = mongoose.model("users", UserSchema);
-module.exports = userModel;
+module.exports = mongoose.model("users", UserSchema);

@@ -1,10 +1,11 @@
 const Certificate = require("../modules/dbCertificate");
 const User = require("../modules/dbUsers");
 const Course = require("../modules/dbCourse");
+const ApiError = require("../utils/ApiError");
 const crypto = require("crypto");
 const QRCode = require("qrcode");
 
-exports.generateCertificateForStudent = async (studentId, courseId) => {
+const generateCertificateForStudent = async (studentId, courseId) => {
   const existingCertificate = await Certificate.findOne({
     student: studentId,
     course: courseId,
@@ -22,7 +23,7 @@ exports.generateCertificateForStudent = async (studentId, courseId) => {
 
   const course = await Course.findById(courseId).populate(
     "instructorId",
-    "firstName lastName"
+    "firstName lastName",
   );
 
   if (!course) {
@@ -34,14 +35,11 @@ exports.generateCertificateForStudent = async (studentId, courseId) => {
   }
 
   const certificateId =
-    "CERT-" +
-    crypto.randomBytes(4).toString("hex").toUpperCase();
+    "CERT-" + crypto.randomBytes(4).toString("hex").toUpperCase();
 
-  const frontendUrl =
-    process.env.FRONTEND_URL || "http://localhost:4200";
+  const frontendUrl = process.env.FRONTEND_URL || "http://localhost:4200";
 
-  const verificationUrl =
-    `${frontendUrl}/verify-certificate/${certificateId}`;
+  const verificationUrl = `${frontendUrl}/verify-certificate/${certificateId}`;
 
   const qrCode = await QRCode.toDataURL(verificationUrl);
 
@@ -57,9 +55,32 @@ exports.generateCertificateForStudent = async (studentId, courseId) => {
     qrCode,
   });
 
+  const track = await Course.findById(courseId).populate("track");
+  if (track?.track?.requiredSkills?.length) {
+    const existing = Array.isArray(student.verifiedSkills)
+      ? student.verifiedSkills
+      : [];
+    for (const requiredSkill of track.track.requiredSkills) {
+      const alreadyExists = existing.some((skill) =>
+        typeof skill === "string"
+          ? skill.toLowerCase() === requiredSkill.skill.toLowerCase()
+          : skill?.skill?.toLowerCase() === requiredSkill.skill.toLowerCase(),
+      );
+      if (!alreadyExists)
+        existing.push({
+          skill: requiredSkill.skill,
+          level: requiredSkill.level,
+          courseId,
+        });
+    }
+    student.verifiedSkills = existing;
+    await student.save();
+  }
+
   return certificate;
 };
-exports.verifyCertificate = async (req, res) => {
+
+const verifyCertificate = async (req, res, next) => {
   try {
     const { certificateId } = req.params;
 
@@ -68,11 +89,9 @@ exports.verifyCertificate = async (req, res) => {
     });
 
     if (!certificate) {
-      return res.status(404).json({
-        success: false,
-        valid: false,
-        message: "Invalid Certificate ID. Certificate not found.",
-      });
+      return next(
+        new ApiError(404, "Invalid Certificate ID. Certificate not found."),
+      );
     }
 
     return res.status(200).json({
@@ -82,13 +101,11 @@ exports.verifyCertificate = async (req, res) => {
       data: certificate,
     });
   } catch (error) {
-    return res.status(500).json({
-      success: false,
-      message: error.message,
-    });
+    return next(new ApiError(500, error.message));
   }
 };
-exports.getMyCertificates = async (req, res) => {
+
+const getMyCertificates = async (req, res, next) => {
   try {
     const studentId = req.id;
 
@@ -102,9 +119,12 @@ exports.getMyCertificates = async (req, res) => {
       data: certificates,
     });
   } catch (error) {
-    return res.status(500).json({
-      success: false,
-      message: error.message,
-    });
+    return next(new ApiError(500, error.message));
   }
+};
+
+module.exports = {
+  generateCertificateForStudent,
+  verifyCertificate,
+  getMyCertificates,
 };

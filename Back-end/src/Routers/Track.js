@@ -1,7 +1,6 @@
 const express = require("express");
-
 const router = express.Router();
-
+const { auth, relasedTo } = require("../middlewares/auth");
 const {
   createTrack,
   getTracks,
@@ -9,27 +8,13 @@ const {
   getTrackById,
   getTrackBySlug,
   updateTrack,
-  deleteTrack
+  deleteTrack,
 } = require("../controllers/Track");
-
-const { auth, relasedTo } = require("../middlewares/auth");
-
-// Get all Tracks
-router.get("/", auth, getTracks);
-
-// Get Tracks by Category
-router.get("/category/:categoryId", auth, getTracksByCategory);
-
-// Get Track by ID
-router.get("/id/:id", auth, getTrackById);
-// Get Track by Slug
-router.get("/:slug", auth, getTrackBySlug);
-// Create Track - Admin 
-router.post("/", auth, relasedTo("admin"), createTrack);
-// Update Track 
-router.put("/:id", auth, relasedTo("admin"), updateTrack);
-// Delete Track - Admin 
-router.delete("/:id", auth, relasedTo("admin"), deleteTrack);
-
-
+router.get("/", getTracks);
+router.get("/category/:categoryId", getTracksByCategory);
+router.get("/trackById/:id", getTrackById);
+router.get("/trackBySlug/:slug", getTrackBySlug);
+router.post("/AddTrack", auth, relasedTo("admin"), createTrack);
+router.put("/updateTrack/:id", auth, relasedTo("admin"), updateTrack);
+router.delete("/deleteTrack/:id", auth, relasedTo("admin"), deleteTrack);
 module.exports = router;

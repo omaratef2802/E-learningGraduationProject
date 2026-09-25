@@ -1,159 +1,152 @@
 const Category = require("../modules/dbCategory");
+const Course = require("../modules/dbCourse");
+const Track = require("../modules/dbTrack");
+const ApiError = require("../utils/ApiError");
 
-
-
-
-
-// create category
-const createCategory = async (req, res) => {
+const createCategory = async (req, res, next) => {
   try {
     const category = await Category.create(req.body);
-    res.status(201).json({ message: "Category created successfully",data:category });
+    return res
+      .status(201)
+      .json({ message: "Category created successfully", data: category });
   } catch (err) {
-    res.status(500).json({ message: "Error creating category", error: err.message });
+    return next(new ApiError(500, err.message));
   }
 };
-// get all category
-const getCategories = async (req, res) => {
+const getCategories = async (req, res, next) => {
   try {
-    const categories = await Category.find();
-    res.status(200).json({categories });
+    return res
+      .status(200)
+      .json({ categories: await Category.find().sort({ name: 1 }) });
   } catch (err) {
-    res.status(500).json({ message: "Error fetching categories", error: err.message });
+    return next(new ApiError(500, err.message));
   }
 };
-// by id
-const getCategoryById = async (req, res) => {
+const getCategoryById = async (req, res, next) => {
   try {
     const category = await Category.findById(req.params.id);
-
-    if (!category) {
-      return res.status(404).json({ message: "Category not found"});
-    }
-    res.status(200).json({ category });
+    if (!category) return next(new ApiError(404, "Category not found"));
+    return res.status(200).json({ category });
   } catch (err) {
-    res.status(500).json({ message: "Error fetching category", error: err.message });
+    return next(new ApiError(500, err.message));
   }
 };
-
-// by slug 
-const getCategoryBySlug = async (req, res) => {
+const getCategoryBySlug = async (req, res, next) => {
   try {
     const category = await Category.findOne({ slug: req.params.slug });
-
-    if (!category) {
-      return res.status(404).json({ message: "Category not found"});
-    }
-    res.status(200).json({category });
+    if (!category) return next(new ApiError(404, "Category not found"));
+    return res.status(200).json({ category });
   } catch (err) {
-    res.status(500).json({ message: "Error fetching category",err: err.message });
+    return next(new ApiError(500, err.message));
   }
 };
-
-// update category 
-const updateCategory = async (req, res) => {
+const updateCategory = async (req, res, next) => {
   try {
-    const category = await Category.findByIdAndUpdate( req.params.id, req.body);
-    if (!category) {
-      return res.status(404).json({message: "Category not found" });
-    }
-    res.status(200).json({ message: "Category updated successfully",data:category });
+    const category = await Category.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,
+      runValidators: true,
+    });
+    if (!category) return next(new ApiError(404, "Category not found"));
+    return res
+      .status(200)
+      .json({ message: "Category updated successfully", data: category });
   } catch (err) {
-    res.status(500).json({  message: err.message  });
+    return next(new ApiError(500, err.message));
   }
 };
-
-// delete category 
-const deleteCategory = async (req, res) => {
+const deleteCategory = async (req, res, next) => {
   try {
+    const [courseCount, trackCount] = await Promise.all([
+      Course.countDocuments({ category: req.params.id }),
+      Track.countDocuments({ categoryId: req.params.id }),
+    ]);
+    if (courseCount || trackCount)
+      return next(
+        new ApiError(409, "Category is still used by courses or tracks"),
+      );
     const category = await Category.findByIdAndDelete(req.params.id);
-    if (!category) {
-      return res.status(404).json({ message: "Category not found" });
-    }
-    res.status(200).json({ message: "Category deleted successfully" });
+    if (!category) return next(new ApiError(404, "Category not found"));
+    return res.status(200).json({ message: "Category deleted successfully" });
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    return next(new ApiError(500, err.message));
   }
 };
-
-// add sub category 
-const addSubcategory = async (req, res) => {
+const addSubcategory = async (req, res, next) => {
   try {
     const category = await Category.findById(req.params.id);
-
-    if (!category) {
-      return res.status(404).json({ message: "Category not found" });
-    }
+    if (!category) return next(new ApiError(404, "Category not found"));
+    if (category.subcategories.some((item) => item.slug === req.body.slug))
+      return next(
+        new ApiError(409, "Subcategory slug already exists in this category"),
+      );
     category.subcategories.push(req.body);
     await category.save();
-    res.status(201).json({ message: "Subcategory added successfully",data:category });
+    return res
+      .status(201)
+      .json({ message: "Subcategory added successfully", data: category });
   } catch (err) {
-    res.status(500).json({message: err.message });
+    return next(new ApiError(500, err.message));
   }
 };
-
-// update subcaregory 
-
-const updateSubcategory = async (req, res) => {
+const updateSubcategory = async (req, res, next) => {
   try {
     const category = await Category.findById(req.params.id);
-    if (!category) {
-      return res.status(404).json({message: "Category not found" });
-    }
+    if (!category) return next(new ApiError(404, "Category not found"));
     const subcategory = category.subcategories.id(req.params.subId);
-
-    if (!subcategory) {
-      return res.status(404).json({message: "Subcategory not found" });
-    }
+    if (!subcategory) return next(new ApiError(404, "Subcategory not found"));
+    if (
+      req.body.slug &&
+      category.subcategories.some(
+        (item) =>
+          item._id.toString() !== subcategory._id.toString() &&
+          item.slug === req.body.slug,
+      )
+    )
+      return next(
+        new ApiError(409, "Subcategory slug already exists in this category"),
+      );
     Object.assign(subcategory, req.body);
     await category.save();
-    res.status(200).json({ message: "Subcategory updated successfully",data: category });
-  } catch (error) {
-    res.status(500).json({ message: error.message });
+    return res
+      .status(200)
+      .json({ message: "Subcategory updated successfully", data: category });
+  } catch (err) {
+    return next(new ApiError(500, err.message));
   }
 };
-
-// delete 
-const deleteSubcategory = async (req, res) => {
+const deleteSubcategory = async (req, res, next) => {
   try {
     const category = await Category.findById(req.params.id);
-
-    if (!category) {
-      return res.status(404).json({ message: "Category not found" });
-    }
-
+    if (!category) return next(new ApiError(404, "Category not found"));
     const subcategory = category.subcategories.id(req.params.subId);
-
-    if (!subcategory) {
-      return res.status(404).json({message: "Subcategory not found" });
-    }
-
+    if (!subcategory) return next(new ApiError(404, "Subcategory not found"));
     subcategory.deleteOne();
-
     await category.save();
-
-    res.status(200).json({ message: "Subcategory deleted successfully",data: category });
-  } catch (error) {
-    res.status(500).json({  message: error.message });
+    return res
+      .status(200)
+      .json({ message: "Subcategory deleted successfully", data: category });
+  } catch (err) {
+    return next(new ApiError(500, err.message));
   }
 };
-
-
-const getSubcategoriesByCategory = async (req, res) => {
+const getSubcategoriesByCategory = async (req, res, next) => {
   try {
     const category = await Category.findById(req.params.id);
-
-    if (!category) {
-      return res.status(404).json({ message: "Category not found" });
-    }
-
-    res.status(200).json({ subcategories: category.subcategories });
-  } catch (error) {
-    res.status(500).json({ message: error.message});
+    if (!category) return next(new ApiError(404, "Category not found"));
+    return res.status(200).json({ subcategories: category.subcategories });
+  } catch (err) {
+    return next(new ApiError(500, err.message));
   }
 };
-
-
-
-module.exports = { createCategory, getCategories, getCategoryById, getCategoryBySlug, updateCategory, deleteCategory, addSubcategory, updateSubcategory, deleteSubcategory ,getSubcategoriesByCategory};
-
+module.exports = {
+  createCategory,
+  getCategories,
+  getCategoryById,
+  getCategoryBySlug,
+  updateCategory,
+  deleteCategory,
+  addSubcategory,
+  updateSubcategory,
+  deleteSubcategory,
+  getSubcategoriesByCategory,
+};

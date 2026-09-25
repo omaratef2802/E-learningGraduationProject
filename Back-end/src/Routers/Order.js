@@ -1,8 +1,14 @@
 const express = require("express");
-const { createOrder, getOrders, getOrderById} = require("../controllers/Order");
-const {auth} = require("../middlewares/auth");
 const router = express.Router();
-router.post("/", auth, createOrder);
-router.get("/", auth, getOrders);
-router.get("/:id", auth, getOrderById);
+const { auth, relasedTo } = require("../middlewares/auth");
+const {
+  createOrder,
+  buyNow,
+  getOrders,
+  getOrderById,
+} = require("../controllers/Order");
+router.get("/", auth, relasedTo("student"), getOrders);
+router.post("/", auth, relasedTo("student"), createOrder);
+router.post("/buy-now", auth, relasedTo("student"), buyNow);
+router.get("/:id", auth, relasedTo("student"), getOrderById);
 module.exports = router;

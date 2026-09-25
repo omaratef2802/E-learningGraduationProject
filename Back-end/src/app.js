@@ -1,35 +1,49 @@
 const dotenv = require("dotenv");
 dotenv.config();
 const express = require("express");
-const app = express();
-const jwt = require("jsonwebtoken");
 const cors = require("cors");
+const connectDb = require("./configs/db");
+const passport = require("./configs/passport");
+const mountRoutes = require("./Routers");
 
-app.use(cors());
-app.use(express.json());
+const app = express();
+connectDb();
 
-app.post("/users/login", (req, res) => {
-  const token = jwt.sign(
-    { email: req.body.email }, 
-    process.env.JWT_SECRET || "your_super_secret_key", 
-    { expiresIn: "1d" }
-  );
+const allowedOrigins = process.env.FRONTEND_URL
+  ? process.env.FRONTEND_URL.split(",")
+      .map((origin) => origin.trim())
+      .filter(Boolean)
+  : null;
+app.use(
+  cors({
+    origin: allowedOrigins
+      ? (origin, callback) => {
+          if (!origin || allowedOrigins.includes(origin))
+            return callback(null, true);
+          return callback(new Error("Origin is not allowed by CORS"));
+        }
+      : true,
+    credentials: true,
+  }),
+);
+app.use(express.json({ limit: "2mb" }));
+app.use(express.urlencoded({ extended: true, limit: "2mb" }));
+app.use(passport.initialize());
 
-  res.status(200).json({
-    success: true,
-    message: "Login successful!",
-    data: { 
-      email: req.body.email,
-      token: token
-    }
-  });
+mountRoutes(app);
+
+app.use((req, res, next) => {
+  res.status(404).json({ message: "Route not found" });
 });
 
-app.get("/", (req, res) => {
-  res.status(200).json({
-    success: true,
-    message: "Smart E-Learning Backend is running successfully!",
-  });
+app.use((err, req, res, next) => {
+  let statusCode = err.statusCode || 500;
+  if (err.code === 11000) statusCode = 409;
+  if (err.name === "ValidationError") statusCode = 400;
+  if (err.name === "CastError") statusCode = 400;
+  res
+    .status(statusCode)
+    .json({ success: false, message: err.message || "Internal server error" });
 });
 
-module.exports = app;
+module.exports = { app };

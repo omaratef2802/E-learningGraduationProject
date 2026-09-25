@@ -1,0 +1,1048 @@
+<div class="categories-shell">
+
+  <app-admin-sidebar></app-admin-sidebar>
+
+
+  <main class="categories-main">
+
+    <!-- TOPBAR -->
+
+    <header class="profile-topbar">
+
+      <div class="breadcrumb">
+
+        <span>
+          ADMIN PORTAL
+        </span>
+
+        <strong>
+          / CATEGORIES
+        </strong>
+
+      </div>
+
+
+      <div class="top-user">
+
+        <div class="mini-avatar">
+
+          {{ data.admin.firstName.charAt(0) }}
+          {{ data.admin.lastName.charAt(0) }}
+
+        </div>
+
+
+        <div>
+
+          <strong>
+            {{ data.admin.firstName }}
+            {{ data.admin.lastName }}
+          </strong>
+
+          <small>
+            {{ data.admin.role }}
+          </small>
+
+        </div>
+
+      </div>
+
+    </header>
+
+
+    <!-- CONTENT -->
+
+    <section class="categories-content">
+
+
+      <!-- HERO -->
+
+      <section class="categories-hero">
+
+        <div class="hero-copy">
+
+          <span class="eyebrow">
+            CATEGORY MANAGEMENT
+          </span>
+
+
+          <h1>
+
+            Learning Categories
+
+            <span>
+              {{ getTotalCategories() }}
+            </span>
+
+          </h1>
+
+
+          <p>
+            Organize learning content through categories,
+            subcategories, tracks and courses across PathwayEd.
+          </p>
+
+
+          <button
+            type="button"
+            class="primary-add-button"
+            (click)="openAddCategory()"
+          >
+
+            <span class="add-icon">
+              +
+            </span>
+
+            Add Category
+
+          </button>
+
+        </div>
+
+
+        <div class="hero-decoration">
+
+          <div class="orbit orbit-one"></div>
+
+          <div class="orbit orbit-two"></div>
+
+          <div class="hero-dot dot-one"></div>
+
+          <div class="hero-dot dot-two"></div>
+
+          <div class="hero-dot dot-three"></div>
+
+          <div class="hero-center">
+            ◫
+          </div>
+
+        </div>
+
+      </section>
+
+
+      <!-- SUCCESS -->
+
+      @if (successMessage) {
+
+        <div class="toast-message success">
+
+          <span class="toast-icon">
+            ✓
+          </span>
+
+          <span>
+            {{ successMessage }}
+          </span>
+
+        </div>
+
+      }
+
+
+      <!-- ERROR -->
+
+      @if (errorMessage) {
+
+        <div class="toast-message error">
+
+          <span class="toast-icon">
+            !
+          </span>
+
+          <span>
+            {{ errorMessage }}
+          </span>
+
+          <button
+            type="button"
+            (click)="errorMessage = ''"
+          >
+            ×
+          </button>
+
+        </div>
+
+      }
+
+
+      <!-- STATS -->
+
+      <section class="category-stats">
+
+
+        <article class="stat-card featured">
+
+          <div class="stat-icon">
+            ◫
+          </div>
+
+          <div>
+
+            <span>
+              Total Categories
+            </span>
+
+            <strong>
+              {{ getTotalCategories() }}
+            </strong>
+
+            <small>
+              Main learning areas
+            </small>
+
+          </div>
+
+        </article>
+
+
+        <article class="stat-card">
+
+          <div class="stat-icon active">
+            ✓
+          </div>
+
+          <div>
+
+            <span>
+              Active
+            </span>
+
+            <strong>
+              {{ getActiveCategories() }}
+            </strong>
+
+            <small>
+              Currently available
+            </small>
+
+          </div>
+
+        </article>
+
+
+        <article class="stat-card">
+
+          <div class="stat-icon subcategories">
+            ◇
+          </div>
+
+          <div>
+
+            <span>
+              Subcategories
+            </span>
+
+            <strong>
+              {{ getTotalSubcategories() }}
+            </strong>
+
+            <small>
+              Inside categories
+            </small>
+
+          </div>
+
+        </article>
+
+
+        <article class="stat-card">
+
+          <div class="stat-icon courses">
+            ▣
+          </div>
+
+          <div>
+
+            <span>
+              Courses
+            </span>
+
+            <strong>
+              {{ getTotalCourses() }}
+            </strong>
+
+            <small>
+              Across the platform
+            </small>
+
+          </div>
+
+        </article>
+
+
+      </section>
+
+
+      <!-- TOOLBAR -->
+
+      <section class="categories-toolbar">
+
+        <div class="search-box">
+
+          <span>
+            ⌕
+          </span>
+
+          <input
+            type="text"
+            [(ngModel)]="searchText"
+            (input)="applyFilters()"
+            placeholder="Search categories..."
+          />
+
+        </div>
+
+
+        <select
+          [(ngModel)]="selectedStatus"
+          (change)="applyFilters()"
+        >
+
+          <option value="All">
+            All Status
+          </option>
+
+          <option value="Active">
+            Active
+          </option>
+
+          <option value="Inactive">
+            Inactive
+          </option>
+
+        </select>
+
+
+        <button
+          type="button"
+          class="clear-button"
+          (click)="clearFilters()"
+        >
+          Clear
+        </button>
+
+      </section>
+
+
+      <!-- RESULTS -->
+
+      <div class="results-bar">
+
+        <div>
+
+          <span class="results-kicker">
+            CATEGORY DIRECTORY
+          </span>
+
+          <strong>
+
+            {{ filteredCategories.length }}
+
+            {{
+              filteredCategories.length === 1
+                ? 'category'
+                : 'categories'
+            }}
+
+          </strong>
+
+        </div>
+
+
+        <div class="status-summary">
+
+          <span class="summary-dot active-dot"></span>
+
+          {{ getActiveCategories() }} active
+
+
+          @if (getInactiveCategories() > 0) {
+
+            <span class="summary-dot inactive-dot"></span>
+
+            {{ getInactiveCategories() }} inactive
+
+          }
+
+        </div>
+
+      </div>
+
+
+      <!-- LOADING -->
+
+      @if (loading) {
+
+        <div class="categories-state">
+
+          <div class="loading-spinner"></div>
+
+          <span>
+            Loading categories...
+          </span>
+
+        </div>
+
+      }
+
+
+      <!-- CATEGORY CONTENT -->
+
+      @if (!loading) {
+
+        @if (filteredCategories.length > 0) {
+
+          <section class="category-grid">
+
+
+            @for (
+              category of filteredCategories;
+              track category.id
+            ) {
+
+              <article
+                class="category-card"
+                [class.inactive-card]="
+                  category.status === 'Inactive'
+                "
+              >
+
+
+                <!-- TOP -->
+
+                <div class="category-card-top">
+
+                  <div class="category-symbol">
+
+                    {{ getCategoryInitial(category.name) }}
+
+                  </div>
+
+
+                  <span
+                    class="status-badge"
+                    [class.inactive]="
+                      category.status === 'Inactive'
+                    "
+                  >
+
+                    <span class="status-dot"></span>
+
+                    {{ category.status }}
+
+                  </span>
+
+                </div>
+
+
+                <!-- BODY -->
+
+                <div class="category-body">
+
+                  <span class="category-kicker">
+                    LEARNING CATEGORY
+                  </span>
+
+
+                  <h2>
+                    {{ category.name }}
+                  </h2>
+
+
+                  <p>
+                    {{ category.description }}
+                  </p>
+
+
+                  <!-- HIERARCHY -->
+
+                  <div class="category-hierarchy">
+
+                    <span>
+                      Category
+                    </span>
+
+                    <span class="hierarchy-arrow">
+                      →
+                    </span>
+
+                    <span>
+                      Subcategory
+                    </span>
+
+                    <span class="hierarchy-arrow">
+                      →
+                    </span>
+
+                    <span>
+                      Track
+                    </span>
+
+                    <span class="hierarchy-arrow">
+                      →
+                    </span>
+
+                    <span>
+                      Course
+                    </span>
+
+                  </div>
+
+
+                  <!-- METRICS -->
+
+                  <div class="category-metrics">
+
+
+                    <div class="metric">
+
+                      <div class="metric-icon subcategory-icon">
+                        ◇
+                      </div>
+
+
+                      <div>
+
+                        <strong>
+                          {{ category.subcategoriesCount }}
+                        </strong>
+
+                        <small>
+                          {{
+                            getCategorySubcategoryLabel(
+                              category.subcategoriesCount
+                            )
+                          }}
+                        </small>
+
+                      </div>
+
+                    </div>
+
+
+                    <div class="metric">
+
+                      <div class="metric-icon course-icon">
+                        ▣
+                      </div>
+
+
+                      <div>
+
+                        <strong>
+                          {{ category.coursesCount }}
+                        </strong>
+
+                        <small>
+                          {{
+                            getCategoryCourseLabel(
+                              category.coursesCount
+                            )
+                          }}
+                        </small>
+
+                      </div>
+
+                    </div>
+
+
+                  </div>
+
+
+                  <div class="usage-message">
+
+                    {{ getCategoryUsageMessage(category) }}
+
+                  </div>
+
+                </div>
+
+
+                <!-- FOOTER -->
+
+                <div class="category-footer">
+
+                  <span>
+
+                    @if (category.status === 'Active') {
+
+                      Available for learning content
+
+                    } @else {
+
+                      Currently unavailable
+
+                    }
+
+                  </span>
+
+
+                  <span class="footer-arrow">
+                    →
+                  </span>
+
+                </div>
+
+
+                <!-- ACTIONS -->
+
+                <div class="category-actions">
+
+
+                  <button
+                    type="button"
+                    class="card-action edit"
+                    (click)="openEditCategory(category)"
+                  >
+
+                    <span>
+                      ✎
+                    </span>
+
+                    Edit
+
+                  </button>
+
+
+                  <button
+                    type="button"
+                    class="card-action toggle"
+                    (click)="toggleCategoryStatus(category)"
+                  >
+
+                    @if (category.status === 'Active') {
+
+                      <span>
+                        ◌
+                      </span>
+
+                      Deactivate
+
+                    } @else {
+
+                      <span>
+                        ✓
+                      </span>
+
+                      Activate
+
+                    }
+
+                  </button>
+
+
+                  <button
+                    type="button"
+                    class="card-action delete"
+                    (click)="openDeleteCategory(category)"
+                  >
+
+                    <span>
+                      ×
+                    </span>
+
+                    Delete
+
+                  </button>
+
+
+                </div>
+
+
+              </article>
+
+            }
+
+
+          </section>
+
+
+        } @else {
+
+
+          <div class="empty-categories">
+
+            <div class="empty-icon">
+              ◫
+            </div>
+
+            <h2>
+              No categories found
+            </h2>
+
+            <p>
+              Try changing your search or status filter
+              to see more categories.
+            </p>
+
+            <button
+              type="button"
+              (click)="clearFilters()"
+            >
+              Clear Filters
+            </button>
+
+          </div>
+
+
+        }
+
+      }
+
+
+    </section>
+
+  </main>
+
+</div>
+
+
+<!-- =========================================================
+     ADD / EDIT MODAL
+========================================================== -->
+
+@if (showCategoryModal) {
+
+  <div
+    class="modal-backdrop"
+    (click)="closeCategoryModal()"
+  >
+
+    <section
+      class="category-modal"
+      (click)="$event.stopPropagation()"
+    >
+
+
+      <div class="modal-header">
+
+        <div>
+
+          <span class="modal-eyebrow">
+            CATEGORY MANAGEMENT
+          </span>
+
+          <h2>
+
+            {{
+              editingCategoryId
+                ? 'Edit Category'
+                : 'Add New Category'
+            }}
+
+          </h2>
+
+          <p>
+
+            {{
+              editingCategoryId
+                ? 'Update the category information below.'
+                : 'Create a new learning category for the platform.'
+            }}
+
+          </p>
+
+        </div>
+
+
+        <button
+          type="button"
+          class="modal-close"
+          (click)="closeCategoryModal()"
+        >
+          ×
+        </button>
+
+      </div>
+
+
+      <div class="category-form">
+
+
+        <div class="form-field">
+
+          <label for="categoryName">
+            Category Name
+            <span>*</span>
+          </label>
+
+          <input
+            id="categoryName"
+            type="text"
+            [(ngModel)]="categoryForm.name"
+            placeholder="e.g. Web & Programming"
+            maxlength="80"
+          />
+
+          <small>
+            {{ categoryForm.name.length }}/80
+          </small>
+
+        </div>
+
+
+        <div class="form-field">
+
+          <label for="categoryDescription">
+            Description
+            <span>*</span>
+          </label>
+
+          <textarea
+            id="categoryDescription"
+            [(ngModel)]="categoryForm.description"
+            placeholder="Describe what learners can find in this category..."
+            maxlength="300"
+            rows="4"
+          ></textarea>
+
+          <small>
+            {{ categoryForm.description.length }}/300
+          </small>
+
+        </div>
+
+
+        <div class="form-field">
+
+          <label>
+            Status
+          </label>
+
+
+          <div class="status-options">
+
+
+            <button
+              type="button"
+              [class.selected]="
+                categoryForm.status === 'Active'
+              "
+              (click)="categoryForm.status = 'Active'"
+            >
+
+              <span class="option-dot active"></span>
+
+              <span>
+
+                <strong>
+                  Active
+                </strong>
+
+                <small>
+                  Available across the platform
+                </small>
+
+              </span>
+
+            </button>
+
+
+            <button
+              type="button"
+              [class.selected]="
+                categoryForm.status === 'Inactive'
+              "
+              (click)="categoryForm.status = 'Inactive'"
+            >
+
+              <span class="option-dot inactive"></span>
+
+              <span>
+
+                <strong>
+                  Inactive
+                </strong>
+
+                <small>
+                  Hidden from active learning areas
+                </small>
+
+              </span>
+
+            </button>
+
+
+          </div>
+
+        </div>
+
+
+        @if (formError) {
+
+          <div class="form-error">
+
+            <span>
+              !
+            </span>
+
+            {{ formError }}
+
+          </div>
+
+        }
+
+
+      </div>
+
+
+      <div class="modal-footer">
+
+        <button
+          type="button"
+          class="secondary-button"
+          [disabled]="savingCategory"
+          (click)="closeCategoryModal()"
+        >
+          Cancel
+        </button>
+
+
+        <button
+          type="button"
+          class="save-button"
+          [disabled]="savingCategory"
+          (click)="saveCategory()"
+        >
+
+          @if (savingCategory) {
+
+            <span class="button-spinner"></span>
+
+            Saving...
+
+          } @else {
+
+            <span>
+              ✓
+            </span>
+
+            {{
+              editingCategoryId
+                ? 'Save Changes'
+                : 'Create Category'
+            }}
+
+          }
+
+        </button>
+
+      </div>
+
+
+    </section>
+
+  </div>
+
+}
+
+
+<!-- =========================================================
+     DELETE MODAL
+========================================================== -->
+
+@if (showDeleteModal && categoryToDelete) {
+
+  <div
+    class="modal-backdrop"
+    (click)="closeDeleteModal()"
+  >
+
+    <section
+      class="delete-modal"
+      (click)="$event.stopPropagation()"
+    >
+
+      <div class="delete-icon">
+        ×
+      </div>
+
+      <span class="modal-eyebrow danger">
+        DELETE CATEGORY
+      </span>
+
+      <h2>
+        Delete "{{ categoryToDelete.name }}"?
+      </h2>
+
+      <p>
+        This action cannot be undone.
+        Categories containing subcategories or courses
+        cannot be deleted.
+      </p>
+
+
+      @if (
+        categoryToDelete.subcategoriesCount > 0 ||
+        categoryToDelete.coursesCount > 0
+      ) {
+
+        <div class="delete-warning">
+
+          <strong>
+            This category is currently in use.
+          </strong>
+
+          <span>
+
+            {{ categoryToDelete.subcategoriesCount }}
+            {{
+              categoryToDelete.subcategoriesCount === 1
+                ? 'subcategory'
+                : 'subcategories'
+            }}
+
+            ·
+
+            {{ categoryToDelete.coursesCount }}
+            {{
+              categoryToDelete.coursesCount === 1
+                ? 'course'
+                : 'courses'
+            }}
+
+          </span>
+
+          <small>
+            Deactivate the category instead of deleting it.
+          </small>
+
+        </div>
+
+      }
+
+
+      <div class="delete-actions">
+
+        <button
+          type="button"
+          class="secondary-button"
+          (click)="closeDeleteModal()"
+        >
+          Cancel
+        </button>
+
+
+        <button
+          type="button"
+          class="danger-button"
+          [disabled]="
+            categoryToDelete.subcategoriesCount > 0 ||
+            categoryToDelete.coursesCount > 0
+          "
+          (click)="confirmDeleteCategory()"
+        >
+
+          Delete Category
+
+        </button>
+
+      </div>
+
+
+    </section>
+
+  </div>
+
+}

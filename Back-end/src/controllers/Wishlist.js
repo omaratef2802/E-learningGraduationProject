@@ -1,73 +1,74 @@
 const Wishlist = require("../modules/Wishlist");
+const Course = require("../modules/dbCourse");
+const Enrollment = require("../modules/dbEnrollement");
 const ApiError = require("../utils/ApiError");
+
 const addToWishlist = async (req, res, next) => {
   try {
-    const userId = req.id;
     const { courseId } = req.body;
-    let wishlist = await Wishlist.findOne({ userId });
-    if (!wishlist) {
-      wishlist = await Wishlist.create({
-        userId: userId,
-        courses: [courseId],
-      });
-      return res.status(201).json({
-        message: "Course added to wishlist",
-        wishlist: wishlist,
-      });
-    }
-    const courseExists = wishlist.courses.find(
-      (course) => course.toString() === courseId,
-    );
-    if (courseExists) {
-      throw new ApiError(400, "Course already in wishlist");
-    }
+    const course = await Course.findOne({ _id: courseId, status: "published" });
+    if (!course)
+      return next(new ApiError(404, "Course not found or not available"));
+    if (await Enrollment.exists({ studentId: req.id, courseId }))
+      return next(new ApiError(409, "You are already enrolled in this course"));
 
-    wishlist.courses.push(courseId);
-    await wishlist.save();
-    res.status(200).json({
-      message: "Course added to wishlist",
-      wishlist: wishlist,
-    });
+    let wishlist = await Wishlist.findOne({ userId: req.id });
+    if (!wishlist)
+      wishlist = await Wishlist.create({ userId: req.id, courses: [courseId] });
+    else {
+      if (wishlist.courses.some((id) => id.toString() === courseId.toString()))
+        return next(new ApiError(400, "Course already in wishlist"));
+      wishlist.courses.push(courseId);
+      await wishlist.save();
+    }
+    return res
+      .status(201)
+      .json({ message: "Course added to wishlist", wishlist });
   } catch (error) {
-    next(error);
+    return next(new ApiError(500, error.message));
   }
 };
 const getWishlist = async (req, res, next) => {
   try {
-    const userId = req.id;
-    const wishlist = await Wishlist.findOne({ userId }).populate({path:"courses",populate:{path:"instructorId"}});
-    if (!wishlist) {
-      throw new ApiError(404, "Wishlist is empty");
-    }
-    res.status(200).json(wishlist);
+    const wishlist = await Wishlist.findOne({ userId: req.id }).populate(
+      "courses",
+      "title image price slug status",
+    );
+    if (!wishlist) return res.status(200).json({ userId: req.id, courses: [] });
+    return res.status(200).json(wishlist);
   } catch (error) {
-    next(error);
+    return next(new ApiError(500, error.message));
   }
 };
 const removeFromWishlist = async (req, res, next) => {
   try {
-    const userId = req.id;
-    const courseId = req.params.courseId;
-    const wishlist = await Wishlist.findOne({ userId });
-    if (!wishlist) {
-      throw new ApiError(404, "Wishlist not found");
-    }
-    const courseExists = wishlist.courses.find(
-      (course) => course.toString() === courseId,
-    );
-    if (!courseExists) {
-      throw new ApiError(404, "Course not found in wishlist");
-    }
+    const wishlist = await Wishlist.findOne({ userId: req.id });
+    if (!wishlist) return next(new ApiError(404, "Wishlist not found"));
     wishlist.courses = wishlist.courses.filter(
-      (course) => course.toString() !== courseId,
+      (id) => id.toString() !== req.params.courseId,
     );
     await wishlist.save();
-    res.status(200).json({
-      message: "Course removed from wishlist",
-      wishlist: wishlist,
-    });
+    return res
+      .status(200)
+      .json({ message: "Course removed from wishlist", wishlist });
   } catch (error) {
-    next(error);
+    return next(new ApiError(500, error.message));
   }
 };
-module.exports = { addToWishlist, getWishlist, removeFromWishlist};
+const clearWishlist = async (req, res, next) => {
+  try {
+    const wishlist = await Wishlist.findOne({ userId: req.id });
+    if (!wishlist) return res.status(200).json({ message: "Wishlist cleared" });
+    wishlist.courses = [];
+    await wishlist.save();
+    return res.status(200).json({ message: "Wishlist cleared" });
+  } catch (error) {
+    return next(new ApiError(500, error.message));
+  }
+};
+module.exports = {
+  addToWishlist,
+  getWishlist,
+  removeFromWishlist,
+  clearWishlist,
+};

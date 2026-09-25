@@ -1,0 +1,22 @@
+<section class="journey-section" aria-labelledby="journey-title">
+  <div class="journey-heading">
+    <span class="journey-eyebrow">{{ config.eyebrow }}</span>
+    <h2 id="journey-title">{{ config.title }}</h2>
+    <p>{{ config.description }}</p>
+  </div>
+
+  <div class="journey-track">
+    <div class="track-line" aria-hidden="true"><span></span></div>
+    @for (step of config.steps; track step.number) {
+      <article class="journey-step">
+        <div class="step-number">{{ step.number }}</div>
+        <div class="step-icon" aria-hidden="true">{{ step.icon }}</div>
+        <div class="step-content">
+          <span class="step-kicker">STEP {{ step.number }}</span>
+          <h3>{{ step.title }}</h3>
+          <p>{{ step.description }}</p>
+        </div>
+      </article>
+    }
+  </div>
+</section>
