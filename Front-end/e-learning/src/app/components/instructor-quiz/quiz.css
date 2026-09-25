@@ -479,3 +479,19 @@
     font-size: 13px;
   }
 }
+/* =========================
+   QUIZ TYPE / LESSON
+========================= */
+
+.quiz-form select {
+  cursor: pointer;
+}
+
+.quiz-form select option {
+  color: #454b62;
+  background: #ffffff;
+}
+
+.quiz-details .form-grid {
+  align-items: start;
+}

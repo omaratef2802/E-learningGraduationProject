@@ -186,6 +186,54 @@ select {
   line-height: 1.6;
 }
 
+.courses-hero button {
+  min-height: 42px;
+  padding: 0 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: 1px solid #4f46e5;
+  border-radius: 10px;
+  color: #ffffff;
+  background: #4f46e5;
+  box-shadow: 0 4px 10px rgba(79, 70, 229, 0.18);
+  font: inherit;
+  font-size: 0.875rem;
+  font-weight: 700;
+  line-height: 1;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    background-color 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.courses-hero button:hover {
+  transform: translateY(-1px);
+  border-color: #4338ca;
+  background: #4338ca;
+  box-shadow: 0 7px 14px rgba(79, 70, 229, 0.22);
+}
+
+.courses-hero button:active {
+  transform: translateY(0);
+}
+
+.courses-hero button:focus-visible {
+  outline: 3px solid rgba(99, 102, 241, 0.25);
+  outline-offset: 2px;
+}
+
+.courses-hero button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
 .hero-decoration {
   position: relative;
   width: 120px;

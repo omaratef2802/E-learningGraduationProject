@@ -282,6 +282,12 @@
 
       </section>
 
+      @if (successMessage) {
+        <div class="courses-state success-banner">
+          {{ successMessage }}
+        </div>
+      }
+
       <!-- RESULTS -->
 
       <div class="results-bar">
@@ -509,7 +515,7 @@
 
                   </div>
 
-                  <!-- FOOTER -->
+                  <!-- FOOTER + ADMIN ACTIONS -->
 
                   <div class="course-footer">
 
@@ -541,9 +547,35 @@
 
                     </span>
 
-                    <span class="footer-arrow">
-                      →
-                    </span>
+                    @if (course.status === 'In Review') {
+
+                      <div class="admin-actions">
+
+                        <button
+                          type="button"
+                          class="action-btn approve"
+                          (click)="approveCourse(course); $event.stopPropagation()"
+                        >
+                          ✓ Approve
+                        </button>
+
+                        <button
+                          type="button"
+                          class="action-btn reject"
+                          (click)="openRejectModal(course); $event.stopPropagation()"
+                        >
+                          ✕ Request Changes
+                        </button>
+
+                      </div>
+
+                    } @else {
+
+                      <span class="footer-arrow">
+                        →
+                      </span>
+
+                    }
 
                   </div>
 
@@ -588,5 +620,80 @@
     </section>
 
   </main>
+
+
+  <!-- REJECT / REQUEST CHANGES MODAL -->
+
+  @if (showRejectModal && rejectTargetCourse) {
+
+    <div
+      class="modal-overlay"
+      (click)="closeRejectModal()"
+    >
+
+      <div
+        class="modal-panel"
+        (click)="$event.stopPropagation()"
+      >
+
+        <header class="modal-header">
+
+          <div>
+            <span class="eyebrow">ADMIN</span>
+            <h2>Request Changes</h2>
+            <p>
+              Send "{{ rejectTargetCourse.title }}" back
+              to the instructor so they can edit and resubmit.
+            </p>
+          </div>
+
+          <button
+            type="button"
+            class="modal-close"
+            (click)="closeRejectModal()"
+          >
+            ✕
+          </button>
+
+        </header>
+
+        <div class="modal-body">
+
+          <label>
+            Message to instructor
+            <textarea
+              [(ngModel)]="rejectMessage"
+              rows="4"
+              placeholder="Explain what needs to be fixed..."
+            ></textarea>
+          </label>
+
+        </div>
+
+        <footer class="modal-footer">
+
+          <button
+            type="button"
+            class="clear-button"
+            (click)="closeRejectModal()"
+          >
+            Cancel
+          </button>
+
+          <button
+            type="button"
+            class="action-btn reject"
+            (click)="confirmRejectCourse()"
+          >
+            Send Back for Changes
+          </button>
+
+        </footer>
+
+      </div>
+
+    </div>
+
+  }
 
 </div>

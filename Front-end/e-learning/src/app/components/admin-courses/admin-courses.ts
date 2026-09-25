@@ -56,6 +56,14 @@ export class AdminCourses implements OnInit {
 
   errorMessage = '';
 
+  successMessage = '';
+
+  showRejectModal = false;
+
+  rejectTargetCourse: InstructorCourse | null = null;
+
+  rejectMessage = '';
+
   ngOnInit(): void {
     this.loadCourses();
   }
@@ -345,5 +353,78 @@ export class AdminCourses implements OnInit {
     }
 
     return 0;
+  }
+
+  // =========================================================
+  // APPROVE / REQUEST CHANGES
+  // =========================================================
+
+  approveCourse(course: InstructorCourse): void {
+    if (course.status !== 'In Review') {
+      return;
+    }
+
+    const ok = this.data.approveCourse(course.id);
+
+    if (!ok) {
+      this.errorMessage = 'Unable to approve this course.';
+      return;
+    }
+
+    this.successMessage =
+      `"${course.title}" approved and published. Instructor notified.`;
+
+    this.loadCourses();
+
+    setTimeout(() => {
+      this.successMessage = '';
+    }, 4000);
+  }
+
+  openRejectModal(course: InstructorCourse): void {
+    if (course.status !== 'In Review') {
+      return;
+    }
+
+    this.rejectTargetCourse = course;
+    this.rejectMessage = '';
+    this.showRejectModal = true;
+  }
+
+  closeRejectModal(): void {
+    this.showRejectModal = false;
+    this.rejectTargetCourse = null;
+    this.rejectMessage = '';
+  }
+
+  confirmRejectCourse(): void {
+    if (!this.rejectTargetCourse) {
+      return;
+    }
+
+    const message =
+      this.rejectMessage.trim() ||
+      'Please update the course content and resubmit.';
+
+    const ok = this.data.requestCourseChanges(
+      this.rejectTargetCourse.id,
+      message
+    );
+
+    if (!ok) {
+      this.errorMessage = 'Unable to request changes.';
+      this.closeRejectModal();
+      return;
+    }
+
+    this.successMessage =
+      `"${this.rejectTargetCourse.title}" sent back for changes. Instructor notified.`;
+
+    this.closeRejectModal();
+    this.loadCourses();
+
+    setTimeout(() => {
+      this.successMessage = '';
+    }, 4000);
   }
 }

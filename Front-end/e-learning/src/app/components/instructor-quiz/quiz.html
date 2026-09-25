@@ -2,14 +2,16 @@
 
   <app-instructor-sidebar></app-instructor-sidebar>
 
-
   <main class="editor-main">
 
     <header class="editor-topbar">
 
       <a
         routerLink="/instructor-course-curriculum"
-        [queryParams]="{ course: courseTitle }"
+        [queryParams]="{
+          course: courseTitle,
+          courseId: courseId
+        }"
       >
         ← Back to Course Content
       </a>
@@ -32,16 +34,19 @@
           </span>
 
           <h1>
-            {{ quizId ? 'Edit Quiz' : 'Create Quiz' }}
+            {{
+              quizId
+                ? 'Edit Quiz'
+                : 'Create Quiz'
+            }}
           </h1>
 
           <p>
-            Build questions with options and a
-            stored correct answer for grading.
+            Create lesson quizzes and
+            section final assessments.
           </p>
 
         </div>
-
 
         <button
           class="primary-action"
@@ -60,15 +65,74 @@
       >
 
         <!-- QUIZ INFORMATION -->
-
         <section class="quiz-details">
 
           <h2>
             Quiz Information
           </h2>
 
-
           <div class="form-grid">
+
+            <label>
+
+              QUIZ TYPE
+
+              <select
+                name="type"
+                [(ngModel)]="type"
+                (ngModelChange)="onQuizTypeChange()"
+              >
+
+                <option value="Lesson">
+                  Lesson Quiz
+                </option>
+
+                <option value="Section">
+                  Section Final Quiz
+                </option>
+
+              </select>
+
+            </label>
+
+
+            @if (type === 'Lesson') {
+
+              <label>
+
+                LESSON
+
+                <select
+                  name="lessonId"
+                  [(ngModel)]="lessonId"
+                >
+
+                  <option
+                    value=""
+                    disabled
+                  >
+                    Select lesson
+                  </option>
+
+                  @for (
+                    lesson of lessons;
+                    track lesson.id
+                  ) {
+
+                    <option
+                      [value]="lesson.id"
+                    >
+                      {{ lesson.title }}
+                    </option>
+
+                  }
+
+                </select>
+
+              </label>
+
+            }
+
 
             <label>
 
@@ -132,7 +196,6 @@
 
 
         <!-- QUESTIONS -->
-
         <section class="questions-section">
 
           <div class="section-heading">
@@ -149,7 +212,6 @@
               </h2>
 
             </div>
-
 
             <button
               type="button"
@@ -168,22 +230,29 @@
             let questionIndex = $index
           ) {
 
-            <article class="question-card">
+            <article
+              class="question-card"
+            >
 
-              <!-- QUESTION HEADER -->
-
-              <div class="question-heading">
+              <div
+                class="question-heading"
+              >
 
                 <h3>
                   Question
                   {{ questionIndex + 1 }}
                 </h3>
 
-
                 <button
                   type="button"
-                  (click)="removeQuestion(questionIndex)"
-                  [disabled]="questions.length === 1"
+                  (click)="
+                    removeQuestion(
+                      questionIndex
+                    )
+                  "
+                  [disabled]="
+                    questions.length === 1
+                  "
                 >
                   Delete
                 </button>
@@ -191,15 +260,18 @@
               </div>
 
 
-              <!-- QUESTION TEXT -->
-
               <label>
 
                 QUESTION TEXT
 
                 <textarea
-                  [name]="'question-' + questionIndex"
-                  [(ngModel)]="question.text"
+                  [name]="
+                    'question-' +
+                    questionIndex
+                  "
+                  [(ngModel)]="
+                    question.text
+                  "
                   rows="2"
                   placeholder="Write the question..."
                   required
@@ -208,17 +280,22 @@
               </label>
 
 
-              <!-- OPTIONS -->
-
-              <div class="options-grid">
+              <div
+                class="options-grid"
+              >
 
                 <label>
 
                   OPTION A
 
                   <input
-                    [name]="'option-a-' + questionIndex"
-                    [(ngModel)]="question.options[0]"
+                    [name]="
+                      'option-a-' +
+                      questionIndex
+                    "
+                    [(ngModel)]="
+                      question.options[0]
+                    "
                     required
                   />
 
@@ -230,8 +307,13 @@
                   OPTION B
 
                   <input
-                    [name]="'option-b-' + questionIndex"
-                    [(ngModel)]="question.options[1]"
+                    [name]="
+                      'option-b-' +
+                      questionIndex
+                    "
+                    [(ngModel)]="
+                      question.options[1]
+                    "
                     required
                   />
 
@@ -243,8 +325,13 @@
                   OPTION C
 
                   <input
-                    [name]="'option-c-' + questionIndex"
-                    [(ngModel)]="question.options[2]"
+                    [name]="
+                      'option-c-' +
+                      questionIndex
+                    "
+                    [(ngModel)]="
+                      question.options[2]
+                    "
                     required
                   />
 
@@ -256,8 +343,13 @@
                   OPTION D
 
                   <input
-                    [name]="'option-d-' + questionIndex"
-                    [(ngModel)]="question.options[3]"
+                    [name]="
+                      'option-d-' +
+                      questionIndex
+                    "
+                    [(ngModel)]="
+                      question.options[3]
+                    "
                     required
                   />
 
@@ -266,33 +358,44 @@
               </div>
 
 
-              <!-- ANSWER -->
-
-              <div class="answer-row">
+              <div
+                class="answer-row"
+              >
 
                 <label>
 
                   CORRECT ANSWER
 
                   <select
-                    [name]="'answer-' + questionIndex"
-                    [(ngModel)]="question.correctAnswer"
+                    [name]="
+                      'answer-' +
+                      questionIndex
+                    "
+                    [(ngModel)]="
+                      question.correctAnswer
+                    "
                     required
                   >
 
-                    <option value="" disabled>
+                    <option
+                      value=""
+                      disabled
+                    >
                       Select correct answer
                     </option>
-
 
                     @for (
                       option of question.options;
                       track $index
                     ) {
 
-                      @if (option.trim()) {
+                      @if (
+                        option.trim()
+                      ) {
 
-                        <option [value]="option">
+                        <option
+                          [value]="option"
+                        >
                           {{ option }}
                         </option>
 
@@ -310,10 +413,15 @@
                   POINTS
 
                   <input
-                    [name]="'points-' + questionIndex"
+                    [name]="
+                      'points-' +
+                      questionIndex
+                    "
                     type="number"
                     min="1"
-                    [(ngModel)]="question.points"
+                    [(ngModel)]="
+                      question.points
+                    "
                   />
 
                 </label>

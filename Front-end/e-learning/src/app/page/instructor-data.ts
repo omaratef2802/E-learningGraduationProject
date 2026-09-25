@@ -20,7 +20,6 @@ export type CourseStatus =
   | 'Assigned'
   | 'Draft'
   | 'In Review'
-  | 'Pending Review'
   | 'Changes Required'
   | 'Published';
 
@@ -81,20 +80,24 @@ export interface InstructorNotification {
   type: 'General' | 'Course' | 'Student' | 'System';
   isRead: boolean;
   createdAt: string;
-
   instructorId?: string;
   relatedCourseId?: string;
 }
+
+// =========================================================
+// CURRICULUM
+// =========================================================
 
 export interface CurriculumLesson {
   id: string;
   title: string;
   description: string;
-  type: 'Video' | 'Text';
+  type: 'Video' | 'Document';
   content: string;
   duration: string;
   order: number;
   preview: boolean;
+  quizId?: string;
 }
 
 export interface QuizQuestion {
@@ -113,6 +116,9 @@ export interface CurriculumQuiz {
   passingScore: number;
   duration: string;
   questions: QuizQuestion[];
+
+  type: 'Lesson' | 'Section';
+  lessonId?: string;
 }
 
 export interface CurriculumSection {
@@ -163,19 +169,60 @@ export interface AdminActivity {
   createdAt: string;
 }
 
+// =========================================================
+// ADMIN CATEGORY
+// =========================================================
+
 export interface AdminCategory {
   id: string;
   name: string;
   description: string;
+
+  subcategoriesCount: number;
   coursesCount: number;
+
+  // Kept for compatibility with other admin pages
   tracksCount: number;
+
   status: 'Active' | 'Inactive';
 }
+
+// =========================================================
+// ADMIN SUBCATEGORY
+// =========================================================
+
+export interface AdminSubcategory {
+  id: string;
+  name: string;
+
+  categoryId: string;
+  categoryName: string;
+
+  description: string;
+
+  tracksCount: number;
+  coursesCount: number;
+
+  status: 'Active' | 'Inactive';
+}
+
+// =========================================================
+// ADMIN TRACK
+// =========================================================
 
 export interface AdminTrack {
   id: string;
   name: string;
+
+  // New hierarchy
+  subcategoryId: string;
+  subcategoryName: string;
+
+  // Kept for compatibility
   category: string;
+  categoryId?: string;
+  categoryName?: string;
+
   description: string;
   coursesCount: number;
   studentsCount: number;
@@ -199,7 +246,6 @@ export interface AdminNotification {
   type: 'User' | 'Course' | 'System' | 'Report';
   isRead: boolean;
   createdAt: string;
-
   relatedCourseId?: string;
 }
 
@@ -357,116 +403,28 @@ export class InstructorData {
       createdAt: '2 hours ago'
     }
   ];
+// =========================================================
+  // ADMIN SUBCATEGORIES
+  // =========================================================
+
+  adminSubcategories: AdminSubcategory[] =
+    this.readAdminSubcategories();
+
 
   // =========================================================
   // ADMIN CATEGORIES
   // =========================================================
 
-  readonly adminCategories: AdminCategory[] = [
-    {
-      id: 'category-1',
-      name: 'Web & Programming',
-      description:
-        'Frontend, backend, mobile development, and programming skills.',
-      coursesCount: 42,
-      tracksCount: 12,
-      status: 'Active'
-    },
-    {
-      id: 'category-2',
-      name: 'Languages',
-      description:
-        'English, Arabic, French, German, and other language learning paths.',
-      coursesCount: 28,
-      tracksCount: 8,
-      status: 'Active'
-    },
-    {
-      id: 'category-3',
-      name: 'Design & Creativity',
-      description:
-        'UI/UX, product design, visual design, and creative skills.',
-      coursesCount: 24,
-      tracksCount: 7,
-      status: 'Active'
-    },
-    {
-      id: 'category-4',
-      name: 'Business & Career',
-      description:
-        'Business, management, career development, and professional skills.',
-      coursesCount: 31,
-      tracksCount: 9,
-      status: 'Active'
-    }
-  ];
+  adminCategories: AdminCategory[] =
+    this.readAdminCategories();
+
 
   // =========================================================
   // ADMIN TRACKS
   // =========================================================
 
-  readonly adminTracks: AdminTrack[] = [
-    {
-      id: 'track-1',
-      name: 'Frontend Development',
-      category: 'Web & Programming',
-      description:
-        'Learn modern frontend development using HTML, CSS, JavaScript, and popular frameworks.',
-      coursesCount: 12,
-      studentsCount: 420,
-      status: 'Active'
-    },
-    {
-      id: 'track-2',
-      name: 'Backend Development',
-      category: 'Web & Programming',
-      description:
-        'Build backend systems, APIs, databases, and scalable server-side applications.',
-      coursesCount: 10,
-      studentsCount: 315,
-      status: 'Active'
-    },
-    {
-      id: 'track-3',
-      name: 'UI/UX Design',
-      category: 'Design & Creativity',
-      description:
-        'Explore user research, wireframing, prototyping, and modern interface design.',
-      coursesCount: 8,
-      studentsCount: 260,
-      status: 'Active'
-    },
-    {
-      id: 'track-4',
-      name: 'English Language',
-      category: 'Languages',
-      description:
-        'Develop practical English skills across speaking, listening, reading, and writing.',
-      coursesCount: 9,
-      studentsCount: 380,
-      status: 'Active'
-    },
-    {
-      id: 'track-5',
-      name: 'Career Development',
-      category: 'Business & Career',
-      description:
-        'Build professional skills including CV writing, interviews, communication, and career planning.',
-      coursesCount: 7,
-      studentsCount: 210,
-      status: 'Active'
-    },
-    {
-      id: 'track-6',
-      name: 'Mobile App Development',
-      category: 'Web & Programming',
-      description:
-        'Learn the foundations of building modern mobile applications and cross-platform experiences.',
-      coursesCount: 6,
-      studentsCount: 185,
-      status: 'Inactive'
-    }
-  ];
+  adminTracks: AdminTrack[] =
+    this.readAdminTracks();
 
   // =========================================================
   // ADMIN REPORTS
@@ -543,6 +501,7 @@ export class InstructorData {
   addCertificate(
     cert: Omit<Certificate, 'id'>
   ): void {
+
     const newCert: Certificate = {
       ...cert,
       id: this.generateId()
@@ -556,8 +515,11 @@ export class InstructorData {
     id: string,
     updates: Partial<Certificate>
   ): void {
+
     const certificate =
-      this.certificates.find(item => item.id === id);
+      this.certificates.find(
+        item => item.id === id
+      );
 
     if (!certificate) {
       return;
@@ -568,8 +530,11 @@ export class InstructorData {
   }
 
   removeCertificate(id: string): void {
+
     const index =
-      this.certificates.findIndex(item => item.id === id);
+      this.certificates.findIndex(
+        item => item.id === id
+      );
 
     if (index === -1) {
       return;
@@ -579,7 +544,10 @@ export class InstructorData {
     this.persistCertificates();
   }
 
-  getCertificate(id: string): Certificate | undefined {
+  getCertificate(
+    id: string
+  ): Certificate | undefined {
+
     return this.certificates.find(
       item => item.id === id
     );
@@ -588,6 +556,7 @@ export class InstructorData {
   getCertificatesByCourse(
     courseTitle: string
   ): Certificate[] {
+
     return this.certificates.filter(
       certificate =>
         certificate.courseTitle === courseTitle
@@ -597,6 +566,7 @@ export class InstructorData {
   getCertificatesByStatus(
     status: Certificate['status']
   ): Certificate[] {
+
     return this.certificates.filter(
       certificate =>
         certificate.status === status
@@ -608,6 +578,7 @@ export class InstructorData {
   }
 
   getIssuedCertificateCount(): number {
+
     return this.certificates.filter(
       certificate =>
         certificate.status === 'Issued'
@@ -621,7 +592,12 @@ export class InstructorData {
   updateInstructor(
     updates: Partial<InstructorProfile>
   ): void {
-    Object.assign(this.instructor, updates);
+
+    Object.assign(
+      this.instructor,
+      updates
+    );
+
     this.persistInstructor();
   }
 
@@ -630,6 +606,7 @@ export class InstructorData {
   // =========================================================
 
   getAdminInstructors(): AdminUser[] {
+
     return this.adminUsers.filter(
       user =>
         user.role === 'Instructor' &&
@@ -644,6 +621,7 @@ export class InstructorData {
   addCourse(
     course: Omit<InstructorCourse, 'id'>
   ): InstructorCourse {
+
     const newCourse: InstructorCourse = {
       ...course,
       id: this.generateId()
@@ -658,9 +636,12 @@ export class InstructorData {
   createCourseByAdmin(
     course: Omit<InstructorCourse, 'id'>
   ): InstructorCourse {
-    const newCourse = this.addCourse(course);
+
+    const newCourse =
+      this.addCourse(course);
 
     if (newCourse.instructorId) {
+
       this.addInstructorNotification(
         newCourse.instructorId,
         {
@@ -690,6 +671,7 @@ export class InstructorData {
     id: string,
     updates: Partial<InstructorCourse>
   ): void {
+
     const course =
       this.courses.find(
         item => item.id === id
@@ -705,7 +687,108 @@ export class InstructorData {
     this.persistCourses();
   }
 
+  submitCourseForReview(
+    courseId: string
+  ): boolean {
+
+    const course =
+      this.getCourseById(courseId);
+
+    if (!course) {
+      return false;
+    }
+
+    course.status = 'In Review';
+    course.reviewMessage = '';
+    course.updated = 'Just now';
+
+    this.persistCourses();
+
+    this.addAdminNotification({
+      title: 'Course Submitted for Review',
+      message:
+        `${course.instructorName || 'An instructor'} submitted "${course.title}" for review.`,
+      type: 'Course',
+      isRead: false,
+      relatedCourseId: course.id
+    });
+
+    return true;
+  }
+
+  approveCourse(
+    courseId: string
+  ): boolean {
+
+    const course =
+      this.getCourseById(courseId);
+
+    if (!course) {
+      return false;
+    }
+
+    course.status = 'Published';
+    course.reviewMessage = '';
+    course.updated = 'Just now';
+
+    this.persistCourses();
+
+    if (course.instructorId) {
+
+      this.addInstructorNotification(
+        course.instructorId,
+        {
+          title: 'Course Approved',
+          message:
+            `Your course "${course.title}" has been approved and published by the admin.`,
+          type: 'Course',
+          isRead: false,
+          relatedCourseId: course.id
+        }
+      );
+    }
+
+    return true;
+  }
+
+  requestCourseChanges(
+    courseId: string,
+    message: string
+  ): boolean {
+
+    const course =
+      this.getCourseById(courseId);
+
+    if (!course) {
+      return false;
+    }
+
+    course.status = 'Changes Required';
+    course.reviewMessage = message.trim();
+    course.updated = 'Just now';
+
+    this.persistCourses();
+
+    if (course.instructorId) {
+
+      this.addInstructorNotification(
+        course.instructorId,
+        {
+          title: 'Changes Required',
+          message:
+            `Changes are required for "${course.title}". ${message.trim()}`,
+          type: 'Course',
+          isRead: false,
+          relatedCourseId: course.id
+        }
+      );
+    }
+
+    return true;
+  }
+
   removeCourse(id: string): void {
+
     const index =
       this.courses.findIndex(
         course => course.id === id
@@ -722,6 +805,7 @@ export class InstructorData {
   getCourseById(
     id: string
   ): InstructorCourse | undefined {
+
     return this.courses.find(
       course => course.id === id
     );
@@ -730,6 +814,7 @@ export class InstructorData {
   getCoursesForInstructor(
     instructorId: string
   ): InstructorCourse[] {
+
     return this.courses.filter(
       course =>
         !course.instructorId ||
@@ -744,6 +829,7 @@ export class InstructorData {
   addSection(
     section: Omit<CurriculumSection, 'id'>
   ): void {
+
     this.sections.push({
       ...section,
       id: this.generateId()
@@ -756,6 +842,7 @@ export class InstructorData {
     sectionId: string,
     section: Omit<CurriculumSection, 'id'>
   ): void {
+
     const index =
       this.sections.findIndex(
         item =>
@@ -774,7 +861,10 @@ export class InstructorData {
     this.persistSections();
   }
 
-  removeSection(sectionId: string): void {
+  removeSection(
+    sectionId: string
+  ): void {
+
     this.sections =
       this.sections.filter(
         item =>
@@ -792,6 +882,7 @@ export class InstructorData {
     sectionId: string,
     lesson: Omit<CurriculumLesson, 'id'>
   ): void {
+
     const section =
       this.sections.find(
         item =>
@@ -815,6 +906,7 @@ export class InstructorData {
     lessonId: string,
     lesson: Omit<CurriculumLesson, 'id'>
   ): void {
+
     const section =
       this.sections.find(
         item =>
@@ -835,9 +927,14 @@ export class InstructorData {
       return;
     }
 
+    const oldLesson =
+      section.lessons[index];
+
     section.lessons[index] = {
       ...lesson,
-      id: lessonId
+      id: lessonId,
+      quizId:
+        lesson.quizId ?? oldLesson.quizId
     };
 
     this.persistSections();
@@ -847,6 +944,7 @@ export class InstructorData {
     sectionId: string,
     lessonId: string
   ): void {
+
     const section =
       this.sections.find(
         item =>
@@ -855,6 +953,25 @@ export class InstructorData {
 
     if (!section) {
       return;
+    }
+
+    const lesson =
+      section.lessons.find(
+        item =>
+          item.id === lessonId
+      );
+
+    if (!lesson) {
+      return;
+    }
+
+    if (lesson.quizId) {
+
+      section.quizzes =
+        section.quizzes.filter(
+          quiz =>
+            quiz.id !== lesson.quizId
+        );
     }
 
     section.lessons =
@@ -873,7 +990,8 @@ export class InstructorData {
   addQuiz(
     sectionId: string,
     quiz: Omit<CurriculumQuiz, 'id'>
-  ): void {
+  ): string | null {
+
     const section =
       this.sections.find(
         item =>
@@ -881,22 +999,84 @@ export class InstructorData {
       );
 
     if (!section) {
-      return;
+      return null;
     }
+
+    if (quiz.type === 'Section') {
+
+      const existingFinalQuiz =
+        section.quizzes.find(
+          item =>
+            item.type === 'Section'
+        );
+
+      if (existingFinalQuiz) {
+        return null;
+      }
+    }
+
+    if (
+      quiz.type === 'Lesson' &&
+      quiz.lessonId
+    ) {
+
+      const lesson =
+        section.lessons.find(
+          item =>
+            item.id === quiz.lessonId
+        );
+
+      if (!lesson) {
+        return null;
+      }
+
+      const existingLessonQuiz =
+        section.quizzes.find(
+          item =>
+            item.type === 'Lesson' &&
+            item.lessonId === quiz.lessonId
+        );
+
+      if (existingLessonQuiz) {
+        return null;
+      }
+    }
+
+    const quizId =
+      this.generateId();
 
     section.quizzes.push({
       ...quiz,
-      id: this.generateId()
+      id: quizId
     });
 
+    if (
+      quiz.type === 'Lesson' &&
+      quiz.lessonId
+    ) {
+
+      const lesson =
+        section.lessons.find(
+          item =>
+            item.id === quiz.lessonId
+        );
+
+      if (lesson) {
+        lesson.quizId = quizId;
+      }
+    }
+
     this.persistSections();
+
+    return quizId;
   }
 
   updateQuiz(
     sectionId: string,
     quizId: string,
     quiz: Omit<CurriculumQuiz, 'id'>
-  ): void {
+  ): boolean {
+
     const section =
       this.sections.find(
         item =>
@@ -904,7 +1084,7 @@ export class InstructorData {
       );
 
     if (!section) {
-      return;
+      return false;
     }
 
     const index =
@@ -914,7 +1094,71 @@ export class InstructorData {
       );
 
     if (index < 0) {
-      return;
+      return false;
+    }
+
+    const oldQuiz =
+      section.quizzes[index];
+
+    if (quiz.type === 'Section') {
+
+      const duplicateFinal =
+        section.quizzes.find(
+          item =>
+            item.id !== quizId &&
+            item.type === 'Section'
+        );
+
+      if (duplicateFinal) {
+        return false;
+      }
+    }
+
+    if (
+      quiz.type === 'Lesson' &&
+      quiz.lessonId
+    ) {
+
+      const lesson =
+        section.lessons.find(
+          item =>
+            item.id === quiz.lessonId
+        );
+
+      if (!lesson) {
+        return false;
+      }
+
+      const duplicateLessonQuiz =
+        section.quizzes.find(
+          item =>
+            item.id !== quizId &&
+            item.type === 'Lesson' &&
+            item.lessonId === quiz.lessonId
+        );
+
+      if (duplicateLessonQuiz) {
+        return false;
+      }
+    }
+
+    if (
+      oldQuiz.type === 'Lesson' &&
+      oldQuiz.lessonId
+    ) {
+
+      const oldLesson =
+        section.lessons.find(
+          item =>
+            item.id === oldQuiz.lessonId
+        );
+
+      if (
+        oldLesson &&
+        oldLesson.quizId === quizId
+      ) {
+        oldLesson.quizId = undefined;
+      }
     }
 
     section.quizzes[index] = {
@@ -922,13 +1166,32 @@ export class InstructorData {
       id: quizId
     };
 
+    if (
+      quiz.type === 'Lesson' &&
+      quiz.lessonId
+    ) {
+
+      const newLesson =
+        section.lessons.find(
+          item =>
+            item.id === quiz.lessonId
+        );
+
+      if (newLesson) {
+        newLesson.quizId = quizId;
+      }
+    }
+
     this.persistSections();
+
+    return true;
   }
 
   removeQuiz(
     sectionId: string,
     quizId: string
   ): void {
+
     const section =
       this.sections.find(
         item =>
@@ -937,6 +1200,35 @@ export class InstructorData {
 
     if (!section) {
       return;
+    }
+
+    const quiz =
+      section.quizzes.find(
+        item =>
+          item.id === quizId
+      );
+
+    if (!quiz) {
+      return;
+    }
+
+    if (
+      quiz.type === 'Lesson' &&
+      quiz.lessonId
+    ) {
+
+      const lesson =
+        section.lessons.find(
+          item =>
+            item.id === quiz.lessonId
+        );
+
+      if (
+        lesson &&
+        lesson.quizId === quizId
+      ) {
+        lesson.quizId = undefined;
+      }
     }
 
     section.quizzes =
@@ -959,6 +1251,7 @@ export class InstructorData {
         'id' | 'createdAt'
       >
   ): void {
+
     this.notifications.unshift({
       ...notification,
       id: this.generateId(),
@@ -976,6 +1269,7 @@ export class InstructorData {
         'id' | 'createdAt' | 'instructorId'
       >
   ): void {
+
     this.notifications.unshift({
       ...notification,
       instructorId,
@@ -989,6 +1283,7 @@ export class InstructorData {
   getInstructorNotifications(
     instructorId: string
   ): InstructorNotification[] {
+
     return this.notifications.filter(
       notification =>
         !notification.instructorId ||
@@ -997,6 +1292,7 @@ export class InstructorData {
   }
 
   removeNotification(id: string): void {
+
     this.notifications =
       this.notifications.filter(
         item =>
@@ -1007,6 +1303,7 @@ export class InstructorData {
   }
 
   markNotificationRead(id: string): void {
+
     const item =
       this.notifications.find(
         notification =>
@@ -1026,15 +1323,12 @@ export class InstructorData {
   // =========================================================
 
   getAdminStats(): AdminStats {
+
     return {
       ...this.adminStats,
       totalCourses: this.courses.length
     };
   }
-
-  // =========================================================
-  // ADMIN USERS
-  // =========================================================
 
   getAdminUsers(): AdminUser[] {
     return [...this.adminUsers];
@@ -1047,6 +1341,7 @@ export class InstructorData {
   getAdminUser(
     id: string
   ): AdminUser | undefined {
+
     return this.adminUsers.find(
       user =>
         user.id === id
@@ -1056,6 +1351,7 @@ export class InstructorData {
   addAdminUser(
     user: Omit<AdminUser, 'id' | 'joinedAt'>
   ): AdminUser {
+
     const newUser: AdminUser = {
       ...user,
       id: this.generateId(),
@@ -1072,6 +1368,7 @@ export class InstructorData {
     id: string,
     updates: Partial<Omit<AdminUser, 'id'>>
   ): void {
+
     const user =
       this.adminUsers.find(
         item =>
@@ -1090,6 +1387,7 @@ export class InstructorData {
     id: string,
     status: AdminUser['status']
   ): void {
+
     this.updateAdminUser(
       id,
       { status }
@@ -1097,6 +1395,7 @@ export class InstructorData {
   }
 
   removeAdminUser(id: string): void {
+
     const index =
       this.adminUsers.findIndex(
         item =>
@@ -1111,10 +1410,6 @@ export class InstructorData {
     this.persistAdminUsers();
   }
 
-  // =========================================================
-  // ADMIN RECENT DATA
-  // =========================================================
-
   getAdminRecentCourses(): AdminCourse[] {
     return [...this.adminRecentCourses];
   }
@@ -1123,13 +1418,585 @@ export class InstructorData {
     return [...this.adminRecentActivities];
   }
 
+  // =========================================================
+  // ADMIN CATEGORIES
+  // =========================================================
+
   getAdminCategories(): AdminCategory[] {
-    return [...this.adminCategories];
+
+    return this.adminCategories.map(
+      category => ({
+        ...category
+      })
+    );
   }
 
-  getAdminTracks(): AdminTrack[] {
-    return [...this.adminTracks];
+  getAdminCategory(
+    id: string
+  ): AdminCategory | undefined {
+
+    const category =
+      this.adminCategories.find(
+        item =>
+          item.id === id
+      );
+
+    return category
+      ? { ...category }
+      : undefined;
   }
+
+  addAdminCategory(
+    category: Omit<AdminCategory, 'id'>
+  ): AdminCategory {
+
+    const newCategory: AdminCategory = {
+      ...category,
+      id: this.generateId(),
+
+      subcategoriesCount:
+        category.subcategoriesCount ?? 0,
+
+      coursesCount:
+        category.coursesCount ?? 0,
+
+      tracksCount:
+        category.tracksCount ?? 0
+    };
+
+    this.adminCategories.unshift(
+      newCategory
+    );
+
+    this.persistAdminCategories();
+
+    return {
+      ...newCategory
+    };
+  }
+
+  updateAdminCategory(
+    id: string,
+    updates: Partial<Omit<AdminCategory, 'id'>>
+  ): boolean {
+
+    const category =
+      this.adminCategories.find(
+        item =>
+          item.id === id
+      );
+
+    if (!category) {
+      return false;
+    }
+
+    const oldName =
+      category.name;
+
+    Object.assign(
+      category,
+      updates
+    );
+
+    const newName =
+      category.name;
+
+    // -------------------------------------------------------
+    // Update related subcategories
+    // -------------------------------------------------------
+
+    if (
+      updates.name &&
+      oldName !== newName
+    ) {
+
+      this.adminSubcategories.forEach(
+        subcategory => {
+
+          if (
+            subcategory.categoryId ===
+            category.id
+          ) {
+            subcategory.categoryName =
+              newName;
+          }
+        }
+      );
+
+      // -----------------------------------------------------
+      // Update related tracks
+      // -----------------------------------------------------
+
+      this.adminTracks.forEach(
+        track => {
+
+          if (
+            track.categoryId ===
+              category.id ||
+            track.category === oldName
+          ) {
+
+            track.category =
+              newName;
+
+            track.categoryName =
+              newName;
+          }
+        }
+      );
+
+      // -----------------------------------------------------
+      // Update related courses
+      // -----------------------------------------------------
+
+      this.courses.forEach(
+        course => {
+
+          if (
+            course.category === oldName
+          ) {
+
+            course.category =
+              newName;
+
+            course.updated =
+              'Just now';
+          }
+        }
+      );
+
+      this.persistAdminSubcategories();
+      this.persistAdminTracks();
+      this.persistCourses();
+    }
+
+    this.persistAdminCategories();
+
+    return true;
+  }
+
+  removeAdminCategory(
+    id: string
+  ): boolean {
+
+    const categoryIndex =
+      this.adminCategories.findIndex(
+        item =>
+          item.id === id
+      );
+
+    if (categoryIndex === -1) {
+      return false;
+    }
+
+    const category =
+      this.adminCategories[categoryIndex];
+
+    // -------------------------------------------------------
+    // Don't delete category if it contains data
+    // -------------------------------------------------------
+
+    if (
+      category.subcategoriesCount > 0 ||
+      category.coursesCount > 0 ||
+      category.tracksCount > 0
+    ) {
+      return false;
+    }
+
+    this.adminCategories.splice(
+      categoryIndex,
+      1
+    );
+
+    this.persistAdminCategories();
+
+    return true;
+  }
+
+  toggleAdminCategoryStatus(
+    id: string
+  ): boolean {
+
+    const category =
+      this.adminCategories.find(
+        item =>
+          item.id === id
+      );
+
+    if (!category) {
+      return false;
+    }
+
+    category.status =
+      category.status === 'Active'
+        ? 'Inactive'
+        : 'Active';
+
+    this.persistAdminCategories();
+
+    return true;
+  }
+
+  // =========================================================
+  // ADMIN SUBCATEGORIES
+  // =========================================================
+
+  getAdminSubcategories(): AdminSubcategory[] {
+
+    return this.adminSubcategories.map(
+      subcategory => ({
+        ...subcategory
+      })
+    );
+  }
+
+  getAdminSubcategory(
+    id: string
+  ): AdminSubcategory | undefined {
+
+    const subcategory =
+      this.adminSubcategories.find(
+        item =>
+          item.id === id
+      );
+
+    return subcategory
+      ? { ...subcategory }
+      : undefined;
+  }
+
+  getSubcategoriesByCategory(
+    categoryId: string
+  ): AdminSubcategory[] {
+
+    return this.adminSubcategories
+      .filter(
+        subcategory =>
+          subcategory.categoryId ===
+          categoryId
+      )
+      .map(
+        subcategory => ({
+          ...subcategory
+        })
+      );
+  }
+
+  addAdminSubcategory(
+    subcategory: Omit<AdminSubcategory, 'id'>
+  ): AdminSubcategory {
+
+    const category =
+      this.adminCategories.find(
+        item =>
+          item.id === subcategory.categoryId
+      );
+
+    const newSubcategory: AdminSubcategory = {
+      ...subcategory,
+
+      id: this.generateId(),
+
+      categoryName:
+        category?.name ||
+        subcategory.categoryName ||
+        'Uncategorized',
+
+      tracksCount:
+        subcategory.tracksCount ?? 0,
+
+      coursesCount:
+        subcategory.coursesCount ?? 0
+    };
+
+    this.adminSubcategories.unshift(
+      newSubcategory
+    );
+
+    this.updateCategorySubcategoryCount(
+      newSubcategory.categoryId
+    );
+
+    this.persistAdminSubcategories();
+
+    return {
+      ...newSubcategory
+    };
+  }
+
+  updateAdminSubcategory(
+    id: string,
+    updates: Partial<Omit<AdminSubcategory, 'id'>>
+  ): boolean {
+
+    const subcategory =
+      this.adminSubcategories.find(
+        item =>
+          item.id === id
+      );
+
+    if (!subcategory) {
+      return false;
+    }
+
+    const oldCategoryId =
+      subcategory.categoryId;
+
+    Object.assign(
+      subcategory,
+      updates
+    );
+
+    const category =
+      this.adminCategories.find(
+        item =>
+          item.id ===
+          subcategory.categoryId
+      );
+
+    if (category) {
+
+      subcategory.categoryName =
+        category.name;
+    }
+
+    if (
+      updates.categoryId &&
+      updates.categoryId !==
+        oldCategoryId
+    ) {
+
+      this.updateCategorySubcategoryCount(
+        oldCategoryId
+      );
+
+      this.updateCategorySubcategoryCount(
+        updates.categoryId
+      );
+    }
+
+    this.persistAdminSubcategories();
+
+    return true;
+  }
+
+  removeAdminSubcategory(
+    id: string
+  ): boolean {
+
+    const index =
+      this.adminSubcategories.findIndex(
+        item =>
+          item.id === id
+      );
+
+    if (index === -1) {
+      return false;
+    }
+
+    const subcategory =
+      this.adminSubcategories[index];
+
+    // Don't delete if it contains
+    // tracks or courses
+    if (
+      subcategory.tracksCount > 0 ||
+      subcategory.coursesCount > 0
+    ) {
+      return false;
+    }
+
+    this.adminSubcategories.splice(
+      index,
+      1
+    );
+
+    this.updateCategorySubcategoryCount(
+      subcategory.categoryId
+    );
+
+    this.persistAdminSubcategories();
+
+    return true;
+  }
+
+  toggleAdminSubcategoryStatus(
+    id: string
+  ): boolean {
+
+    const subcategory =
+      this.adminSubcategories.find(
+        item =>
+          item.id === id
+      );
+
+    if (!subcategory) {
+      return false;
+    }
+
+    subcategory.status =
+      subcategory.status === 'Active'
+        ? 'Inactive'
+        : 'Active';
+
+    this.persistAdminSubcategories();
+
+    return true;
+  }
+
+  // =========================================================
+  // ADMIN TRACKS
+  // =========================================================
+
+  getAdminTracks(): AdminTrack[] {
+
+    return this.adminTracks.map(
+      track => ({
+        ...track
+      })
+    );
+  }
+
+  getAdminTrack(
+    id: string
+  ): AdminTrack | undefined {
+
+    const track =
+      this.adminTracks.find(
+        item =>
+          item.id === id
+      );
+
+    return track
+      ? { ...track }
+      : undefined;
+  }
+
+  addAdminTrack(
+    track: Omit<AdminTrack, 'id'>
+  ): AdminTrack {
+    const newTrack: AdminTrack = {
+      ...track,
+      id: this.generateId()
+    };
+
+    this.adminTracks.unshift(newTrack);
+    this.adjustAdminTrackCounts(
+      newTrack.categoryId,
+      newTrack.subcategoryId,
+      1
+    );
+    this.persistAdminTracks();
+
+    return { ...newTrack };
+  }
+
+  updateAdminTrack(
+    id: string,
+    updates: Partial<Omit<AdminTrack, 'id'>>
+  ): boolean {
+    const track = this.adminTracks.find(item => item.id === id);
+
+    if (!track) {
+      return false;
+    }
+
+    const oldCategoryId = track.categoryId;
+    const oldSubcategoryId = track.subcategoryId;
+
+    Object.assign(track, updates);
+
+    if (oldCategoryId !== track.categoryId) {
+      this.adjustAdminTrackCounts(oldCategoryId, undefined, -1);
+      this.adjustAdminTrackCounts(track.categoryId, undefined, 1);
+    }
+
+    if (oldSubcategoryId !== track.subcategoryId) {
+      this.adjustAdminTrackCounts(undefined, oldSubcategoryId, -1);
+      this.adjustAdminTrackCounts(undefined, track.subcategoryId, 1);
+    }
+
+    this.persistAdminTracks();
+    return true;
+  }
+
+  removeAdminTrack(id: string): boolean {
+    const index = this.adminTracks.findIndex(item => item.id === id);
+
+    if (index === -1) {
+      return false;
+    }
+
+    const track = this.adminTracks[index];
+
+    if (track.coursesCount > 0) {
+      return false;
+    }
+
+    this.adminTracks.splice(index, 1);
+    this.adjustAdminTrackCounts(
+      track.categoryId,
+      track.subcategoryId,
+      -1
+    );
+    this.persistAdminTracks();
+
+    return true;
+  }
+
+  toggleAdminTrackStatus(id: string): boolean {
+    const track = this.adminTracks.find(item => item.id === id);
+
+    if (!track) {
+      return false;
+    }
+
+    track.status =
+      track.status === 'Active' ? 'Inactive' : 'Active';
+
+    this.persistAdminTracks();
+    return true;
+  }
+
+  private adjustAdminTrackCounts(
+    categoryId: string | undefined,
+    subcategoryId: string | undefined,
+    delta: number
+  ): void {
+    if (categoryId) {
+      const category = this.adminCategories.find(
+        item => item.id === categoryId
+      );
+
+      if (category) {
+        category.tracksCount = Math.max(
+          0,
+          category.tracksCount + delta
+        );
+      }
+    }
+
+    if (subcategoryId) {
+      const subcategory = this.adminSubcategories.find(
+        item => item.id === subcategoryId
+      );
+
+      if (subcategory) {
+        subcategory.tracksCount = Math.max(
+          0,
+          subcategory.tracksCount + delta
+        );
+      }
+    }
+
+    this.persistAdminCategories();
+    this.persistAdminSubcategories();
+  }
+
+  // =========================================================
+  // ADMIN REPORTS
+  // =========================================================
 
   getAdminReports(): AdminReport[] {
     return [...this.adminReports];
@@ -1150,6 +2017,7 @@ export class InstructorData {
         'id' | 'createdAt'
       >
   ): void {
+
     this.adminNotifications.unshift({
       ...notification,
       id: this.generateId(),
@@ -1159,7 +2027,10 @@ export class InstructorData {
     this.persistAdminNotifications();
   }
 
-  markAdminNotificationRead(id: string): void {
+  markAdminNotificationRead(
+    id: string
+  ): void {
+
     const notification =
       this.adminNotifications.find(
         item =>
@@ -1175,6 +2046,7 @@ export class InstructorData {
   }
 
   markAllAdminNotificationsRead(): void {
+
     this.adminNotifications.forEach(
       notification => {
         notification.isRead = true;
@@ -1184,7 +2056,10 @@ export class InstructorData {
     this.persistAdminNotifications();
   }
 
-  removeAdminNotification(id: string): void {
+  removeAdminNotification(
+    id: string
+  ): void {
+
     this.adminNotifications =
       this.adminNotifications.filter(
         item =>
@@ -1201,6 +2076,7 @@ export class InstructorData {
   updateAdminProfile(
     updates: Partial<AdminProfile>
   ): void {
+
     Object.assign(
       this.admin,
       updates
@@ -1217,6 +2093,7 @@ export class InstructorData {
   // =========================================================
 
   private readAdminUsers(): AdminUser[] {
+
     const defaultUsers: AdminUser[] = [
       {
         id: 'admin-user-1',
@@ -1301,14 +2178,18 @@ export class InstructorData {
     ];
 
     try {
+
       const saved =
         JSON.parse(
-          localStorage.getItem('adminUsers') || 'null'
+          localStorage.getItem(
+            'adminUsers'
+          ) || 'null'
         );
 
       if (Array.isArray(saved)) {
         return saved;
       }
+
     } catch {
       // Ignore invalid localStorage data
     }
@@ -1317,6 +2198,7 @@ export class InstructorData {
   }
 
   private persistAdminUsers(): void {
+
     localStorage.setItem(
       'adminUsers',
       JSON.stringify(this.adminUsers)
@@ -1328,6 +2210,7 @@ export class InstructorData {
   // =========================================================
 
   private readAdmin(): AdminProfile {
+
     const defaultProfile: AdminProfile = {
       firstName: 'Naema',
       lastName: 'Sayed',
@@ -1335,20 +2218,25 @@ export class InstructorData {
     };
 
     try {
+
       const saved =
         JSON.parse(
-          localStorage.getItem('adminProfile') || 'null'
+          localStorage.getItem(
+            'adminProfile'
+          ) || 'null'
         );
 
       if (
         saved &&
         typeof saved === 'object'
       ) {
+
         return {
           ...defaultProfile,
           ...saved
         };
       }
+
     } catch {
       // Ignore invalid localStorage data
     }
@@ -1357,11 +2245,540 @@ export class InstructorData {
   }
 
   // =========================================================
+  // LOCAL STORAGE - ADMIN CATEGORIES
+  // =========================================================
+
+  private readAdminCategories(): AdminCategory[] {
+
+    const defaultCategories: AdminCategory[] = [
+      {
+        id: 'category-1',
+        name: 'Web & Programming',
+        description:
+          'Frontend, backend, mobile development, and programming skills.',
+        subcategoriesCount: 3,
+        coursesCount: 42,
+        tracksCount: 12,
+        status: 'Active'
+      },
+      {
+        id: 'category-2',
+        name: 'Languages',
+        description:
+          'English, Arabic, French, German, and other language learning paths.',
+        subcategoriesCount: 4,
+        coursesCount: 28,
+        tracksCount: 8,
+        status: 'Active'
+      },
+      {
+        id: 'category-3',
+        name: 'Design & Creativity',
+        description:
+          'UI/UX, product design, visual design, and creative skills.',
+        subcategoriesCount: 1,
+        coursesCount: 24,
+        tracksCount: 7,
+        status: 'Active'
+      },
+      {
+        id: 'category-4',
+        name: 'Business & Career',
+        description:
+          'Business, management, career development, and professional skills.',
+        subcategoriesCount: 1,
+        coursesCount: 31,
+        tracksCount: 9,
+        status: 'Active'
+      }
+    ];
+
+    try {
+
+      const saved =
+        JSON.parse(
+          localStorage.getItem(
+            'adminCategories'
+          ) || 'null'
+        );
+
+      if (Array.isArray(saved)) {
+
+        return saved.map(
+          (
+            category: Partial<AdminCategory>
+          ) => ({
+
+            id:
+              category.id ||
+              this.generateId(),
+
+            name:
+              category.name ||
+              'Untitled Category',
+
+            description:
+              category.description ||
+              '',
+
+            subcategoriesCount:
+              Number(
+                category.subcategoriesCount
+              ) || 0,
+
+            coursesCount:
+              Number(
+                category.coursesCount
+              ) || 0,
+
+            tracksCount:
+              Number(
+                category.tracksCount
+              ) || 0,
+
+            status:
+              category.status === 'Inactive'
+                ? 'Inactive'
+                : 'Active'
+          })
+        );
+      }
+
+    } catch {
+      // Ignore invalid localStorage data
+    }
+
+    return defaultCategories;
+  }
+
+  private persistAdminCategories(): void {
+
+    localStorage.setItem(
+      'adminCategories',
+      JSON.stringify(
+        this.adminCategories
+      )
+    );
+  }
+
+  // =========================================================
+  // LOCAL STORAGE - ADMIN SUBCATEGORIES
+  // =========================================================
+
+  private readAdminSubcategories(): AdminSubcategory[] {
+
+    const defaultSubcategories: AdminSubcategory[] = [
+      {
+        id: 'subcategory-1',
+        name: 'Frontend',
+        categoryId: 'category-1',
+        categoryName: 'Web & Programming',
+        description:
+          'Frontend development and modern user interfaces.',
+        tracksCount: 1,
+        coursesCount: 14,
+        status: 'Active'
+      },
+      {
+        id: 'subcategory-2',
+        name: 'Backend',
+        categoryId: 'category-1',
+        categoryName: 'Web & Programming',
+        description:
+          'Backend development, APIs, databases, and server-side systems.',
+        tracksCount: 1,
+        coursesCount: 10,
+        status: 'Active'
+      },
+      {
+        id: 'subcategory-3',
+        name: 'Mobile',
+        categoryId: 'category-1',
+        categoryName: 'Web & Programming',
+        description:
+          'Mobile application development and cross-platform technologies.',
+        tracksCount: 1,
+        coursesCount: 6,
+        status: 'Active'
+      },
+      {
+        id: 'subcategory-4',
+        name: 'English',
+        categoryId: 'category-2',
+        categoryName: 'Languages',
+        description:
+          'English language learning from beginner to advanced.',
+        tracksCount: 1,
+        coursesCount: 9,
+        status: 'Active'
+      },
+      {
+        id: 'subcategory-5',
+        name: 'Arabic',
+        categoryId: 'category-2',
+        categoryName: 'Languages',
+        description:
+          'Arabic language learning and communication skills.',
+        tracksCount: 0,
+        coursesCount: 0,
+        status: 'Active'
+      },
+      {
+        id: 'subcategory-6',
+        name: 'French',
+        categoryId: 'category-2',
+        categoryName: 'Languages',
+        description:
+          'French language learning and communication skills.',
+        tracksCount: 0,
+        coursesCount: 0,
+        status: 'Active'
+      },
+      {
+        id: 'subcategory-7',
+        name: 'German',
+        categoryId: 'category-2',
+        categoryName: 'Languages',
+        description:
+          'German language learning and communication skills.',
+        tracksCount: 0,
+        coursesCount: 0,
+        status: 'Active'
+      },
+      {
+        id: 'subcategory-8',
+        name: 'Design',
+        categoryId: 'category-3',
+        categoryName: 'Design & Creativity',
+        description:
+          'UI/UX, visual design, and creative design skills.',
+        tracksCount: 1,
+        coursesCount: 8,
+        status: 'Active'
+      },
+      {
+        id: 'subcategory-9',
+        name: 'Career',
+        categoryId: 'category-4',
+        categoryName: 'Business & Career',
+        description:
+          'Career planning, professional development, and workplace skills.',
+        tracksCount: 1,
+        coursesCount: 7,
+        status: 'Active'
+      }
+    ];
+
+    try {
+
+      const saved =
+        JSON.parse(
+          localStorage.getItem(
+            'adminSubcategories'
+          ) || 'null'
+        );
+
+      if (Array.isArray(saved)) {
+
+        return saved.map(
+          (
+            subcategory:
+              Partial<AdminSubcategory>
+          ) => ({
+
+            id:
+              subcategory.id ||
+              this.generateId(),
+
+            name:
+              subcategory.name ||
+              'Untitled Subcategory',
+
+            categoryId:
+              subcategory.categoryId ||
+              '',
+
+            categoryName:
+              subcategory.categoryName ||
+              'Uncategorized',
+
+            description:
+              subcategory.description ||
+              '',
+
+            tracksCount:
+              Number(
+                subcategory.tracksCount
+              ) || 0,
+
+            coursesCount:
+              Number(
+                subcategory.coursesCount
+              ) || 0,
+
+            status:
+              subcategory.status === 'Inactive'
+                ? 'Inactive'
+                : 'Active'
+          })
+        );
+      }
+
+    } catch {
+      // Ignore invalid localStorage data
+    }
+
+    return defaultSubcategories;
+  }
+
+  private persistAdminSubcategories(): void {
+
+    localStorage.setItem(
+      'adminSubcategories',
+      JSON.stringify(
+        this.adminSubcategories
+      )
+    );
+  }
+
+  private updateCategorySubcategoryCount(
+    categoryId: string
+  ): void {
+
+    const category =
+      this.adminCategories.find(
+        item =>
+          item.id === categoryId
+      );
+
+    if (!category) {
+      return;
+    }
+
+    category.subcategoriesCount =
+      this.adminSubcategories.filter(
+        subcategory =>
+          subcategory.categoryId ===
+          categoryId
+      ).length;
+
+    this.persistAdminCategories();
+  }
+
+  // =========================================================
+  // LOCAL STORAGE - ADMIN TRACKS
+  // =========================================================
+
+  private readAdminTracks(): AdminTrack[] {
+
+    const defaultTracks: AdminTrack[] = [
+      {
+        id: 'track-1',
+        name: 'Frontend Development',
+
+        subcategoryId: 'subcategory-1',
+        subcategoryName: 'Frontend',
+
+        categoryId: 'category-1',
+        categoryName: 'Web & Programming',
+        category: 'Web & Programming',
+
+        description:
+          'Learn modern frontend development using HTML, CSS, JavaScript, and popular frameworks.',
+
+        coursesCount: 12,
+        studentsCount: 420,
+        status: 'Active'
+      },
+
+      {
+        id: 'track-2',
+        name: 'Backend Development',
+
+        subcategoryId: 'subcategory-2',
+        subcategoryName: 'Backend',
+
+        categoryId: 'category-1',
+        categoryName: 'Web & Programming',
+        category: 'Web & Programming',
+
+        description:
+          'Build backend systems, APIs, databases, and scalable server-side applications.',
+
+        coursesCount: 10,
+        studentsCount: 315,
+        status: 'Active'
+      },
+
+      {
+        id: 'track-3',
+        name: 'UI/UX Design',
+
+        subcategoryId: 'subcategory-8',
+        subcategoryName: 'Design',
+
+        categoryId: 'category-3',
+        categoryName: 'Design & Creativity',
+        category: 'Design & Creativity',
+
+        description:
+          'Explore user research, wireframing, prototyping, and modern interface design.',
+
+        coursesCount: 8,
+        studentsCount: 260,
+        status: 'Active'
+      },
+
+      {
+        id: 'track-4',
+        name: 'English Language',
+
+        subcategoryId: 'subcategory-4',
+        subcategoryName: 'English',
+
+        categoryId: 'category-2',
+        categoryName: 'Languages',
+        category: 'Languages',
+
+        description:
+          'Develop practical English skills across speaking, listening, reading, and writing.',
+
+        coursesCount: 9,
+        studentsCount: 380,
+        status: 'Active'
+      },
+
+      {
+        id: 'track-5',
+        name: 'Career Development',
+
+        subcategoryId: 'subcategory-9',
+        subcategoryName: 'Career',
+
+        categoryId: 'category-4',
+        categoryName: 'Business & Career',
+        category: 'Business & Career',
+
+        description:
+          'Build professional skills including CV writing, interviews, communication, and career planning.',
+
+        coursesCount: 7,
+        studentsCount: 210,
+        status: 'Active'
+      },
+
+      {
+        id: 'track-6',
+        name: 'Mobile App Development',
+
+        subcategoryId: 'subcategory-3',
+        subcategoryName: 'Mobile',
+
+        categoryId: 'category-1',
+        categoryName: 'Web & Programming',
+        category: 'Web & Programming',
+
+        description:
+          'Learn the foundations of building modern mobile applications and cross-platform experiences.',
+
+        coursesCount: 6,
+        studentsCount: 185,
+        status: 'Inactive'
+      }
+    ];
+
+    try {
+
+      const saved =
+        JSON.parse(
+          localStorage.getItem(
+            'adminTracks'
+          ) || 'null'
+        );
+
+      if (Array.isArray(saved)) {
+
+        return saved.map(
+          (
+            track: Partial<AdminTrack>
+          ) => ({
+
+            id:
+              track.id ||
+              this.generateId(),
+
+            name:
+              track.name ||
+              'Untitled Track',
+
+            subcategoryId:
+              track.subcategoryId ||
+              '',
+
+            subcategoryName:
+              track.subcategoryName ||
+              '',
+
+            categoryId:
+              track.categoryId,
+
+            categoryName:
+              track.categoryName ||
+              track.category ||
+              'Uncategorized',
+
+            category:
+              track.category ||
+              track.categoryName ||
+              'Uncategorized',
+
+            description:
+              track.description ||
+              '',
+
+            coursesCount:
+              Number(
+                track.coursesCount
+              ) || 0,
+
+            studentsCount:
+              Number(
+                track.studentsCount
+              ) || 0,
+
+            status:
+              track.status === 'Inactive'
+                ? 'Inactive'
+                : 'Active'
+          })
+        );
+      }
+
+    } catch {
+      // Ignore invalid localStorage data
+    }
+
+    return defaultTracks;
+  }
+
+  private persistAdminTracks(): void {
+
+    localStorage.setItem(
+      'adminTracks',
+      JSON.stringify(
+        this.adminTracks
+      )
+    );
+  }
+
+  // =========================================================
   // LOCAL STORAGE - CERTIFICATES
   // =========================================================
 
   private readCertificates(): Certificate[] {
+
     try {
+
       const saved =
         JSON.parse(
           localStorage.getItem(
@@ -1372,6 +2789,7 @@ export class InstructorData {
       if (Array.isArray(saved)) {
         return saved;
       }
+
     } catch {
       // Ignore invalid localStorage data
     }
@@ -1382,7 +2800,8 @@ export class InstructorData {
         studentName: 'Naema Sayed',
         studentEmail: 'naema.s@pathwayed.edu',
         studentInitials: 'NS',
-        courseTitle: 'React Frontend Development',
+        courseTitle:
+          'React Frontend Development',
         certId: 'CERT-2026-00482',
         completionRate: 100,
         issuedDate: 'Sep 20, 2026',
@@ -1393,7 +2812,8 @@ export class InstructorData {
         studentName: 'Omar Hassan',
         studentEmail: 'omar.h@pathwayed.edu',
         studentInitials: 'OH',
-        courseTitle: 'Node.js Backend Development',
+        courseTitle:
+          'Node.js Backend Development',
         certId: 'CERT-2026-00483',
         completionRate: 100,
         issuedDate: 'Sep 18, 2026',
@@ -1404,7 +2824,8 @@ export class InstructorData {
         studentName: 'Mariam Adel',
         studentEmail: 'mariam.a@pathwayed.edu',
         studentInitials: 'MA',
-        courseTitle: 'JavaScript Essentials',
+        courseTitle:
+          'JavaScript Essentials',
         certId: 'CERT-2026-00484',
         completionRate: 100,
         issuedDate: 'Sep 15, 2026',
@@ -1414,9 +2835,12 @@ export class InstructorData {
   }
 
   private persistCertificates(): void {
+
     localStorage.setItem(
       'instructorCertificates',
-      JSON.stringify(this.certificates)
+      JSON.stringify(
+        this.certificates
+      )
     );
   }
 
@@ -1425,6 +2849,7 @@ export class InstructorData {
   // =========================================================
 
   private readInstructor(): InstructorProfile {
+
     const defaultProfile: InstructorProfile = {
       id: 'admin-user-1',
       firstName: 'Naema',
@@ -1444,6 +2869,7 @@ export class InstructorData {
     };
 
     try {
+
       const saved =
         JSON.parse(
           localStorage.getItem(
@@ -1455,6 +2881,7 @@ export class InstructorData {
         saved &&
         typeof saved === 'object'
       ) {
+
         return {
           ...defaultProfile,
           ...saved,
@@ -1464,6 +2891,7 @@ export class InstructorData {
               : defaultProfile.skills
         };
       }
+
     } catch {
       // Ignore invalid localStorage data
     }
@@ -1472,9 +2900,12 @@ export class InstructorData {
   }
 
   private persistInstructor(): void {
+
     localStorage.setItem(
       'instructorProfile',
-      JSON.stringify(this.instructor)
+      JSON.stringify(
+        this.instructor
+      )
     );
   }
 
@@ -1483,7 +2914,9 @@ export class InstructorData {
   // =========================================================
 
   private readCourses(): InstructorCourse[] {
+
     try {
+
       const saved =
         JSON.parse(
           localStorage.getItem(
@@ -1492,41 +2925,106 @@ export class InstructorData {
         );
 
       if (Array.isArray(saved)) {
+
         return saved.map(
-          (course: Partial<InstructorCourse>) => ({
-            id: course.id || this.generateId(),
-            title: course.title || 'Untitled Course',
-            description: course.description || '',
-            category: course.category || 'Uncategorized',
-            track: course.track || '',
-            subcategory: course.subcategory || '',
-            image: course.image || '',
-            price: course.price || '$0',
-            students: course.students || '0',
-            rating: course.rating || '—',
-            updated: course.updated || 'Just now',
+          (
+            course:
+              Partial<InstructorCourse>
+          ) => ({
+
+            id:
+              course.id ||
+              this.generateId(),
+
+            title:
+              course.title ||
+              'Untitled Course',
+
+            description:
+              course.description ||
+              '',
+
+            category:
+              course.category ||
+              'Uncategorized',
+
+            track:
+              course.track ||
+              '',
+
+            subcategory:
+              course.subcategory ||
+              '',
+
+            image:
+              course.image ||
+              '',
+
+            price:
+              course.price ||
+              '$0',
+
+            students:
+              course.students ||
+              '0',
+
+            rating:
+              course.rating ||
+              '—',
+
+            updated:
+              course.updated ||
+              'Just now',
+
             status:
               course.status === 'In Review'
                 ? 'In Review'
-                : course.status === 'Changes Required'
+                : course.status ===
+                    'Changes Required'
                   ? 'Changes Required'
-                  : course.status === 'Published'
+                  : course.status ===
+                      'Published'
                     ? 'Published'
-                    : course.status === 'Assigned'
+                    : course.status ===
+                        'Assigned'
                       ? 'Assigned'
                       : 'Draft',
-            level: course.level || '',
-            language: course.language || 'English',
-            duration: course.duration || '',
-            objectives: course.objectives || '',
-            prerequisites: course.prerequisites || '',
-            instructorId: course.instructorId,
-            instructorName: course.instructorName,
-            instructorEmail: course.instructorEmail,
-            reviewMessage: course.reviewMessage
+
+            level:
+              course.level ||
+              '',
+
+            language:
+              course.language ||
+              'English',
+
+            duration:
+              course.duration ||
+              '',
+
+            objectives:
+              course.objectives ||
+              '',
+
+            prerequisites:
+              course.prerequisites ||
+              '',
+
+            instructorId:
+              course.instructorId,
+
+            instructorName:
+              course.instructorName,
+
+            instructorEmail:
+              course.instructorEmail,
+
+            reviewMessage:
+              course.reviewMessage
           })
         );
       }
+
     } catch {
       // Ignore invalid localStorage data
     }
@@ -1534,8 +3032,10 @@ export class InstructorData {
     return [
       {
         id: 'course-1',
-        title: 'Full-Stack Web Development',
-        category: 'Full-Stack + Web Dev',
+        title:
+          'Full-Stack Web Development',
+        category:
+          'Full-Stack + Web Dev',
         image:
           'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=900&q=85',
         price: '$90',
@@ -1545,12 +3045,15 @@ export class InstructorData {
         status: 'Published',
         instructorId: 'admin-user-1',
         instructorName: 'Naema Sayed',
-        instructorEmail: 'naema@example.com'
+        instructorEmail:
+          'naema@example.com'
       },
       {
         id: 'course-2',
-        title: 'React Frontend Development',
-        category: 'Frontend + React',
+        title:
+          'React Frontend Development',
+        category:
+          'Frontend + React',
         image:
           'https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=900&q=85',
         price: '$60',
@@ -1560,12 +3063,15 @@ export class InstructorData {
         status: 'Published',
         instructorId: 'admin-user-1',
         instructorName: 'Naema Sayed',
-        instructorEmail: 'naema@example.com'
+        instructorEmail:
+          'naema@example.com'
       },
       {
         id: 'course-3',
-        title: 'Design Systems in Figma',
-        category: 'Product Design',
+        title:
+          'Design Systems in Figma',
+        category:
+          'Product Design',
         image:
           'https://images.unsplash.com/photo-1558655146-9f40138edfeb?auto=format&fit=crop&w=900&q=85',
         price: '$75',
@@ -1575,12 +3081,15 @@ export class InstructorData {
         status: 'Draft',
         instructorId: 'admin-user-1',
         instructorName: 'Naema Sayed',
-        instructorEmail: 'naema@example.com'
+        instructorEmail:
+          'naema@example.com'
       },
       {
         id: 'course-4',
-        title: 'Modern JavaScript Patterns',
-        category: 'JavaScript + Frontend',
+        title:
+          'Modern JavaScript Patterns',
+        category:
+          'JavaScript + Frontend',
         image:
           'https://images.unsplash.com/photo-1515879218367-8466d910aaa4?auto=format&fit=crop&w=900&q=85',
         price: '$55',
@@ -1590,12 +3099,15 @@ export class InstructorData {
         status: 'Published',
         instructorId: 'admin-user-1',
         instructorName: 'Naema Sayed',
-        instructorEmail: 'naema@example.com'
+        instructorEmail:
+          'naema@example.com'
       },
       {
         id: 'course-5',
-        title: 'Node.js & Express Backend',
-        category: 'Backend + Node.js',
+        title:
+          'Node.js & Express Backend',
+        category:
+          'Backend + Node.js',
         image:
           'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=900&q=85',
         price: '$75',
@@ -1605,12 +3117,15 @@ export class InstructorData {
         status: 'Published',
         instructorId: 'admin-user-1',
         instructorName: 'Naema Sayed',
-        instructorEmail: 'naema@example.com'
+        instructorEmail:
+          'naema@example.com'
       },
       {
         id: 'course-6',
-        title: 'Enterprise TypeScript Applications',
-        category: 'Enterprise + TypeScript',
+        title:
+          'Enterprise TypeScript Applications',
+        category:
+          'Enterprise + TypeScript',
         image:
           'https://images.unsplash.com/photo-1516116216624-53e697fedbea?auto=format&fit=crop&w=900&q=85',
         price: '$65',
@@ -1620,15 +3135,19 @@ export class InstructorData {
         status: 'In Review',
         instructorId: 'admin-user-1',
         instructorName: 'Naema Sayed',
-        instructorEmail: 'naema@example.com'
+        instructorEmail:
+          'naema@example.com'
       }
     ];
   }
 
   private persistCourses(): void {
+
     localStorage.setItem(
       'instructorCourses',
-      JSON.stringify(this.courses)
+      JSON.stringify(
+        this.courses
+      )
     );
   }
 
@@ -1636,8 +3155,11 @@ export class InstructorData {
   // LOCAL STORAGE - INSTRUCTOR NOTIFICATIONS
   // =========================================================
 
-  private readNotifications(): InstructorNotification[] {
+  private readNotifications():
+    InstructorNotification[] {
+
     try {
+
       const saved =
         JSON.parse(
           localStorage.getItem(
@@ -1648,6 +3170,7 @@ export class InstructorData {
       if (Array.isArray(saved)) {
         return saved;
       }
+
     } catch {
       // Ignore invalid localStorage data
     }
@@ -1656,9 +3179,12 @@ export class InstructorData {
   }
 
   private persistNotifications(): void {
+
     localStorage.setItem(
       'instructorNotifications',
-      JSON.stringify(this.notifications)
+      JSON.stringify(
+        this.notifications
+      )
     );
   }
 
@@ -1666,8 +3192,11 @@ export class InstructorData {
   // LOCAL STORAGE - ADMIN NOTIFICATIONS
   // =========================================================
 
-  private readAdminNotifications(): AdminNotification[] {
+  private readAdminNotifications():
+    AdminNotification[] {
+
     try {
+
       const saved =
         JSON.parse(
           localStorage.getItem(
@@ -1678,6 +3207,7 @@ export class InstructorData {
       if (Array.isArray(saved)) {
         return saved;
       }
+
     } catch {
       // Ignore invalid localStorage data
     }
@@ -1723,9 +3253,12 @@ export class InstructorData {
   }
 
   private persistAdminNotifications(): void {
+
     localStorage.setItem(
       'adminNotifications',
-      JSON.stringify(this.adminNotifications)
+      JSON.stringify(
+        this.adminNotifications
+      )
     );
   }
 
@@ -1733,8 +3266,11 @@ export class InstructorData {
   // LOCAL STORAGE - SECTIONS
   // =========================================================
 
-  private readSections(): CurriculumSection[] {
+  private readSections():
+    CurriculumSection[] {
+
     try {
+
       const saved =
         JSON.parse(
           localStorage.getItem(
@@ -1743,8 +3279,125 @@ export class InstructorData {
         );
 
       if (Array.isArray(saved)) {
-        return saved;
+
+        return saved.map(
+          (
+            section: CurriculumSection
+          ) => ({
+
+            id:
+              section.id ||
+              this.generateId(),
+
+            title:
+              section.title ||
+              'Untitled Section',
+
+            lessons:
+              Array.isArray(
+                section.lessons
+              )
+                ? section.lessons.map(
+                    (
+                      lesson:
+                        CurriculumLesson
+                    ) => ({
+
+                      id:
+                        lesson.id ||
+                        this.generateId(),
+
+                      title:
+                        lesson.title ||
+                        'Untitled Lesson',
+
+                      description:
+                        lesson.description ||
+                        '',
+
+                      type:
+                        lesson.type ===
+                          'Document'
+                          ? 'Document'
+                          : 'Video',
+
+                      content:
+                        lesson.content ||
+                        '',
+
+                      duration:
+                        lesson.duration ||
+                        'Self-paced',
+
+                      order:
+                        Number(
+                          lesson.order
+                        ) || 1,
+
+                      preview:
+                        Boolean(
+                          lesson.preview
+                        ),
+
+                      quizId:
+                        lesson.quizId
+                    })
+                  )
+                : [],
+
+            quizzes:
+              Array.isArray(
+                section.quizzes
+              )
+                ? section.quizzes.map(
+                    (
+                      quiz:
+                        Partial<CurriculumQuiz>
+                    ) => ({
+
+                      id:
+                        quiz.id ||
+                        this.generateId(),
+
+                      title:
+                        quiz.title ||
+                        'Untitled Quiz',
+
+                      description:
+                        quiz.description ||
+                        '',
+
+                      passingScore:
+                        Number(
+                          quiz.passingScore
+                        ) || 0,
+
+                      duration:
+                        quiz.duration ||
+                        'Untimed',
+
+                      questions:
+                        Array.isArray(
+                          quiz.questions
+                        )
+                          ? quiz.questions
+                          : [],
+
+                      type:
+                        quiz.type ===
+                          'Lesson'
+                          ? 'Lesson'
+                          : 'Section',
+
+                      lessonId:
+                        quiz.lessonId
+                    })
+                  )
+                : []
+          })
+        );
       }
+
     } catch {
       // Ignore invalid localStorage data
     }
@@ -1806,9 +3459,12 @@ export class InstructorData {
   }
 
   private persistSections(): void {
+
     localStorage.setItem(
       'instructorCurriculum',
-      JSON.stringify(this.sections)
+      JSON.stringify(
+        this.sections
+      )
     );
   }
 
@@ -1817,10 +3473,13 @@ export class InstructorData {
   // =========================================================
 
   private generateId(): string {
+
     if (
       typeof crypto !== 'undefined' &&
-      typeof crypto.randomUUID === 'function'
+      typeof crypto.randomUUID ===
+        'function'
     ) {
+
       return crypto.randomUUID();
     }
 
@@ -1833,6 +3492,7 @@ export class InstructorData {
   }
 
   private getCurrentDate(): string {
+
     return new Date().toLocaleDateString(
       'en-US',
       {

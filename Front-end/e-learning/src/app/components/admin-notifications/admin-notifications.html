@@ -77,8 +77,9 @@
           <p>
 
             Stay updated with platform activity,
-            user events, course changes, reports,
-            and important system notifications.
+            user events, course changes,
+            reports, and important system
+            notifications.
 
           </p>
 
@@ -240,17 +241,31 @@
         </div>
 
 
-        @if (getUnreadCount() > 0) {
+        <div class="toolbar-actions">
+
+          @if (getUnreadCount() > 0) {
+
+            <button
+              type="button"
+              class="mark-all-button"
+              (click)="markAllAsRead()"
+            >
+              Mark all as read
+            </button>
+
+          }
+
 
           <button
             type="button"
-            class="mark-all-button"
-            (click)="markAllAsRead()"
+            class="create-notification-button"
+            (click)="openCreateForm()"
           >
-            Mark all as read
+            <span>+</span>
+            Create Notification
           </button>
 
-        }
+        </div>
 
       </section>
 
@@ -294,7 +309,6 @@
                 class="notification-card"
                 [class.unread]="!notification.isRead"
               >
-
 
                 <div
                   class="notification-icon"
@@ -413,3 +427,272 @@
   </main>
 
 </div>
+
+
+<!-- ===================================================== -->
+<!-- CREATE NOTIFICATION MODAL -->
+<!-- ===================================================== -->
+
+@if (showCreateForm) {
+
+  <div
+    class="notification-modal-backdrop"
+    (click)="closeCreateForm()"
+  >
+
+    <section
+      class="notification-modal"
+      (click)="$event.stopPropagation()"
+    >
+
+
+      <!-- MODAL HEADER -->
+
+      <div class="modal-header">
+
+        <div>
+
+          <span class="modal-eyebrow">
+            ADMIN COMMUNICATION
+          </span>
+
+          <h2>
+            Create Notification
+          </h2>
+
+          <p>
+            Send a notification to an admin or instructor.
+          </p>
+
+        </div>
+
+
+        <button
+          type="button"
+          class="modal-close"
+          (click)="closeCreateForm()"
+        >
+          ×
+        </button>
+
+      </div>
+
+
+      <!-- FORM -->
+
+      <div class="notification-form">
+
+
+        <!-- RECIPIENT -->
+
+        <div class="form-group">
+
+          <label>
+            Send To
+          </label>
+
+          <div class="recipient-options">
+
+            <button
+              type="button"
+              class="recipient-option"
+              [class.active]="notificationRecipient === 'Instructor'"
+              (click)="notificationRecipient = 'Instructor'"
+            >
+
+              <span class="recipient-icon">
+                👨‍🏫
+              </span>
+
+              <span>
+                Instructor
+              </span>
+
+            </button>
+
+
+            <button
+              type="button"
+              class="recipient-option"
+              [class.active]="notificationRecipient === 'Admin'"
+              (click)="notificationRecipient = 'Admin'"
+            >
+
+              <span class="recipient-icon">
+                🛡
+              </span>
+
+              <span>
+                Admin
+              </span>
+
+            </button>
+
+          </div>
+
+        </div>
+
+
+        <!-- INSTRUCTOR -->
+
+        @if (notificationRecipient === 'Instructor') {
+
+          <div class="form-group">
+
+            <label for="instructor">
+              Instructor
+            </label>
+
+            <select
+              id="instructor"
+              [(ngModel)]="selectedInstructorId"
+            >
+
+              <option
+                value=""
+                disabled
+              >
+                Select an instructor
+              </option>
+
+              @for (
+                instructor of instructors;
+                track instructor.id
+              ) {
+
+                <option
+                  [value]="instructor.id"
+                >
+                  {{ instructor.name }}
+                  — {{ instructor.email }}
+                </option>
+
+              }
+
+            </select>
+
+          </div>
+
+        }
+
+
+        <!-- TYPE -->
+
+        <div class="form-group">
+
+          <label for="notificationType">
+            Notification Type
+          </label>
+
+          <select
+            id="notificationType"
+            [(ngModel)]="newNotificationType"
+          >
+
+            <option value="System">
+              System
+            </option>
+
+            <option value="Course">
+              Course
+            </option>
+
+            <option value="User">
+              User
+            </option>
+
+            <option value="Report">
+              Report
+            </option>
+
+          </select>
+
+        </div>
+
+
+        <!-- TITLE -->
+
+        <div class="form-group">
+
+          <label for="notificationTitle">
+            Title
+          </label>
+
+          <input
+            id="notificationTitle"
+            type="text"
+            [(ngModel)]="newNotificationTitle"
+            placeholder="Enter notification title"
+            maxlength="100"
+          />
+
+        </div>
+
+
+        <!-- MESSAGE -->
+
+        <div class="form-group">
+
+          <label for="notificationMessage">
+            Message
+          </label>
+
+          <textarea
+            id="notificationMessage"
+            [(ngModel)]="newNotificationMessage"
+            placeholder="Write your notification message..."
+            rows="5"
+            maxlength="500"
+          ></textarea>
+
+        </div>
+
+
+        <!-- ERROR -->
+
+        @if (createError) {
+
+          <div class="create-form-error">
+            {{ createError }}
+          </div>
+
+        }
+
+
+        <!-- ACTIONS -->
+
+        <div class="modal-actions">
+
+          <button
+            type="button"
+            class="cancel-button"
+            (click)="closeCreateForm()"
+          >
+            Cancel
+          </button>
+
+
+          <button
+            type="button"
+            class="send-button"
+            [disabled]="isCreating"
+            (click)="createNotification()"
+          >
+
+            @if (isCreating) {
+              Sending...
+            } @else {
+              Send Notification
+            }
+
+          </button>
+
+        </div>
+
+      </div>
+
+    </section>
+
+  </div>
+
+}

@@ -2,41 +2,24 @@
 
   <app-admin-sidebar></app-admin-sidebar>
 
-
   <main class="reports-main">
 
-
-    <!-- =========================
-         TOP BAR
-    ========================== -->
-
+    <!-- TOP BAR -->
     <header class="profile-topbar">
 
       <div class="breadcrumb">
-
-        <span>
-          ADMIN PORTAL
-        </span>
-
-        <strong>
-          / REPORTS
-        </strong>
-
+        <span>ADMIN PORTAL</span>
+        <strong>/ REPORTS</strong>
       </div>
-
 
       <div class="top-user">
 
         <div class="mini-avatar">
-
           {{ data.admin.firstName.charAt(0) }}
           {{ data.admin.lastName.charAt(0) }}
-
         </div>
 
-
         <div>
-
           <strong>
             {{ data.admin.firstName }}
             {{ data.admin.lastName }}
@@ -45,7 +28,6 @@
           <small>
             {{ data.admin.role }}
           </small>
-
         </div>
 
       </div>
@@ -53,19 +35,12 @@
     </header>
 
 
-    <!-- =========================
-         CONTENT
-    ========================== -->
-
+    <!-- CONTENT -->
     <section class="reports-content">
 
 
-      <!-- =========================
-           HERO
-      ========================== -->
-
+      <!-- HERO -->
       <section class="reports-hero">
-
 
         <div class="hero-copy">
 
@@ -73,22 +48,18 @@
             PLATFORM ANALYTICS
           </span>
 
-
           <h1>
             Reports & Insights
 
             <span>
-              {{ reports.length }}
+              {{ getReportCount() }}
             </span>
           </h1>
 
-
           <p>
-
             Monitor platform activity, learner engagement,
-            course growth, certificates, and revenue
-            through a clear monthly performance overview.
-
+            course performance, certificates, and revenue
+            through a simple monthly overview.
           </p>
 
         </div>
@@ -97,13 +68,10 @@
         <div class="hero-decoration">
 
           <div class="orbit orbit-one"></div>
-
           <div class="orbit orbit-two"></div>
 
           <div class="hero-dot dot-one"></div>
-
           <div class="hero-dot dot-two"></div>
-
           <div class="hero-dot dot-three"></div>
 
           <div class="hero-center">
@@ -115,15 +83,11 @@
       </section>
 
 
-      <!-- =========================
-           KPI CARDS
-      ========================== -->
-
+      <!-- KPI CARDS -->
       <section class="report-stats">
 
 
         <!-- USERS -->
-
         <article class="stat-card featured">
 
           <div class="stat-top">
@@ -138,27 +102,22 @@
 
           </div>
 
-
           <span class="stat-label">
             TOTAL USERS
           </span>
-
 
           <strong>
             {{ formatNumber(getTotalUsers()) }}
           </strong>
 
-
           <small>
-            {{ formatNumber(getLatestUsers()) }}
-            added in latest month
+            Current platform users
           </small>
 
         </article>
 
 
         <!-- ENROLLMENTS -->
-
         <article class="stat-card">
 
           <div class="stat-top">
@@ -173,27 +132,22 @@
 
           </div>
 
-
           <span class="stat-label">
             ENROLLMENTS
           </span>
-
 
           <strong>
             {{ formatNumber(getTotalEnrollments()) }}
           </strong>
 
-
           <small>
-            {{ formatNumber(getLatestEnrollments()) }}
-            latest month
+            Across reporting period
           </small>
 
         </article>
 
 
         <!-- CERTIFICATES -->
-
         <article class="stat-card">
 
           <div class="stat-top">
@@ -208,27 +162,22 @@
 
           </div>
 
-
           <span class="stat-label">
             CERTIFICATES
           </span>
-
 
           <strong>
             {{ formatNumber(getTotalCertificates()) }}
           </strong>
 
-
           <small>
-            {{ formatNumber(getLatestCertificates()) }}
-            issued latest month
+            Issued across all months
           </small>
 
         </article>
 
 
         <!-- REVENUE -->
-
         <article class="stat-card">
 
           <div class="stat-top">
@@ -243,20 +192,16 @@
 
           </div>
 
-
           <span class="stat-label">
             REVENUE
           </span>
-
 
           <strong>
             {{ formatRevenue(getTotalRevenue()) }}
           </strong>
 
-
           <small>
-            {{ formatRevenue(getLatestRevenue()) }}
-            latest month
+            Total reporting period
           </small>
 
         </article>
@@ -265,9 +210,7 @@
       </section>
 
 
-      <!-- =========================
-           MAIN ANALYTICS
-      ========================== -->
+      <!-- STATES -->
 
       @if (errorMessage) {
 
@@ -290,16 +233,14 @@
       @if (!loading && !errorMessage) {
 
 
-        <!-- =========================
-             USERS + ENROLLMENTS
-        ========================== -->
+        <!-- USER GROWTH + LEARNING ACTIVITY -->
 
-        <section class="analytics-grid">
+        <section class="overview-grid">
 
 
-          <!-- USERS CHART -->
+          <!-- ONLY CHART -->
 
-          <article class="analytics-card">
+          <article class="analytics-card growth-card">
 
             <div class="analytics-header">
 
@@ -310,11 +251,10 @@
                 </span>
 
                 <h2>
-                  User Growth
+                  Monthly User Growth
                 </h2>
 
               </div>
-
 
               <div class="header-value">
 
@@ -323,7 +263,7 @@
                 </strong>
 
                 <small>
-                  latest
+                  latest users
                 </small>
 
               </div>
@@ -341,7 +281,7 @@
                 <div class="bar-column">
 
                   <div class="bar-value">
-                    {{ report.users }}
+                    {{ formatNumber(report.users) }}
                   </div>
 
                   <div class="bar-track">
@@ -368,9 +308,9 @@
           </article>
 
 
-          <!-- ENROLLMENTS CHART -->
+          <!-- LEARNING ACTIVITY -->
 
-          <article class="analytics-card">
+          <article class="analytics-card activity-card">
 
             <div class="analytics-header">
 
@@ -381,60 +321,92 @@
                 </span>
 
                 <h2>
-                  Enrollments
+                  Current Activity
                 </h2>
-
-              </div>
-
-
-              <div class="header-value">
-
-                <strong>
-                  {{ formatNumber(getLatestEnrollments()) }}
-                </strong>
-
-                <small>
-                  latest
-                </small>
 
               </div>
 
             </div>
 
 
-            <div class="bar-chart">
+            <div class="activity-list">
 
-              @for (
-                report of reports;
-                track report.id
-              ) {
 
-                <div class="bar-column">
+              <div class="activity-item">
 
-                  <div class="bar-value">
-                    {{ report.enrollments }}
-                  </div>
+                <div class="activity-icon enrollments">
+                  ↗
+                </div>
 
-                  <div class="bar-track">
+                <div class="activity-info">
 
-                    <div
-                      class="bar-fill enrollment-fill"
-                      [style.height.%]="
-                        getEnrollmentBarHeight(
-                          report.enrollments
-                        )
-                      "
-                    ></div>
+                  <small>
+                    Latest Enrollments
+                  </small>
 
-                  </div>
-
-                  <span class="bar-label">
-                    {{ report.month }}
-                  </span>
+                  <strong>
+                    {{ formatNumber(getLatestEnrollments()) }}
+                  </strong>
 
                 </div>
 
-              }
+              </div>
+
+
+              <div class="activity-item">
+
+                <div class="activity-icon courses">
+                  ▣
+                </div>
+
+                <div class="activity-info">
+
+                  <small>
+                    Courses Added
+                  </small>
+
+                  <strong>
+                    {{ formatNumber(getLatestCourses()) }}
+                  </strong>
+
+                </div>
+
+              </div>
+
+
+              <div class="activity-item">
+
+                <div class="activity-icon certificates">
+                  ✪
+                </div>
+
+                <div class="activity-info">
+
+                  <small>
+                    Certificates Issued
+                  </small>
+
+                  <strong>
+                    {{ formatNumber(getLatestCertificates()) }}
+                  </strong>
+
+                </div>
+
+              </div>
+
+
+            </div>
+
+
+            <div class="activity-footer">
+
+              <span>
+                Latest reporting period
+              </span>
+
+              <strong>
+                {{ getLatestReport()?.month || '—' }}
+              </strong>
 
             </div>
 
@@ -444,9 +416,7 @@
         </section>
 
 
-        <!-- =========================
-             BOTTOM SECTION
-        ========================== -->
+        <!-- REVENUE + PLATFORM SNAPSHOT -->
 
         <section class="bottom-grid">
 
@@ -454,7 +424,6 @@
           <!-- REVENUE -->
 
           <article class="analytics-card revenue-card">
-
 
             <div class="analytics-header">
 
@@ -469,7 +438,6 @@
                 </h2>
 
               </div>
-
 
               <div class="header-value">
 
@@ -511,9 +479,7 @@
                     <div
                       class="revenue-progress-fill"
                       [style.width.%]="
-                        getRevenueBarHeight(
-                          report.revenue
-                        )
+                        getRevenueBarHeight(report.revenue)
                       "
                     ></div>
 
@@ -533,10 +499,9 @@
           </article>
 
 
-          <!-- SUMMARY -->
+          <!-- PLATFORM SNAPSHOT -->
 
           <article class="analytics-card summary-card">
-
 
             <div class="analytics-header">
 
@@ -567,7 +532,7 @@
                 <div>
 
                   <small>
-                    Latest Users
+                    Users
                   </small>
 
                   <strong>
@@ -588,7 +553,7 @@
                 <div>
 
                   <small>
-                    Latest Enrollments
+                    Enrollments
                   </small>
 
                   <strong>
@@ -609,7 +574,7 @@
                 <div>
 
                   <small>
-                    Courses Added
+                    Courses
                   </small>
 
                   <strong>
@@ -657,19 +622,15 @@
 
             </div>
 
-
           </article>
 
 
         </section>
 
 
-        <!-- =========================
-             MONTHLY TABLE
-        ========================== -->
+        <!-- MONTHLY TABLE -->
 
         <section class="report-table-card">
-
 
           <div class="analytics-header">
 
@@ -685,6 +646,10 @@
 
             </div>
 
+            <span class="table-period">
+              {{ reports.length }} reporting periods
+            </span>
+
           </div>
 
 
@@ -696,29 +661,12 @@
 
                 <tr>
 
-                  <th>
-                    Month
-                  </th>
-
-                  <th>
-                    Users
-                  </th>
-
-                  <th>
-                    Enrollments
-                  </th>
-
-                  <th>
-                    Courses
-                  </th>
-
-                  <th>
-                    Certificates
-                  </th>
-
-                  <th>
-                    Revenue
-                  </th>
+                  <th>Month</th>
+                  <th>Users</th>
+                  <th>Enrollments</th>
+                  <th>Courses</th>
+                  <th>Certificates</th>
+                  <th>Revenue</th>
 
                 </tr>
 
@@ -735,11 +683,9 @@
                   <tr>
 
                     <td>
-
                       <strong>
                         {{ report.month }}
                       </strong>
-
                     </td>
 
                     <td>
@@ -772,8 +718,8 @@
 
           </div>
 
-
         </section>
+
 
       }
 

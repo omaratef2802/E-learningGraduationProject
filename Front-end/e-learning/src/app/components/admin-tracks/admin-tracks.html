@@ -5,10 +5,7 @@
 
   <main class="tracks-main">
 
-
-    <!-- =========================
-         TOP BAR
-    ========================== -->
+    <!-- TOP BAR -->
 
     <header class="profile-topbar">
 
@@ -53,19 +50,14 @@
     </header>
 
 
-    <!-- =========================
-         CONTENT
-    ========================== -->
+    <!-- CONTENT -->
 
     <section class="tracks-content">
 
 
-      <!-- =========================
-           HERO
-      ========================== -->
+      <!-- HERO -->
 
       <section class="tracks-hero">
-
 
         <div class="hero-copy">
 
@@ -86,12 +78,23 @@
 
 
           <p>
-
-            Manage structured learning paths across
-            PathwayEd and keep each track connected
-            to its category, courses, and learners.
-
+            Manage structured learning paths and keep every
+            track connected to its category, subcategory,
+            courses, and learners.
           </p>
+
+
+          <button
+            type="button"
+            class="primary-action"
+            (click)="addTrack()"
+          >
+
+            <span>+</span>
+
+            Add New Track
+
+          </button>
 
         </div>
 
@@ -99,13 +102,10 @@
         <div class="hero-decoration">
 
           <div class="orbit orbit-one"></div>
-
           <div class="orbit orbit-two"></div>
 
           <div class="hero-dot dot-one"></div>
-
           <div class="hero-dot dot-two"></div>
-
           <div class="hero-dot dot-three"></div>
 
           <div class="hero-center">
@@ -117,12 +117,53 @@
       </section>
 
 
-      <!-- =========================
-           STATS
-      ========================== -->
+      <!-- SUCCESS -->
+
+      @if (successMessage) {
+
+        <div class="tracks-state success-message">
+
+          <span>✓</span>
+
+          {{ successMessage }}
+
+          <button
+            type="button"
+            (click)="successMessage = ''"
+          >
+            ×
+          </button>
+
+        </div>
+
+      }
+
+
+      <!-- ERROR -->
+
+      @if (errorMessage) {
+
+        <div class="tracks-state error">
+
+          <span>!</span>
+
+          {{ errorMessage }}
+
+          <button
+            type="button"
+            (click)="errorMessage = ''"
+          >
+            ×
+          </button>
+
+        </div>
+
+      }
+
+
+      <!-- STATS -->
 
       <section class="track-stats">
-
 
         <article class="stat-card featured">
 
@@ -223,16 +264,12 @@
 
         </article>
 
-
       </section>
 
 
-      <!-- =========================
-           TOOLBAR
-      ========================== -->
+      <!-- TOOLBAR -->
 
       <section class="tracks-toolbar">
-
 
         <div class="search-box">
 
@@ -252,7 +289,7 @@
 
         <select
           [(ngModel)]="selectedCategory"
-          (change)="applyFilters()"
+          (change)="onFilterCategoryChange()"
         >
 
           <option value="All">
@@ -266,9 +303,31 @@
           ) {
 
             <option [value]="category">
-
               {{ category }}
+            </option>
 
+          }
+
+        </select>
+
+
+        <select
+          [(ngModel)]="selectedSubcategory"
+          (change)="applyFilters()"
+        >
+
+          <option value="All">
+            All Subcategories
+          </option>
+
+
+          @for (
+            subcategory of getFilterSubcategories();
+            track subcategory
+          ) {
+
+            <option [value]="subcategory">
+              {{ subcategory }}
             </option>
 
           }
@@ -304,16 +363,12 @@
           Clear
         </button>
 
-
       </section>
 
 
-      <!-- =========================
-           RESULTS
-      ========================== -->
+      <!-- RESULTS -->
 
       <div class="results-bar">
-
 
         <div>
 
@@ -338,7 +393,6 @@
 
         <div class="status-summary">
 
-
           <span class="summary-dot active-dot"></span>
 
           {{ getActiveTracks() }}
@@ -354,88 +408,63 @@
 
           }
 
-
         </div>
-
 
       </div>
 
 
-      <!-- =========================
-           ERROR
-      ========================== -->
-
-      @if (errorMessage) {
-
-        <div class="tracks-state error">
-
-          {{ errorMessage }}
-
-        </div>
-
-      }
-
-
-      <!-- =========================
-           LOADING
-      ========================== -->
+      <!-- LOADING -->
 
       @if (loading) {
 
         <div class="tracks-state">
-
           Loading tracks...
-
         </div>
 
       }
 
 
-      <!-- =========================
-           TRACK GRID
-      ========================== -->
+      <!-- TRACK GRID -->
 
       @if (!loading) {
 
-
         @if (filteredTracks.length > 0) {
 
-
           <section class="track-grid">
-
 
             @for (
               track of filteredTracks;
               track track.id
             ) {
 
-
               <article class="track-card">
-
 
                 <!-- CARD TOP -->
 
                 <div class="track-card-top">
 
-
                   <div class="track-symbol">
-
                     {{ getTrackInitial(track.name) }}
-
                   </div>
 
 
-                  <span
-                    class="status-badge"
+                  <button
+                    type="button"
+                    class="status-badge status-button"
                     [class.inactive]="track.status === 'Inactive'"
+                    (click)="toggleTrackStatus(track)"
+                    [title]="
+                      track.status === 'Active'
+                        ? 'Make inactive'
+                        : 'Make active'
+                    "
                   >
 
                     <span class="status-dot"></span>
 
                     {{ track.status }}
 
-                  </span>
-
+                  </button>
 
                 </div>
 
@@ -443,7 +472,6 @@
                 <!-- BODY -->
 
                 <div class="track-body">
-
 
                   <span class="track-kicker">
                     LEARNING TRACK
@@ -455,28 +483,50 @@
                   </h2>
 
 
-                  <div class="track-category">
+                  <div class="hierarchy-info">
 
-                    <span class="category-label">
-                      CATEGORY
-                    </span>
+                    <div>
 
-                    <strong>
-                      {{ track.category }}
-                    </strong>
+                      <span>
+                        CATEGORY
+                      </span>
+
+                      <strong>
+                        {{
+                          track.categoryName ||
+                          track.category
+                        }}
+                      </strong>
+
+                    </div>
+
+
+                    <div>
+
+                      <span>
+                        SUBCATEGORY
+                      </span>
+
+                      <strong>
+                        {{ track.subcategoryName }}
+                      </strong>
+
+                    </div>
 
                   </div>
 
 
                   <p>
-                    {{ track.description }}
+                    {{
+                      track.description ||
+                      'No description available.'
+                    }}
                   </p>
 
 
                   <!-- METRICS -->
 
                   <div class="track-metrics">
-
 
                     <div class="metric">
 
@@ -519,9 +569,7 @@
 
                     </div>
 
-
                   </div>
-
 
                 </div>
 
@@ -541,29 +589,50 @@
                   </span>
 
 
-                  <span class="footer-arrow">
-                    →
-                  </span>
+                  <div class="track-actions">
+
+                    <button
+                      type="button"
+                      title="View"
+                      (click)="viewTrack(track.id)"
+                    >
+                      View
+                    </button>
+
+
+                    <button
+                      type="button"
+                      title="Edit"
+                      class="edit-action"
+                      (click)="editTrack(track.id)"
+                    >
+                      Edit
+                    </button>
+
+
+                    <button
+                      type="button"
+                      title="Delete"
+                      class="delete-action"
+                      (click)="deleteTrack(track)"
+                    >
+                      Delete
+                    </button>
+
+                  </div>
 
                 </div>
 
-
               </article>
 
-
             }
-
 
           </section>
 
 
         } @else {
 
-
-          <!-- EMPTY STATE -->
-
           <div class="empty-tracks">
-
 
             <div class="empty-icon">
               ◇
@@ -576,11 +645,8 @@
 
 
             <p>
-
-              Try changing your search,
-              category, or status filter
-              to see more tracks.
-
+              Try changing your search, category,
+              subcategory, or status filter.
             </p>
 
 
@@ -588,14 +654,10 @@
               type="button"
               (click)="clearFilters()"
             >
-
               Clear Filters
-
             </button>
 
-
           </div>
-
 
         }
 
@@ -607,3 +669,271 @@
   </main>
 
 </div>
+
+
+<!-- =========================================================
+     ADD / EDIT TRACK MODAL
+========================================================= -->
+
+@if (showTrackModal) {
+
+  <div
+    class="track-modal-overlay"
+    (click)="closeTrackModal()"
+  >
+
+    <div
+      class="track-modal"
+      (click)="$event.stopPropagation()"
+    >
+
+      <!-- MODAL HEADER -->
+
+      <div class="modal-header">
+
+        <div>
+
+          <span class="modal-eyebrow">
+            TRACK MANAGEMENT
+          </span>
+
+          <h2>
+            {{
+              isEditMode
+                ? 'Edit Learning Track'
+                : 'Create New Track'
+            }}
+          </h2>
+
+          <p>
+            {{
+              isEditMode
+                ? 'Update the track information and hierarchy.'
+                : 'Create a new learning path and connect it to a category.'
+            }}
+          </p>
+
+        </div>
+
+
+        <button
+          type="button"
+          class="modal-close"
+          (click)="closeTrackModal()"
+        >
+          ×
+        </button>
+
+      </div>
+
+
+      <!-- MODAL BODY -->
+
+      <div class="modal-body">
+
+        @if (errorMessage) {
+
+          <div class="modal-error">
+            {{ errorMessage }}
+          </div>
+
+        }
+
+
+        <!-- TRACK NAME -->
+
+        <div class="form-group">
+
+          <label>
+            Track Name
+            <span>*</span>
+          </label>
+
+          <input
+            type="text"
+            [(ngModel)]="trackForm.name"
+            placeholder="e.g. Frontend Development"
+            maxlength="100"
+          />
+
+        </div>
+
+
+        <!-- CATEGORY + SUBCATEGORY -->
+
+        <div class="form-row">
+
+          <div class="form-group">
+
+            <label>
+              Category
+              <span>*</span>
+            </label>
+
+            <select
+              [(ngModel)]="trackForm.categoryId"
+              (change)="onFormCategoryChange()"
+            >
+
+              <option value="">
+                Select category
+              </option>
+
+
+              @for (
+                category of allCategories;
+                track category.id
+              ) {
+
+                <option [value]="category.id">
+                  {{ category.name }}
+                </option>
+
+              }
+
+            </select>
+
+          </div>
+
+
+          <div class="form-group">
+
+            <label>
+              Subcategory
+              <span>*</span>
+            </label>
+
+            <select
+              [(ngModel)]="trackForm.subcategoryId"
+              [disabled]="!trackForm.categoryId"
+            >
+
+              <option value="">
+                {{
+                  trackForm.categoryId
+                    ? 'Select subcategory'
+                    : 'Select category first'
+                }}
+              </option>
+
+
+              @for (
+                subcategory of getFormSubcategories();
+                track subcategory.id
+              ) {
+
+                <option [value]="subcategory.id">
+                  {{ subcategory.name }}
+                </option>
+
+              }
+
+            </select>
+
+          </div>
+
+        </div>
+
+
+        <!-- DESCRIPTION -->
+
+        <div class="form-group">
+
+          <label>
+            Description
+          </label>
+
+          <textarea
+            [(ngModel)]="trackForm.description"
+            placeholder="Describe what learners will learn in this track..."
+            rows="4"
+            maxlength="500"
+          ></textarea>
+
+          <small class="field-hint">
+            Keep the description clear and concise.
+          </small>
+
+        </div>
+
+
+        <!-- STATUS -->
+
+        <div class="form-group">
+
+          <label>
+            Status
+          </label>
+
+          <div class="status-options">
+
+            <button
+              type="button"
+              [class.selected]="trackForm.status === 'Active'"
+              (click)="trackForm.status = 'Active'"
+            >
+
+              <span class="option-dot active"></span>
+
+              Active
+
+            </button>
+
+
+            <button
+              type="button"
+              [class.selected]="trackForm.status === 'Inactive'"
+              (click)="trackForm.status = 'Inactive'"
+            >
+
+              <span class="option-dot inactive"></span>
+
+              Inactive
+
+            </button>
+
+          </div>
+
+        </div>
+
+      </div>
+
+
+      <!-- MODAL FOOTER -->
+
+      <div class="modal-footer">
+
+        <button
+          type="button"
+          class="modal-cancel"
+          (click)="closeTrackModal()"
+        >
+          Cancel
+        </button>
+
+
+        <button
+          type="button"
+          class="modal-save"
+          (click)="saveTrack()"
+        >
+
+          <span>
+            {{ isEditMode ? '✓' : '+' }}
+          </span>
+
+          {{
+            isEditMode
+              ? 'Update Track'
+              : 'Create Track'
+          }}
+
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+
+}

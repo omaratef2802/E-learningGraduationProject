@@ -2,28 +2,59 @@ import { Routes } from '@angular/router';
 
 import { RoutePage } from './route-page';
 
-import { InstructorDashboard } from './page/instructor-dashboard/dashboard';
+/* =========================
+   INSTRUCTOR
+========================= */
+
+import { InstructorCourses } from './page/instructor-course/coursee';
+
 import { InstructorCreateCourse } from './page/instructor-create-course/create-course';
+
 import { InstructorProfile } from './page/instructor-profile/profile';
+
 import { InstructorNotifications } from './page/instructor-notifications/notifications';
+
 import { InstructorCatalog } from './page/instructor-catalog/catalog';
+
 import { InstructorCoursePreview } from './components/instructor-course-preview/instructor-course-preview';
+
 import { InstructorCurriculum } from './components/instructor-curriculum/curriculum';
+
 import { InstructorLesson } from './components/instructor-lesson/lesson';
+
 import { InstructorQuiz } from './components/instructor-quiz/quiz';
+
 import { InstructorCertificatesComponent } from './components/instructor-certificates/instructor-certificates';
+
 import { InstructorSection } from './components/instructor-section/instructor-section';
-// import { AdminSidebar } from './page/admin-sidebar/admin-sidebar';
+
+
+/* =========================
+   ADMIN
+========================= */
+
 import { AdminDashboard } from './components/admin-dashboard/admin-dashboard';
+
 import { AdminUsers } from './components/admin-users/admin-users';
+
 import { AdminCourses } from './components/admin-courses/admin-courses';
+
 import { AdminCategories } from './components/admin-categories/admin-categories';
+
 import { AdminTracks } from './components/admin-tracks/admin-tracks';
+
 import { AdminReports } from './components/admin-reports/admin-reports';
+
 import { AdminNotifications } from './components/admin-notifications/admin-notifications';
+
 import { AdminProfile } from './components/admin-profile/admin-profile';
+
 import { AdminCreateCourse } from './components/admin-create-course/admin-create-course';
 
+
+/* =========================
+   GENERAL PAGE HELPER
+========================= */
 
 const page = (
   path: string,
@@ -33,40 +64,141 @@ const page = (
 ) => ({
   path,
   component: RoutePage,
-  data: { page: { eyebrow, title, description } },
+  data: {
+    page: {
+      eyebrow,
+      title,
+      description
+    }
+  }
 });
 
+
+/* =========================
+   ROUTES
+========================= */
+
 export const routes: Routes = [
-  { path: 'instructor-dashboard', component: InstructorDashboard },
-  {path: 'instructor-course-preview',component: InstructorCoursePreview},
-  { path: 'instructor-create-course', component: InstructorCreateCourse },
-  { path: 'instructor-profile', component: InstructorProfile },
-  { path: 'instructor-certificates', component: InstructorCertificatesComponent},
-  { path: 'instructor-notifications', component: InstructorNotifications },
-  { path: 'instructor-catalog', component: InstructorCatalog },
-  { path: 'instructor-course-curriculum', component: InstructorCurriculum },
-  { path: 'instructor-section', component: InstructorSection },
-  { path: 'instructor-lesson', component: InstructorLesson },
-  {  path: 'admin-users',  component: AdminUsers},
-  { path: 'instructor-quiz', component: InstructorQuiz },
-  { path: 'admin-courses', component: AdminCourses},
+
+  /* =========================
+     INSTRUCTOR ROUTES
+  ========================= */
+
   {
-  path: 'admin-create-course',
-  component: AdminCreateCourse
-},
-  { path: 'admin-categories', component: AdminCategories },
-  { path: 'admin-tracks', component: AdminTracks },
-  { path: 'admin-reports', component: AdminReports },
-  { path: 'admin-notifications', component: AdminNotifications },
-{ path: 'admin-profile', component: AdminProfile },
+    path: 'instructor-dashboard',
+    redirectTo: 'instructor-courses',
+    pathMatch: 'full'
+  },
+
   {
-  path: 'admin-dashboard',
-  component: AdminDashboard
-},
-//   {
-//   path: 'admin-sidebar',
-//   component: AdminSidebar
-// },
+    path: 'instructor-courses',
+    component: InstructorCourses
+  },
+
+  {
+    path: 'instructor-course-preview',
+    component: InstructorCoursePreview
+  },
+
+  {
+    path: 'instructor-create-course',
+    component: InstructorCreateCourse
+  },
+
+  {
+    path: 'instructor-profile',
+    component: InstructorProfile
+  },
+
+  {
+    path: 'instructor-certificates',
+    component: InstructorCertificatesComponent
+  },
+
+  {
+    path: 'instructor-notifications',
+    component: InstructorNotifications
+  },
+
+  {
+    path: 'instructor-catalog',
+    component: InstructorCatalog
+  },
+
+  {
+    path: 'instructor-course-curriculum',
+    component: InstructorCurriculum
+  },
+
+  {
+    path: 'instructor-section',
+    component: InstructorSection
+  },
+
+  {
+    path: 'instructor-lesson',
+    component: InstructorLesson
+  },
+
+  {
+    path: 'instructor-quiz',
+    component: InstructorQuiz
+  },
+
+
+  /* =========================
+     ADMIN ROUTES
+  ========================= */
+
+  {
+    path: 'admin-dashboard',
+    component: AdminDashboard
+  },
+
+  {
+    path: 'admin-users',
+    component: AdminUsers
+  },
+
+  {
+    path: 'admin-courses',
+    component: AdminCourses
+  },
+
+  {
+    path: 'admin-create-course',
+    component: AdminCreateCourse
+  },
+
+  {
+    path: 'admin-categories',
+    component: AdminCategories
+  },
+
+  {
+    path: 'admin-tracks',
+    component: AdminTracks
+  },
+
+  {
+    path: 'admin-reports',
+    component: AdminReports
+  },
+
+  {
+    path: 'admin-notifications',
+    component: AdminNotifications
+  },
+
+  {
+    path: 'admin-profile',
+    component: AdminProfile
+  },
+
+
+  /* =========================
+     GENERAL PAGES
+  ========================= */
 
   page(
     'categories',
@@ -173,5 +305,14 @@ export const routes: Routes = [
     'Search results will appear here as you explore our learning catalog.'
   ),
 
-  { path: '**', redirectTo: '' },
+
+  /* =========================
+     FALLBACK
+  ========================= */
+
+  {
+    path: '**',
+    redirectTo: ''
+  }
+
 ];

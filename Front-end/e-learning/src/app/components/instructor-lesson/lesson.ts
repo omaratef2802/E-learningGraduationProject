@@ -20,7 +20,6 @@ import {
   InstructorSidebar
 } from '../../page/instructor-sidebar/sidebar';
 
-
 @Component({
   selector: 'app-instructor-lesson',
   standalone: true,
@@ -43,29 +42,38 @@ export class InstructorLesson {
   private readonly data =
     inject(InstructorData);
 
-
   protected sectionId =
-    this.route.snapshot.queryParamMap.get('section') ||
+    this.route.snapshot.queryParamMap.get(
+      'section'
+    ) ||
     this.data.sections[0]?.id ||
     '';
 
-
   protected lessonId =
-    this.route.snapshot.queryParamMap.get('lesson') ||
+    this.route.snapshot.queryParamMap.get(
+      'lesson'
+    ) ||
     '';
 
-
   protected courseTitle =
-    this.route.snapshot.queryParamMap.get('course') ||
+    this.route.snapshot.queryParamMap.get(
+      'course'
+    ) ||
     'Course Curriculum';
 
+  protected courseId =
+    this.route.snapshot.queryParamMap.get(
+      'courseId'
+    ) ||
+    '';
 
   protected title = '';
 
   protected description = '';
 
   protected type:
-    'Video' | 'Text' = 'Video';
+    'Video' | 'Document' =
+    'Video';
 
   protected content = '';
 
@@ -77,24 +85,30 @@ export class InstructorLesson {
 
   protected videoName = '';
 
+  protected documentName = '';
+
+  protected existingQuizId:
+    string | undefined;
 
   constructor() {
 
     const existing =
       this.data.sections
         .find(
-          (section) =>
-            section.id === this.sectionId
+          section =>
+            section.id ===
+            this.sectionId
         )
         ?.lessons.find(
-          (lesson) =>
-            lesson.id === this.lessonId
+          lesson =>
+            lesson.id ===
+            this.lessonId
         );
-
 
     if (existing) {
 
-      this.title = existing.title;
+      this.title =
+        existing.title;
 
       this.description =
         existing.description;
@@ -114,48 +128,121 @@ export class InstructorLesson {
       this.preview =
         existing.preview;
 
+      this.existingQuizId =
+        existing.quizId;
+
+      if (
+        existing.type === 'Video'
+      ) {
+        this.videoName =
+          existing.content;
+      } else {
+        this.documentName =
+          existing.content;
+      }
     }
-
   }
-
 
   onTypeChange(): void {
 
-    if (this.type === 'Video') {
+    if (
+      this.type === 'Video'
+    ) {
+
       this.content = '';
-    } else {
-      this.videoName = '';
+
+      this.documentName = '';
+
+      return;
     }
 
+    this.content = '';
+
+    this.videoName = '';
   }
 
-
-  onVideoSelected(event: Event): void {
+  onVideoSelected(
+    event: Event
+  ): void {
 
     const file =
-      (event.target as HTMLInputElement)
-        .files?.[0];
+      (
+        event.target as HTMLInputElement
+      ).files?.[0];
 
-
-    if (file) {
-
-      this.videoName = file.name;
-
-      this.content = file.name;
-
+    if (!file) {
+      return;
     }
 
+    this.videoName =
+      file.name;
+
+    this.content =
+      file.name;
   }
 
+  onDocumentSelected(
+    event: Event
+  ): void {
+
+    const file =
+      (
+        event.target as HTMLInputElement
+      ).files?.[0];
+
+    if (!file) {
+      return;
+    }
+
+    this.documentName =
+      file.name;
+
+    this.content =
+      file.name;
+  }
 
   saveLesson(): void {
+
+    if (
+      !this.title.trim()
+    ) {
+
+      alert(
+        'Please enter a lesson title.'
+      );
+
+      return;
+    }
+
+    if (
+      !this.description.trim()
+    ) {
+
+      alert(
+        'Please enter a lesson description.'
+      );
+
+      return;
+    }
+
+    if (
+      !this.content.trim()
+    ) {
+
+      alert(
+        this.type === 'Video'
+          ? 'Please add a video URL or upload a video.'
+          : 'Please add document content or upload a document.'
+      );
+
+      return;
+    }
 
     const payload:
       Omit<CurriculumLesson, 'id'> = {
 
       title:
-        this.title.trim() ||
-        'Untitled lesson',
+        this.title.trim(),
 
       description:
         this.description.trim(),
@@ -174,12 +261,15 @@ export class InstructorLesson {
         Number(this.order) || 1,
 
       preview:
-        this.preview
+        this.preview,
 
+      quizId:
+        this.existingQuizId
     };
 
-
-    if (this.lessonId) {
+    if (
+      this.lessonId
+    ) {
 
       this.data.updateLesson(
         this.sectionId,
@@ -193,14 +283,10 @@ export class InstructorLesson {
         this.sectionId,
         payload
       );
-
     }
 
-
     this.backToCurriculum();
-
   }
-
 
   backToCurriculum(): void {
 
@@ -208,11 +294,13 @@ export class InstructorLesson {
       ['/instructor-course-curriculum'],
       {
         queryParams: {
-          course: this.courseTitle
+          course:
+            this.courseTitle,
+
+          courseId:
+            this.courseId
         }
       }
     );
-
   }
-
 }

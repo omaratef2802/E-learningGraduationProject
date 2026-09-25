@@ -1,5 +1,10 @@
-import { Component, inject } from '@angular/core';
+import {
+  Component,
+  inject
+} from '@angular/core';
+
 import { CommonModule } from '@angular/common';
+
 import {
   ActivatedRoute,
   Router,
@@ -8,10 +13,16 @@ import {
 
 import {
   InstructorData,
-  InstructorCourse
+  InstructorCourse,
+  CurriculumSection,
+  CurriculumLesson,
+  CurriculumQuiz
 } from '../../page/instructor-data';
 
-import { InstructorSidebar } from '../../page/instructor-sidebar/sidebar';
+import {
+  InstructorSidebar
+} from '../../page/instructor-sidebar/sidebar';
+
 
 @Component({
   selector: 'app-instructor-curriculum',
@@ -22,20 +33,21 @@ import { InstructorSidebar } from '../../page/instructor-sidebar/sidebar';
     InstructorSidebar
   ],
   templateUrl: './curriculum.html',
-  styleUrl: './curriculum.css',
+  styleUrl: './curriculum.css'
 })
 export class InstructorCurriculum {
 
-  private readonly route = inject(ActivatedRoute);
-  private readonly router = inject(Router);
+  private readonly route =
+    inject(ActivatedRoute);
 
-  protected readonly data = inject(InstructorData);
+  private readonly router =
+    inject(Router);
 
-  protected readonly course: InstructorCourse;
+  protected readonly data =
+    inject(InstructorData);
 
-  // =========================================================
-  // DELETE MODAL
-  // =========================================================
+  // مش readonly عشان نقدر نحدّث status محلياً
+  protected course: InstructorCourse;
 
   protected showDeleteModal = false;
 
@@ -43,29 +55,40 @@ export class InstructorCurriculum {
     'section' | 'lesson' | 'quiz' | '' = '';
 
   protected deleteSectionId = '';
+
   protected deleteLessonId = '';
+
   protected deleteQuizId = '';
 
   protected deleteTitle = '';
 
-  // =========================================================
-  // SECTION COLLAPSE
-  // =========================================================
+  protected collapsedSections:
+    Record<string, boolean> = {};
 
-  protected collapsedSections: Record<string, boolean> = {};
 
   constructor() {
 
-    const title =
-      this.route.snapshot.queryParamMap.get('course');
-
-    const foundCourse =
-      this.data.courses.find(
-        item => item.title === title
+    const courseId =
+      this.route.snapshot.queryParamMap.get(
+        'courseId'
       );
 
+    const courseTitle =
+      this.route.snapshot.queryParamMap.get(
+        'course'
+      );
+
+    const foundCourse =
+      courseId
+        ? this.data.getCourseById(courseId)
+        : this.data.courses.find(
+            item =>
+              item.title === courseTitle
+          );
+
     this.course =
-      foundCourse || this.data.courses[0];
+      foundCourse ||
+      this.data.courses[0];
   }
 
 
@@ -75,20 +98,21 @@ export class InstructorCurriculum {
 
   saveChanges(): void {
 
-    /*
-     * كل بيانات الـ sections / lessons / quizzes
-     * محفوظة بالفعل عن طريق InstructorData.
-     *
-     * هنا بنضمن إن بيانات الكورس نفسها تتعمل لها
-     * persist مرة أخرى.
-     */
+    const newStatus =
+      this.course.status === 'Assigned'
+        ? 'Draft'
+        : this.course.status;
 
     this.data.updateCourse(
-      this.course.title,
+      this.course.id,
       {
+        status: newStatus,
         updated: 'Just now'
       }
     );
+
+    this.course.status = newStatus;
+    this.course.updated = 'Just now';
 
     alert('Changes saved successfully.');
   }
@@ -96,41 +120,98 @@ export class InstructorCurriculum {
 
   submitForReview(): void {
 
-    /*
-     * Submit for Review:
-     *
-     * Draft
-     *   ↓
-     * Pending Review
-     */
-
-    if (
-      this.course.status !== 'Draft'
-    ) {
-      alert(
-        'Only draft courses can be submitted for review.'
-      );
-
+    if (this.course.status === 'Published') {
+      alert('This course is already published.');
       return;
     }
 
-    this.data.updateCourse(
-      this.course.title,
-      {
-        status: 'Pending Review',
-        updated: 'Just now'
+    if (this.course.status === 'In Review') {
+      alert('This course is already under review.');
+      return;
+    }
+
+    if (
+      this.course.status !== 'Draft' &&
+      this.course.status !== 'Changes Required' &&
+      this.course.status !== 'Assigned'
+    ) {
+      alert('This course cannot be submitted at the moment.');
+      return;
+    }
+
+    if (this.data.sections.length === 0) {
+      alert('Please add at least one section before submitting the course.');
+      return;
+    }
+
+    for (const section of this.data.sections) {
+
+      if (section.lessons.length === 0) {
+        alert(
+          `Section "${section.title}" must contain at least one lesson.`
+        );
+        return;
       }
-    );
+
+      for (const lesson of section.lessons) {
+        const lessonQuiz =
+          this.getLessonQuiz(section, lesson.id);
+
+        if (!lessonQuiz) {
+          alert(
+            `Lesson "${lesson.title}" must have a quiz before submitting the course.`
+          );
+          return;
+        }
+      }
+
+      const finalQuiz =
+        this.getSectionFinalQuiz(section);
+
+      if (!finalQuiz) {
+        alert(
+          `Section "${section.title}" must have a final quiz before submitting the course.`
+        );
+        return;
+      }
+    }
+
+    const submitted =
+      this.data.submitCourseForReview(
+        this.course.id
+      );
+
+    if (!submitted) {
+
+      this.data.updateCourse(this.course.id, {
+        status: 'In Review',
+        updated: 'Just now',
+        reviewMessage: ''
+      });
+
+      const instructorName =
+        this.course.instructorName ||
+        `${this.data.instructor.firstName} ${this.data.instructor.lastName}`.trim() ||
+        'Instructor';
+
+      this.data.addAdminNotification({
+        title: 'New course under review',
+        message:
+          `${instructorName} submitted "${this.course.title}" for review. Please review and approve it.`,
+        type: 'Course',
+        isRead: false
+      });
+    }
+
+    this.course.status = 'In Review';
+    this.course.reviewMessage = '';
+    this.course.updated = 'Just now';
 
     alert(
-      'Course submitted for review successfully.'
+      'Course submitted for review successfully. Admin has been notified.'
     );
   }
 
-
-  // =========================================================
-  // PREVIEW
-  // =========================================================
 
   previewCourse(): void {
 
@@ -138,7 +219,8 @@ export class InstructorCurriculum {
       ['/instructor-course-preview'],
       {
         queryParams: {
-          course: this.course.title
+          course: this.course.title,
+          courseId: this.course.id
         }
       }
     );
@@ -146,7 +228,7 @@ export class InstructorCurriculum {
 
 
   // =========================================================
-  // SECTIONS
+  // SECTION ACTIONS
   // =========================================================
 
   addSection(): void {
@@ -155,39 +237,39 @@ export class InstructorCurriculum {
       ['/instructor-section'],
       {
         queryParams: {
-          course: this.course.title
+          course: this.course.title,
+          courseId: this.course.id
         }
       }
     );
   }
 
 
-  editSection(
-    sectionId: string
-  ): void {
+  editSection(sectionId: string): void {
 
     this.router.navigate(
       ['/instructor-section'],
       {
         queryParams: {
           section: sectionId,
-          course: this.course.title
+          course: this.course.title,
+          courseId: this.course.id
         }
       }
     );
   }
 
 
-  deleteSection(
-    sectionId: string
-  ): void {
+  deleteSection(sectionId: string): void {
 
     const section =
       this.data.sections.find(
         item => item.id === sectionId
       );
 
-    if (!section) return;
+    if (!section) {
+      return;
+    }
 
     this.openDeleteModal(
       'section',
@@ -197,20 +279,25 @@ export class InstructorCurriculum {
   }
 
 
+  toggleSection(sectionId: string): void {
+    this.collapsedSections[sectionId] =
+      !this.collapsedSections[sectionId];
+  }
+
+
   // =========================================================
-  // LESSONS
+  // LESSON ACTIONS
   // =========================================================
 
-  addLesson(
-    sectionId: string
-  ): void {
+  addLesson(sectionId: string): void {
 
     this.router.navigate(
       ['/instructor-lesson'],
       {
         queryParams: {
           section: sectionId,
-          course: this.course.title
+          course: this.course.title,
+          courseId: this.course.id
         }
       }
     );
@@ -228,7 +315,46 @@ export class InstructorCurriculum {
         queryParams: {
           section: sectionId,
           lesson: lessonId,
-          course: this.course.title
+          course: this.course.title,
+          courseId: this.course.id
+        }
+      }
+    );
+  }
+
+
+  openLessonQuiz(
+    sectionId: string,
+    lessonId: string
+  ): void {
+
+    const section =
+      this.data.sections.find(
+        item => item.id === sectionId
+      );
+
+    const lesson =
+      section?.lessons.find(
+        item => item.id === lessonId
+      );
+
+    if (!lesson) {
+      return;
+    }
+
+    const existingQuiz =
+      this.getLessonQuiz(section!, lessonId);
+
+    this.router.navigate(
+      ['/instructor-quiz'],
+      {
+        queryParams: {
+          section: sectionId,
+          lesson: lessonId,
+          quiz: existingQuiz?.id || '',
+          type: 'Lesson',
+          course: this.course.title,
+          courseId: this.course.id
         }
       }
     );
@@ -250,7 +376,9 @@ export class InstructorCurriculum {
         item => item.id === lessonId
       );
 
-    if (!lesson) return;
+    if (!lesson) {
+      return;
+    }
 
     this.openDeleteModal(
       'lesson',
@@ -262,37 +390,32 @@ export class InstructorCurriculum {
 
 
   // =========================================================
-  // QUIZZES
+  // QUIZ ACTIONS
   // =========================================================
 
-  addQuiz(
-    sectionId: string
-  ): void {
+  openFinalQuiz(sectionId: string): void {
+
+    const section =
+      this.data.sections.find(
+        item => item.id === sectionId
+      );
+
+    if (!section) {
+      return;
+    }
+
+    const finalQuiz =
+      this.getSectionFinalQuiz(section);
 
     this.router.navigate(
       ['/instructor-quiz'],
       {
         queryParams: {
           section: sectionId,
-          course: this.course.title
-        }
-      }
-    );
-  }
-
-
-  editQuiz(
-    sectionId: string,
-    quizId: string
-  ): void {
-
-    this.router.navigate(
-      ['/instructor-quiz'],
-      {
-        queryParams: {
-          section: sectionId,
-          quiz: quizId,
-          course: this.course.title
+          quiz: finalQuiz?.id || '',
+          type: 'Section',
+          course: this.course.title,
+          courseId: this.course.id
         }
       }
     );
@@ -314,7 +437,9 @@ export class InstructorCurriculum {
         item => item.id === quizId
       );
 
-    if (!quiz) return;
+    if (!quiz) {
+      return;
+    }
 
     this.openDeleteModal(
       'quiz',
@@ -337,12 +462,8 @@ export class InstructorCurriculum {
   ): void {
 
     this.deleteType = type;
-
     this.deleteTitle = title;
-
-    this.deleteSectionId =
-      sectionId;
-
+    this.deleteSectionId = sectionId;
     this.deleteLessonId = '';
     this.deleteQuizId = '';
 
@@ -359,11 +480,8 @@ export class InstructorCurriculum {
 
 
   closeDeleteModal(): void {
-
     this.showDeleteModal = false;
-
     this.deleteType = '';
-
     this.deleteSectionId = '';
     this.deleteLessonId = '';
     this.deleteQuizId = '';
@@ -373,52 +491,52 @@ export class InstructorCurriculum {
 
   confirmDelete(): void {
 
-    if (
-      this.deleteType === 'section'
-    ) {
-
-      this.data.removeSection(
-        this.deleteSectionId
-      );
+    if (this.deleteType === 'section') {
+      this.data.removeSection(this.deleteSectionId);
     }
 
-
-    if (
-      this.deleteType === 'lesson'
-    ) {
-
+    if (this.deleteType === 'lesson') {
       this.data.removeLesson(
         this.deleteSectionId,
         this.deleteLessonId
       );
     }
 
-
-    if (
-      this.deleteType === 'quiz'
-    ) {
-
+    if (this.deleteType === 'quiz') {
       this.data.removeQuiz(
         this.deleteSectionId,
         this.deleteQuizId
       );
     }
 
-
     this.closeDeleteModal();
   }
 
 
   // =========================================================
-  // COLLAPSE
+  // QUIZ HELPERS
   // =========================================================
 
-  toggleSection(
-    sectionId: string
-  ): void {
+  getLessonQuiz(
+    section: CurriculumSection,
+    lessonId: string
+  ): CurriculumQuiz | undefined {
 
-    this.collapsedSections[sectionId] =
-      !this.collapsedSections[sectionId];
+    return section.quizzes.find(
+      quiz =>
+        quiz.type === 'Lesson' &&
+        quiz.lessonId === lessonId
+    );
+  }
+
+
+  getSectionFinalQuiz(
+    section: CurriculumSection
+  ): CurriculumQuiz | undefined {
+
+    return section.quizzes.find(
+      quiz => quiz.type === 'Section'
+    );
   }
 
 
@@ -427,7 +545,6 @@ export class InstructorCurriculum {
   // =========================================================
 
   get totalLessons(): number {
-
     return this.data.sections.reduce(
       (total, section) =>
         total + section.lessons.length,
@@ -437,7 +554,6 @@ export class InstructorCurriculum {
 
 
   get totalQuizzes(): number {
-
     return this.data.sections.reduce(
       (total, section) =>
         total + section.quizzes.length,
@@ -450,12 +566,7 @@ export class InstructorCurriculum {
   // DISPLAY HELPERS
   // =========================================================
 
-  sectionMeta(
-    section: {
-      lessons: unknown[];
-      quizzes: unknown[];
-    }
-  ): string {
+  sectionMeta(section: CurriculumSection): string {
 
     const total =
       section.lessons.length +
@@ -467,38 +578,22 @@ export class InstructorCurriculum {
   }
 
 
-  lessonMeta(
-    lesson: {
-      type: string;
-      duration: string;
-      preview: boolean;
-    }
-  ): string {
+  lessonMeta(lesson: CurriculumLesson): string {
 
-    return `${lesson.type} · ${
-      lesson.duration
-    }${
-      lesson.preview
-        ? ' · Preview'
-        : ''
+    return `${lesson.type} · ${lesson.duration}${
+      lesson.preview ? ' · Preview' : ''
     }`;
   }
 
 
-  quizMeta(
-    quiz: {
-      questions: unknown[];
-      passingScore: number;
-      duration: string;
-    }
-  ): string {
+  quizMeta(quiz: CurriculumQuiz): string {
 
-    return `${
-      quiz.questions.length
-    } questions · ${
-      quiz.passingScore
-    }% passing · ${
-      quiz.duration
-    }`;
+    const type =
+      quiz.type === 'Lesson'
+        ? 'Lesson Quiz'
+        : 'Section Final Quiz';
+
+    return `${type} · ${quiz.questions.length} questions · ${quiz.passingScore}% passing · ${quiz.duration}`;
   }
+
 }
