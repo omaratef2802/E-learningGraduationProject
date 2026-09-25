@@ -8,7 +8,7 @@ const categorySchema = new mongoose.Schema(
       unique: true,
       trim: true,
       minlength: [3, "Category name must be at least 3 characters"],
-      maxlength: [50, "Category name cannot exceed 50 characters"]
+      maxlength: [50, "Category name cannot exceed 50 characters"],
     },
 
     slug: {
@@ -19,13 +19,13 @@ const categorySchema = new mongoose.Schema(
       lowercase: true,
       match: [
         /^[a-z0-9]+(?:-[a-z0-9]+)*$/,
-        "Slug must contain only lowercase letters, numbers and hyphens"
-      ]
+        "Slug must contain only lowercase letters, numbers and hyphens",
+      ],
     },
 
     icon: {
       type: String,
-      trim: true
+      trim: true,
     },
 
     description: {
@@ -33,7 +33,7 @@ const categorySchema = new mongoose.Schema(
       required: [true, "Category description is required"],
       trim: true,
       minlength: [10, "Description must be at least 10 characters"],
-      maxlength: [500, "Description cannot exceed 500 characters"]
+      maxlength: [500, "Description cannot exceed 500 characters"],
     },
 
     subcategories: [
@@ -43,7 +43,7 @@ const categorySchema = new mongoose.Schema(
           required: [true, "Subcategory name is required"],
           trim: true,
           minlength: [2, "Subcategory name must be at least 2 characters"],
-          maxlength: [50, "Subcategory name cannot exceed 50 characters"]
+          maxlength: [50, "Subcategory name cannot exceed 50 characters"],
         },
 
         slug: {
@@ -51,21 +51,20 @@ const categorySchema = new mongoose.Schema(
           required: [true, "Subcategory slug is required"],
           trim: true,
           lowercase: true,
-          match: [
-            /^[a-z0-9]+(?:-[a-z0-9]+)*$/,
-            "Subcategory slug is invalid"
-          ]
+          match: [/^[a-z0-9]+(?:-[a-z0-9]+)*$/, "Subcategory slug is invalid"],
         },
         image: {
           type: String,
-          trim: true
-        }
-      }
-    ]
+          trim: true,
+        },
+      },
+    ],
   },
   {
-    timestamps: true
-  }
+    timestamps: true,
+  },
 );
 
-module.exports = mongoose.model("Category", categorySchema);
+const catogryModule = mongoose.model("Category", categorySchema);
+
+module.exports = catogryModule;

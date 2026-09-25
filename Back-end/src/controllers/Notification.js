@@ -1,38 +1,35 @@
 const Notification = require("../modules/dbNotification");
+const User = require("../modules/dbUsers");
+const ApiError = require("../utils/ApiError");
 
-const recipientFor = (req) => req.id || null;
-
+const sendNotification = async (req, res, next) => {
+  try {
+    const { to, type, subject, message } = req.body;
+    if (!to || !subject || !message) return next(new ApiError(400, "To, subject, and message are required"));
+    const user = await User.findById(to).select("_id");
+    if (!user) return next(new ApiError(404, "Recipient not found"));
+    const notification = await Notification.create({ to, from: req.fullname || "admin", type: type || "system", subject, message });
+    return res.status(201).json({ message: "Notification sent successfully", notification });
+  } catch (error) { return next(new ApiError(500, error.message)); }
+};
 const getNotifications = async (req, res, next) => {
-	try {
-		const filter = req.id ? { $or: [{ recipient: req.id }, { recipient: null }] } : { recipient: null };
-		const notifications = await Notification.find(filter).sort({ createdAt: -1 });
-		res.status(200).json({ success: true, data: notifications });
-	} catch (error) { next(error); }
+  try { return res.status(200).json({ notifications: await Notification.find({ to: req.id }).sort({ createdAt: -1 }) }); }
+  catch (error) { return next(new ApiError(500, error.message)); }
 };
-
-const createNotification = async (req, res, next) => {
-	try {
-		const { title, message, type } = req.body;
-		if (!title || !message) return res.status(400).json({ success: false, message: "title and message are required" });
-		const notification = await Notification.create({ title, message, type, recipient: recipientFor(req) });
-		res.status(201).json({ success: true, data: notification });
-	} catch (error) { next(error); }
+const updateNotification = async (req, res, next) => {
+  try {
+    const notification = await Notification.findOne({ _id: req.params.id, to: req.id });
+    if (!notification) return next(new ApiError(404, "Notification not found"));
+    if (req.body.isRead !== undefined) notification.isRead = Boolean(req.body.isRead);
+    await notification.save();
+    return res.status(200).json({ message: "Notification updated successfully", notification });
+  } catch (error) { return next(new ApiError(500, error.message)); }
 };
-
-const markNotificationRead = async (req, res, next) => {
-	try {
-		const notification = await Notification.findOneAndUpdate({ _id: req.params.id, $or: [{ recipient: req.id }, { recipient: null }] }, { isRead: true }, { new: true });
-		if (!notification) return res.status(404).json({ success: false, message: "notification not found" });
-		res.status(200).json({ success: true, data: notification });
-	} catch (error) { next(error); }
-};
-
 const deleteNotification = async (req, res, next) => {
-	try {
-		const notification = await Notification.findOneAndDelete({ _id: req.params.id, $or: [{ recipient: req.id }, { recipient: null }] });
-		if (!notification) return res.status(404).json({ success: false, message: "notification not found" });
-		res.status(204).send();
-	} catch (error) { next(error); }
+  try {
+    const notification = await Notification.findOneAndDelete({ _id: req.params.id, to: req.id });
+    if (!notification) return next(new ApiError(404, "Notification not found"));
+    return res.status(200).json({ message: "Notification deleted successfully" });
+  } catch (error) { return next(new ApiError(500, error.message)); }
 };
-
-module.exports = { getNotifications, createNotification, markNotificationRead, deleteNotification };
+module.exports = { sendNotification, getNotifications, updateNotification, deleteNotification };

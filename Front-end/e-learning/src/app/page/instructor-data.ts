@@ -826,6 +826,11 @@ export class InstructorData {
   // SECTIONS METHODS
   // =========================================================
 
+  clearSections(): void {
+    this.sections = [];
+    this.persistSections();
+  }
+
   addSection(
     section: Omit<CurriculumSection, 'id'>
   ): void {

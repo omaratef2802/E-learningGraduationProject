@@ -1,3 +1,4 @@
+import Swal from 'sweetalert2';
 import {
   Component,
   inject
@@ -234,9 +235,8 @@ export class InstructorQuiz {
       !this.title.trim()
     ) {
 
-      alert(
-        'Please enter a quiz title.'
-      );
+      Swal.fire('Notice', 'Please enter a quiz title.'
+      , 'info');
 
       return;
     }
@@ -246,9 +246,8 @@ export class InstructorQuiz {
       !this.lessonId
     ) {
 
-      alert(
-        'Please select the lesson this quiz belongs to.'
-      );
+      Swal.fire('Notice', 'Please select the lesson this quiz belongs to.'
+      , 'info');
 
       return;
     }
@@ -266,9 +265,8 @@ export class InstructorQuiz {
 
       if (!lesson) {
 
-        alert(
-          'The selected lesson could not be found.'
-        );
+        Swal.fire('Notice', 'The selected lesson could not be found.'
+        , 'info');
 
         return;
       }
@@ -284,9 +282,8 @@ export class InstructorQuiz {
 
       if (existingLessonQuiz) {
 
-        alert(
-          'This lesson already has a quiz.'
-        );
+        Swal.fire('Notice', 'This lesson already has a quiz.'
+        , 'info');
 
         return;
       }
@@ -305,9 +302,8 @@ export class InstructorQuiz {
 
       if (existingFinalQuiz) {
 
-        alert(
-          'This section already has a final quiz.'
-        );
+        Swal.fire('Notice', 'This section already has a final quiz.'
+        , 'info');
 
         return;
       }
@@ -351,9 +347,8 @@ export class InstructorQuiz {
       hasInvalidQuestion
     ) {
 
-      alert(
-        'Please complete all question fields and select a correct answer.'
-      );
+      Swal.fire('Notice', 'Please complete all question fields and select a correct answer.'
+      , 'info');
 
       return;
     }
@@ -406,9 +401,8 @@ export class InstructorQuiz {
 
       if (!updated) {
 
-        alert(
-          'Unable to update this quiz.'
-        );
+        Swal.fire('Notice', 'Unable to update this quiz.'
+        , 'info');
 
         return;
       }
@@ -423,11 +417,10 @@ export class InstructorQuiz {
 
       if (!quizId) {
 
-        alert(
-          this.type === 'Lesson'
+        Swal.fire('Notice', this.type === 'Lesson'
             ? 'This lesson already has a quiz.'
             : 'This section already has a final quiz.'
-        );
+        , 'info');
 
         return;
       }

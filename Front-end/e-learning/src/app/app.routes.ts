@@ -207,12 +207,10 @@ export const routes: Routes = [
     'Explore focused learning areas and find the skills that move your career forward.'
   ),
 
-  page(
-    'courses',
-    'CURATED FOR YOU',
-    'Courses',
-    'Discover practical, expert-led courses built for real progress.'
-  ),
+  {
+    path: 'courses',
+    loadComponent: () => import('./page/all-courses/all-courses').then(m => m.AllCoursesPage)
+  },
 
   page(
     'about',

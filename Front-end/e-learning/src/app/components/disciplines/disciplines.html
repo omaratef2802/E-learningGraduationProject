@@ -9,7 +9,7 @@
   </div>
 
   <div class="disciplines-grid">
-    @for (discipline of config.items; track discipline.title) {
+    @for (discipline of disciplinesList; track discipline.title) {
       <article class="discipline-card">
         <span class="discipline-icon" aria-hidden="true">{{ discipline.icon }}</span>
         <span class="discipline-label">{{ discipline.label }}</span>

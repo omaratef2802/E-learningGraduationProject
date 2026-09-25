@@ -1,6 +1,6 @@
 const express = require("express");
 const { getWallet } = require("../controllers/Wallet");
-const {auth} = require("../middlewares/auth");
+const { auth, relasedTo } = require("../middlewares/auth");
 const router = express.Router();
-router.get("/", auth, getWallet);
+router.get("/", auth, relasedTo("instructor"), getWallet);
 module.exports = router;

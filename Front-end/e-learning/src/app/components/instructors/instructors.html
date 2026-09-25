@@ -6,7 +6,7 @@
   </div>
 
   <div class="instructors-grid">
-    @for (instructor of config.items; track instructor.name) {
+    @for (instructor of instructorsList; track instructor.name) {
       <article class="instructor-card" [class]="instructor.tone">
         <div class="portrait-wrap"><span class="portrait-ring"></span><img [src]="instructor.image" [alt]="instructor.name" /></div>
         <h3>{{ instructor.name }}</h3>

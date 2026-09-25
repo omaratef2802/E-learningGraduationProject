@@ -1,316 +1,58 @@
-const userModel = require("../modules/dbUsers");
-const jwt = require("jsonwebtoken");
-const bcrypt = require("bcrypt");
-const util = require("util");
-const ApiError = require("../utils/ApiError");
-const OTP = require("../modules/OTP");
-const sendEmail = require("../utils/sendEmail");
-
-const AllUsers = async (req, res, next, roler) => {
+const getAllUser = async (req, res, next) => {
   try {
-    let { limit, skip } = req.params;
-    limit = Number(limit);
-    skip = Number(skip);
-    let users = await userModel.find({ role: roler }).limit(limit).skip(skip);
-    res.status(200).json({ message: "success", data: users });
+    const { limit, skip } = req.query;
+    const users = await userService.getAllUser(userModule, "student", limit, skip);
+
+    return res.status(200).json({
+      message: "Users fetched successfully",
+      data: users,
+    });
   } catch (err) {
-    next(new ApiError(404, err.message));
+    next(err);
   }
 };
 
-const getAllUsers = async (req, res, next) => {
-  AllUsers(req, res, next, "user");
-};
-const getAllInstructor = async (req, res, next) => {
-  AllUsers(req, res, next, "instructor");
-};
+const userService = require("../services/users");
+const userModule = require("../modules/dbUsers");
+
 const getUserById = async (req, res, next) => {
-  try {
-    let user = await userModel.findById(req.id);
-    res.status(200).json({ message: "success", data: user });
-  } catch (err) {
-    next(new ApiError(404, err.message));
-  }
+  try { const user = await userService.getUserById(userModule, req.id); return res.status(200).json({ message: "User fetched successfully", data: user }); }
+  catch (err) { next(err); }
 };
-const createUser = async (req, res, next) => {
-  try {
-    const newuser = req.body;
-    const savedUser = await userModel.create(newuser);
-    res.status(201).json({ message: "success", data: savedUser });
-  } catch (err) {
-    next(new ApiError(404, err.message));
-  }
-};
-const deleteUser = async (req, res, next) => {
-  try {
-    await userModel.findByIdAndDelete(req.id);
-    res.status(204).json({ message: "deleted" });
-  } catch (err) {
-    next(new ApiError(404, err.message));
-  }
+const creatUser = async (req, res, next) => {
+  try { const user = await userService.creatUser(userModule, req.body); return res.status(201).json({ message: "User created successfully", data: user }); }
+  catch (err) { next(err); }
 };
 const updateUser = async (req, res, next) => {
-  try {
-    let updates = req.body;
-    let updatedUser = await userModel.findByIdAndUpdate(req.id, updates, {
-      new: true,
-      runValidators: true,
-    });
-    res.status(200).json({ message: "success", data: updatedUser });
-  } catch (err) {
-    next(new ApiError(404, err.message));
-  }
+  try { const user = await userService.updateUser(userModule, req.body, req.id); return res.status(200).json({ message: "User updated successfully", data: user }); }
+  catch (err) { next(err); }
 };
 const updatePassword = async (req, res, next) => {
-  try {
-    let id = req.id;
-    let { currentPassword, confirmPassord, newPassword } = req.body;
-    if (!confirmPassord || !newPassword || !currentPassword) {
-      return next(
-        new ApiError(
-          404,
-          "please provide confirm password and new password and currentPassword",
-        ),
-      );
-    }
-    const user = await userModel.findById(id);
-    let validation = await bcrypt.compare(currentPassword, user.password);
-    if (!validation) {
-      return next(new ApiError(400, "password isn't correct"));
-    }
-    if (confirmPassord != newPassword) {
-      return next(
-        new ApiError(401, "confirm password doens't match the password"),
-      );
-    }
-    user.password = newPassword;
-    await user.save();
-    let tokens = jwt.sign(
-      {
-        userId: user._id,
-        fullname: `${user.firstName} ${user.lastName}`,
-        role: user.role,
-      },
-      process.env.SECRET,
-    );
-    res.status(200).json({ message: "success", data: tokens });
-  } catch (err) {
-    next(new ApiError(404, err.message));
-  }
+  try { const { currentPassword, confirmPassword, newPassword } = req.body; const token = await userService.updatePassword(userModule, req.id, currentPassword, confirmPassword, newPassword); return res.status(200).json({ message: "Password updated successfully", data: token }); }
+  catch (err) { next(err); }
 };
 const login = async (req, res, next) => {
-  try {
-    let { email, password } = req.body;
-    if (!email || !password) {
-      return next(new ApiError(404, "please provide password and email"));
-    }
-    let user = await userModel.findOne({ email });
-    if (!user) {
-      return next(new ApiError(404, "invalid email or password"));
-    }
-    let validtion = await bcrypt.compare(password, user.password);
-    if (!validtion) {
-      return next(new ApiError(403, "invalid email or password"));
-    }
-    let tokens = jwt.sign(
-      {
-        userId: user._id,
-        fullname: `${user.firstName} ${user.lastName}`,
-        role: user.role,
-      },
-      process.env.SECRET,
-    );
-    res.status(200).json({ message: "success", data: tokens });
-  } catch (err) {
-    next(new ApiError(404, err.message));
-  }
+  try { const { email, password } = req.body; const token = await userService.login(userModule, email, password); return res.status(200).json({ message: "Login successfully", data: token }); }
+  catch (err) { next(err); }
 };
-
 const uploadImage = async (req, res, next) => {
-  try {
-    let user = await userModel.findById(req.id);
-    user.img = "../uploads/" + req.id + ".jpg";
-    await user.save();
-    res.status(200).json({
-      message: "Image uploaded successfully",
-      data: req.file,
-    });
-  } catch (err) {
-    next(new ApiError(500, err.message));
-  }
+  try { const image = await userService.uploadImage(userModule, req.id, req.file); return res.status(200).json({ message: "Image uploaded successfully", data: { image } }); }
+  catch (err) { next(err); }
 };
-
 const googleLogin = async (req, res, next) => {
-  try {
-    const user = req.user;
-    const token = jwt.sign(
-      {
-        userId: user._id,
-        fullname: `${user.firstName} ${user.lastName}`,
-        role: user.role,
-      },
-      process.env.SECRET,
-    );
-    res.status(200).json({
-      message: "Google login success",
-      data: token,
-    });
-  } catch (err) {
-    next(new ApiError(500, err.message));
-  }
+  try { const token = await userService.googleLogin(req.user); return res.status(200).json({ message: "Google login successfully", data: token }); }
+  catch (err) { next(err); }
 };
-
 const forgetPassword = async (req, res, next) => {
-  try {
-    let { email } = req.body;
-    if (!email) {
-      return next(new ApiError(400, "provide me the email"));
-    }
-    let user = await userModel.findOne({ email });
-    if (!user) {
-      return next(new ApiError(404, "user not found"));
-    }
-
-    if (user.authProvider == "google") {
-      return next(new ApiError(400, "this account uses google login"));
-    }
-
-    const otp = Math.floor(1000 + 9000 * Math.random()).toString();
-
-    await OTP.deleteMany({
-      userId: user._id,
-    });
-
-    await OTP.create({
-      userId: user._id,
-      otp: otp,
-      otpExpires: new Date(Date.now() + 10 * 60 * 1000),
-    });
-
-    await sendEmail(
-      email,
-      "Password Reset OTP",
-      `<h2>password reset</h2>
-      <p>welcome ${user.firstName}</p>
-      <p>your otp : </p>
-      <h1>${otp}</h1>
-      <p>This OTP will expire in 10 minutes.</p>
-      `,
-    );
-    let token = jwt.sign(
-      {
-        id: user._id,
-      },
-      process.env.RESET_PASSWORD_SECRET,
-      { expiresIn: "10m" },
-    );
-
-    res.status(200).json({
-      message: "otp sent successfully",
-      data: token,
-    });
-  } catch (err) {
-    next(new ApiError(500, err.message));
-  }
+  try { const token = await userService.forgetPassword(userModule, req.body.email); return res.status(200).json({ message: "OTP sent successfully", data: token }); }
+  catch (err) { next(err); }
 };
-
 const verifyOtp = async (req, res, next) => {
-  try {
-    const { otp: userOtp } = req.body;
-    if (!userOtp) {
-      return next(new ApiError(401, "please provide me the otp"));
-    }
-    let { authorization } = req.headers;
-    if (!authorization) {
-      return next(new ApiError(401, "Please provide tokens"));
-    }
-    let decoded = await util.promisify(jwt.verify)(
-      authorization,
-      process.env.RESET_PASSWORD_SECRET,
-    );
-    if (!decoded) {
-      return next(new ApiError(401, "the otp isn't correct"));
-    }
-    const otp = await OTP.findOne({ userId: decoded.id });
-    if (!otp) {
-      return next(new ApiError(404, "The otp not found or expired"));
-    }
-    if (otp.otpExpires < new Date()) {
-      await OTP.deleteOne({
-        _id: otp._id,
-      });
-      return next(new ApiError(400, "Otp has expired"));
-    }
-    const Valid = await bcrypt.compare(userOtp, otp.otp);
-
-    if (!Valid) {
-      return next(new ApiError(400, "Invalid otp "));
-    }
-    const resetToken = jwt.sign(
-      { id: decoded.id, otpVerified: true },
-      process.env.RESET_PASSWORD_SECRET,
-      { expiresIn: "10m" },
-    );
-    res.status(200).json({ message: "success verify otp", data: resetToken });
-  } catch (err) {
-    next(new ApiError(500, err.message));
-  }
+  try { const token = await userService.verifyOtp(req.body.otp, req.id); return res.status(200).json({ message: "OTP verified successfully", data: token }); }
+  catch (err) { next(err); }
 };
-
 const changePassword = async (req, res, next) => {
-  try {
-    const { authorization } = req.headers;
-    if (!authorization) {
-      return next(new ApiError(401, "Please provide reset token"));
-    }
-
-    let decoded = await util.promisify(jwt.verify)(
-      authorization,
-      process.env.RESET_PASSWORD_SECRET,
-    );
-
-    if (!decoded.otpVerified) {
-      return next(new ApiError(401, "please verify OTP first"));
-    }
-
-    let user = await userModel.findById(decoded.id);
-    if (!user) {
-      return next(new ApiError(404, "user not found"));
-    }
-    let { newPassword, confirmPassword } = req.body;
-    if (!newPassword || !confirmPassword) {
-      return next(
-        new ApiError(
-          401,
-          "please provide me the confirm password and next password",
-        ),
-      );
-    }
-    if (newPassword != confirmPassword) {
-      return next(
-        new ApiError(401, "password and confirm password not match "),
-      );
-    }
-    user.password = newPassword;
-    await user.save();
-    return res.status(200).json({ message: "updated password" });
-  } catch (err) {
-    return next(new ApiError(404, err.message));
-  }
+  try { const result = await userService.changePassword(userModule, req.body.newPassword, req.body.confirmPassword, req.id); return res.status(200).json({ message: result }); }
+  catch (err) { next(err); }
 };
-
-module.exports = {
-  getAllUsers,
-  getAllInstructor,
-  getUserById,
-  createUser,
-  deleteUser,
-  updateUser,
-  updatePassword,
-  login,
-  uploadImage,
-  googleLogin,
-  verifyOtp,
-  forgetPassword,
-  changePassword,
-};
+module.exports = { getAllUser, getUserById, creatUser, updateUser, updatePassword, login, uploadImage, googleLogin, forgetPassword, verifyOtp, changePassword };

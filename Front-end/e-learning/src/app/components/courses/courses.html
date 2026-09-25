@@ -6,7 +6,7 @@
   </div>
 
   <div class="courses-grid">
-    @for (course of config.items; track course.title) {
+    @for (course of coursesList; track course.title) {
       <article class="course-card" tabindex="0" (click)="openCourse(course.query)" (keydown.enter)="openCourse(course.query)">
         <div class="course-cover">
           <img [src]="course.image" [alt]="course.title" />
@@ -24,5 +24,7 @@
     }
   </div>
 
-  <button class="view-all-button" type="button" (click)="openCourse('featured courses')">{{ config.viewAllLabel }} <span>→</span></button>
+  @if (limit && limit > 0) {
+    <button class="view-all-button" type="button" routerLink="/courses">{{ config.viewAllLabel }} <span>→</span></button>
+  }
 </section>

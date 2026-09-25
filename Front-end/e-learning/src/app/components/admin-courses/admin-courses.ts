@@ -4,6 +4,8 @@ import {
   inject
 } from '@angular/core';
 
+import Swal from 'sweetalert2';
+
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -426,5 +428,27 @@ export class AdminCourses implements OnInit {
     setTimeout(() => {
       this.successMessage = '';
     }, 4000);
+  }
+
+  deleteCourse(course: InstructorCourse): void {
+    Swal.fire({
+      title: 'Are you sure?',
+      text: `Are you sure you want to delete "${course.title}"?`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#ef4444',
+      cancelButtonColor: '#64748b',
+      confirmButtonText: 'Yes, delete it!'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.data.removeCourse(course.id);
+        this.successMessage = `Course "${course.title}" deleted successfully.`;
+        this.loadCourses();
+
+        setTimeout(() => {
+          this.successMessage = '';
+        }, 4000);
+      }
+    });
   }
 }

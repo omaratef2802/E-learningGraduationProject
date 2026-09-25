@@ -11,7 +11,7 @@
         <strong>/ COURSES</strong>
       </div>
 
-      <div class="top-user">
+      <div class="top-user" routerLink="/admin-profile" style="cursor: pointer;">
 
         <div class="mini-avatar">
           {{ data.admin.firstName.charAt(0) }}
@@ -567,13 +567,27 @@
                           ✕ Request Changes
                         </button>
 
+                        <button
+                          type="button"
+                          class="action-btn delete-btn"
+                          (click)="deleteCourse(course); $event.stopPropagation()"
+                        >
+                          ✕ Delete
+                        </button>
+
                       </div>
 
                     } @else {
 
-                      <span class="footer-arrow">
-                        →
-                      </span>
+                      <div class="admin-actions">
+                        <button
+                          type="button"
+                          class="action-btn delete-btn"
+                          (click)="deleteCourse(course); $event.stopPropagation()"
+                        >
+                          ✕ Delete
+                        </button>
+                      </div>
 
                     }
 

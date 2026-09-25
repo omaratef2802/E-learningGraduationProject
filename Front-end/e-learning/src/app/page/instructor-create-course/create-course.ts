@@ -238,6 +238,9 @@ export class InstructorCreateCourse {
       status:
         'Draft'
     });
+    
+    // Clear the previous course sections mock data
+    this.data.clearSections();
 
     this.router.navigate(
       ['/instructor-course-curriculum'],

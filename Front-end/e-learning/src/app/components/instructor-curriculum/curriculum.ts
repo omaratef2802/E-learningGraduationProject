@@ -1,3 +1,4 @@
+import Swal from 'sweetalert2';
 import {
   Component,
   inject
@@ -114,19 +115,19 @@ export class InstructorCurriculum {
     this.course.status = newStatus;
     this.course.updated = 'Just now';
 
-    alert('Changes saved successfully.');
+    Swal.fire('Notice', 'Changes saved successfully.', 'info');
   }
 
 
   submitForReview(): void {
 
     if (this.course.status === 'Published') {
-      alert('This course is already published.');
+      Swal.fire('Notice', 'This course is already published.', 'info');
       return;
     }
 
     if (this.course.status === 'In Review') {
-      alert('This course is already under review.');
+      Swal.fire('Notice', 'This course is already under review.', 'info');
       return;
     }
 
@@ -135,21 +136,20 @@ export class InstructorCurriculum {
       this.course.status !== 'Changes Required' &&
       this.course.status !== 'Assigned'
     ) {
-      alert('This course cannot be submitted at the moment.');
+      Swal.fire('Notice', 'This course cannot be submitted at the moment.', 'info');
       return;
     }
 
     if (this.data.sections.length === 0) {
-      alert('Please add at least one section before submitting the course.');
+      Swal.fire('Notice', 'Please add at least one section before submitting the course.', 'info');
       return;
     }
 
     for (const section of this.data.sections) {
 
       if (section.lessons.length === 0) {
-        alert(
-          `Section "${section.title}" must contain at least one lesson.`
-        );
+        Swal.fire('Notice', `Section "${section.title}" must contain at least one lesson.`
+        , 'info');
         return;
       }
 
@@ -158,9 +158,8 @@ export class InstructorCurriculum {
           this.getLessonQuiz(section, lesson.id);
 
         if (!lessonQuiz) {
-          alert(
-            `Lesson "${lesson.title}" must have a quiz before submitting the course.`
-          );
+          Swal.fire('Notice', `Lesson "${lesson.title}" must have a quiz before submitting the course.`
+          , 'info');
           return;
         }
       }
@@ -169,9 +168,8 @@ export class InstructorCurriculum {
         this.getSectionFinalQuiz(section);
 
       if (!finalQuiz) {
-        alert(
-          `Section "${section.title}" must have a final quiz before submitting the course.`
-        );
+        Swal.fire('Notice', `Section "${section.title}" must have a final quiz before submitting the course.`
+        , 'info');
         return;
       }
     }
@@ -207,9 +205,8 @@ export class InstructorCurriculum {
     this.course.reviewMessage = '';
     this.course.updated = 'Just now';
 
-    alert(
-      'Course submitted for review successfully. Admin has been notified.'
-    );
+    Swal.fire('Notice', 'Course submitted for review successfully. Admin has been notified.'
+    , 'info');
   }
 
 

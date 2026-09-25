@@ -1,431 +1,403 @@
 :host {
   display: block;
   min-height: 100vh;
-  background: #edf0f8;
-  color: #30364d;
-  font-family: "Trebuchet MS", "Segoe UI", sans-serif;
+  color: #0f172a;
+  background: #f4f6fa;
+  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
 
 * {
   box-sizing: border-box;
 }
 
-/* =========================
-   MAIN LAYOUT
-========================= */
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
 
 .editor-shell {
   display: flex;
   min-height: 100vh;
+  background: #f4f6fa;
 }
+
+/* ==================================================
+   MAIN CONTAINER
+================================================== */
 
 .editor-main {
   width: calc(100% - 258px);
-  margin-left: 258px;
   min-width: 0;
-  padding-left: 24px;
+  min-height: 100vh;
+  margin-left: 258px;
+  padding: 22px 24px 40px;
+  background: #f4f6fa;
+  box-sizing: border-box;
 }
 
-/* =========================
+/* ==================================================
    TOPBAR
-========================= */
+================================================== */
 
 .editor-topbar {
+  width: 100%;
+  min-height: 64px;
+  padding: 0 20px;
+  margin-bottom: 24px;
+
   display: flex;
   align-items: center;
   justify-content: space-between;
-  min-height: 64px;
-  padding: 0 34px;
-  border-bottom: 1px solid #dfe2ed;
-  background: #f5f7fc;
-  color: #7a8092;
-  font-size: 11px;
+  gap: 16px;
+
+  background: rgba(255, 255, 255, 0.96);
+  backdrop-filter: blur(10px);
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  box-shadow: 0 4px 18px rgba(15, 23, 42, 0.045);
 }
 
 .editor-topbar a {
-  color: #6b70ef;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #4f46e5;
   text-decoration: none;
   font-size: 13px;
   font-weight: 700;
-  transition: color 0.2s ease;
+  transition: transform 0.2s ease;
 }
 
 .editor-topbar a:hover {
-  color: #555bd8;
+  transform: translateX(-3px);
+  color: #4338ca;
 }
 
-/* =========================
-   CONTENT
-========================= */
+.editor-topbar span {
+  color: #64748b;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* ==================================================
+   CONTENT & HEADING
+================================================== */
 
 .editor-content {
-  width: min(100%, 1020px);
+  width: 100%;
+  max-width: 960px;
   margin: 0 auto;
-  padding: 40px 38px 75px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
 }
-
-/* =========================
-   HEADING
-========================= */
 
 .editor-heading {
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
-  gap: 28px;
-  margin-bottom: 28px;
+  gap: 20px;
+  flex-wrap: wrap;
 }
 
-.editor-heading > div {
-  min-width: 0;
-}
-
-.editor-heading > div > span,
-.questions-section .section-heading > div > span {
-  color: #6b70ef;
-  font-size: 9px;
+.editor-heading span {
+  display: block;
+  color: #4f46e5;
+  font-size: 11px;
   font-weight: 800;
-  letter-spacing: 0.1em;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
 }
 
 .editor-heading h1 {
-  margin: 9px 0 7px;
-  color: #30364d;
-  font-size: clamp(2rem, 4vw, 2.7rem);
-  line-height: 1.15;
-  letter-spacing: -0.05em;
+  margin: 6px 0 6px;
+  color: #0f172a;
+  font-size: clamp(26px, 2.5vw, 32px);
+  line-height: 1.2;
   font-weight: 800;
+  letter-spacing: -0.5px;
 }
 
 .editor-heading p {
   margin: 0;
-  color: #7a8091;
-  font-size: 13px;
-  line-height: 1.6;
+  color: #64748b;
+  font-size: 14px;
+  line-height: 1.5;
 }
 
-/* =========================
-   PRIMARY BUTTON
-========================= */
-
-.primary-action,
-.mobile-save,
-.add-question {
-  min-height: 40px;
-  padding: 0 18px;
+.primary-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 42px;
+  padding: 0 22px;
   border: 0;
-  border-radius: 11px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #6366f1, #4f46e5);
   color: #ffffff;
-  background: #6b70ef;
-  box-shadow: 0 8px 17px #6b70ef32;
-  cursor: pointer;
-  font-family: inherit;
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 700;
-  white-space: nowrap;
-  transition:
-    background 0.2s ease,
-    transform 0.2s ease,
-    box-shadow 0.2s ease;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(79, 70, 229, 0.3);
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.primary-action:hover,
-.mobile-save:hover,
-.add-question:hover {
-  background: #5d62df;
+.primary-action:hover {
   transform: translateY(-2px);
-  box-shadow: 0 11px 21px #6b70ef42;
+  box-shadow: 0 6px 20px rgba(79, 70, 229, 0.4);
+  background: linear-gradient(135deg, #4f46e5, #4338ca);
 }
 
-/* =========================
-   FORM
-========================= */
+/* ==================================================
+   FORM SECTIONS
+================================================== */
 
 .quiz-form {
-  display: grid;
-  gap: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
 }
 
-/* =========================
-   QUIZ DETAILS
-========================= */
-
-.quiz-details,
-.questions-section {
-  padding: 27px;
-  border: 1px solid #e3e5ef;
+.quiz-details {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 28px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
   border-radius: 18px;
-  background: #f8f9fd;
-  box-shadow: 0 12px 25px #4d547a13;
+  box-shadow: 0 4px 18px rgba(15, 23, 42, 0.04);
 }
 
 .quiz-details h2 {
-  margin: 0 0 21px;
-  color: #30364d;
-  font-size: 17px;
+  margin: 0;
+  color: #0f172a;
+  font-size: 18px;
   font-weight: 800;
+  padding-bottom: 14px;
+  border-bottom: 1px solid #f1f5f9;
 }
 
-/* =========================
-   FORM GRID
-========================= */
-
-.form-grid,
-.options-grid,
-.answer-row {
+.form-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 17px;
-}
-
-.form-grid label,
-.question-card label {
-  display: grid;
-  gap: 8px;
-  color: #686f84;
-  font-size: 9px;
-  font-weight: 800;
-  letter-spacing: 0.07em;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 18px;
 }
 
 .full-field {
-  grid-column: 1 / -1;
+  grid-column: span 2;
 }
 
-/* =========================
-   INPUTS
-========================= */
+.quiz-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  color: #334155;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
 
 .quiz-form input,
-.quiz-form textarea,
-.quiz-form select {
+.quiz-form select,
+.quiz-form textarea {
   width: 100%;
-  box-sizing: border-box;
-  min-height: 42px;
-  padding: 11px 13px;
-  border: 1px solid #e0e4ef;
-  border-radius: 11px;
-  outline: none;
-  color: #454b62;
-  background: #f4f6fb;
-  font-family: inherit;
-  font-size: 12px;
-  font-weight: 400;
-  letter-spacing: 0;
-  transition:
-    border-color 0.2s ease,
-    background 0.2s ease,
-    box-shadow 0.2s ease;
+  padding: 12px 16px;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  background: #f8fafc;
+  color: #0f172a;
+  font-size: 13px;
+  font-weight: 500;
+  transition: all 0.2s ease;
 }
 
 .quiz-form textarea {
-  min-height: 95px;
   resize: vertical;
-  line-height: 1.55;
-}
-
-.quiz-form input::placeholder,
-.quiz-form textarea::placeholder {
-  color: #a0a5b5;
+  line-height: 1.5;
 }
 
 .quiz-form input:focus,
-.quiz-form textarea:focus,
-.quiz-form select:focus {
-  border-color: #8d92ef;
+.quiz-form select:focus,
+.quiz-form textarea:focus {
+  outline: none;
   background: #ffffff;
-  box-shadow: 0 0 0 3px #e9eaff;
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.12);
 }
 
-/* =========================
-   QUESTIONS HEADER
-========================= */
+.quiz-form select {
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  background-size: 14px;
+  padding-right: 38px;
+}
+
+/* ==================================================
+   QUESTIONS SECTION
+================================================== */
+
+.questions-section {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
 
 .section-heading {
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
-  gap: 20px;
-  margin-bottom: 18px;
+  gap: 16px;
+}
+
+.section-heading span {
+  color: #4f46e5;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  text-transform: uppercase;
 }
 
 .section-heading h2 {
-  margin: 8px 0 0;
-  color: #30364d;
-  font-size: 19px;
-  line-height: 1.3;
+  margin: 4px 0 0;
+  color: #0f172a;
+  font-size: 20px;
   font-weight: 800;
 }
 
 .add-question {
-  min-height: 37px;
-  padding: 0 14px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 38px;
+  padding: 0 16px;
+  border: 1px solid #e0e7ff;
   border-radius: 10px;
-  font-size: 10px;
+  background: #eef2ff;
+  color: #4f46e5;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
 }
 
-/* =========================
-   QUESTIONS
-========================= */
-
-.questions-section {
-  display: grid;
-  gap: 15px;
+.add-question:hover {
+  background: #4f46e5;
+  color: #ffffff;
 }
+
+/* QUESTION CARD */
 
 .question-card {
-  display: grid;
-  gap: 17px;
-  padding: 21px;
-  border: 1px solid #e1e4ee;
-  border-radius: 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding: 24px;
   background: #ffffff;
-  box-shadow: 0 6px 15px #4d547a0b;
-  transition:
-    border-color 0.2s ease,
-    box-shadow 0.2s ease;
+  border: 1px solid #e2e8f0;
+  border-radius: 18px;
+  box-shadow: 0 4px 18px rgba(15, 23, 42, 0.04);
 }
-
-.question-card:hover {
-  border-color: #d7d9ef;
-  box-shadow: 0 9px 20px #4d547a12;
-}
-
-/* =========================
-   QUESTION HEADER
-========================= */
 
 .question-heading {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 15px;
-  padding-bottom: 13px;
-  border-bottom: 1px solid #edf0f6;
+  padding-bottom: 14px;
+  border-bottom: 1px solid #f1f5f9;
 }
 
 .question-heading h3 {
   margin: 0;
-  color: #4f55a7;
-  font-size: 14px;
-  font-weight: 800;
+  color: #0f172a;
+  font-size: 15px;
+  font-weight: 750;
 }
 
 .question-heading button {
-  min-height: 29px;
-  padding: 0 10px;
-  border: 1px solid #f0dfe2;
+  height: 32px;
+  padding: 0 12px;
+  border: 1px solid #fee2e2;
   border-radius: 8px;
-  color: #c66b76;
-  background: #fff7f8;
+  background: #fffafa;
+  color: #ef4444;
+  font-size: 12px;
+  font-weight: 600;
   cursor: pointer;
-  font-family: inherit;
-  font-size: 9px;
-  font-weight: 700;
-  transition:
-    background 0.2s ease,
-    border-color 0.2s ease;
+  transition: all 0.2s ease;
 }
 
 .question-heading button:hover:not(:disabled) {
-  border-color: #e8b9bf;
-  background: #fff0f2;
+  background: #fef2f2;
+  border-color: #fecaca;
 }
 
 .question-heading button:disabled {
-  opacity: 0.35;
+  opacity: 0.4;
   cursor: not-allowed;
 }
 
-/* =========================
-   ANSWER ROW
-========================= */
+.options-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
 
 .answer-row {
-  grid-template-columns: minmax(0, 1fr) 170px;
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 16px;
+  padding-top: 14px;
+  border-top: 1px solid #f1f5f9;
 }
-
-/* =========================
-   OPTIONS
-========================= */
-
-.options-grid {
-  gap: 12px;
-}
-
-.options-grid label {
-  gap: 7px;
-}
-
-.options-grid input {
-  background: #f7f8fc;
-}
-
-/* =========================
-   BOTTOM SAVE
-========================= */
 
 .mobile-save {
   display: none;
-  width: 100%;
+  height: 42px;
+  border: 0;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #6366f1, #4f46e5);
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
 }
 
-/* =========================
-   TABLET
-========================= */
+/* ==================================================
+   RESPONSIVE
+================================================== */
 
-@media (max-width: 1050px) {
+@media (max-width: 900px) {
   .editor-main {
     width: calc(100% - 226px);
     margin-left: 226px;
-    padding-left: 20px;
-  }
-
-  .editor-content {
-    padding: 34px 25px 60px;
+    padding: 18px 16px 32px;
   }
 }
 
-/* =========================
-   MOBILE
-========================= */
-
 @media (max-width: 700px) {
-  .editor-shell {
-    display: block;
-  }
-
   .editor-main {
     width: 100%;
     margin-left: 0;
-    padding-left: 0;
+    padding: 14px 12px 30px;
   }
 
   .editor-topbar {
-    padding: 0 18px;
-  }
-
-  .editor-content {
-    padding: 28px 18px 55px;
+    padding: 0 14px;
+    margin-bottom: 18px;
   }
 
   .editor-heading {
-    align-items: flex-start;
     flex-direction: column;
-    gap: 17px;
-  }
-
-  .editor-heading h1 {
-    font-size: 29px;
-  }
-
-  .primary-action {
-    width: 100%;
-  }
-
-  .quiz-details,
-  .questions-section {
-    padding: 21px 17px;
+    align-items: stretch;
   }
 
   .form-grid,
@@ -435,63 +407,15 @@
   }
 
   .full-field {
-    grid-column: auto;
+    grid-column: span 1;
   }
 
-  .section-heading {
-    align-items: flex-start;
-    flex-direction: column;
-    gap: 13px;
-  }
-
-  .add-question {
-    width: 100%;
+  .primary-action {
+    display: none;
   }
 
   .mobile-save {
     display: block;
+    width: 100%;
   }
-}
-
-/* =========================
-   SMALL MOBILE
-========================= */
-
-@media (max-width: 430px) {
-  .editor-content {
-    padding: 24px 14px 45px;
-  }
-
-  .editor-heading h1 {
-    font-size: 25px;
-  }
-
-  .quiz-details,
-  .questions-section {
-    padding: 18px 14px;
-  }
-
-  .question-card {
-    padding: 17px 14px;
-  }
-
-  .question-heading h3 {
-    font-size: 13px;
-  }
-}
-/* =========================
-   QUIZ TYPE / LESSON
-========================= */
-
-.quiz-form select {
-  cursor: pointer;
-}
-
-.quiz-form select option {
-  color: #454b62;
-  background: #ffffff;
-}
-
-.quiz-details .form-grid {
-  align-items: start;
 }
