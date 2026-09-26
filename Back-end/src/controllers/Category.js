@@ -15,9 +15,25 @@ const createCategory = async (req, res, next) => {
 };
 const getCategories = async (req, res, next) => {
   try {
-    return res
-      .status(200)
-      .json({ categories: await Category.find().sort({ name: 1 }) });
+    const categories = await Category.find().sort({ name: 1 });
+
+    const categoriesWithCourses = await Promise.all(
+      categories.map(async (category) => {
+        const courseCount = await Course.countDocuments({
+          category: category._id,
+        });
+
+        return {
+          ...category.toObject(),
+          subcategoriesCount: category.subcategories.length,
+          courses: courseCount,
+        };
+      }),
+    );
+
+    return res.status(200).json({
+      categories: categoriesWithCourses,
+    });
   } catch (err) {
     return next(new ApiError(500, err.message));
   }

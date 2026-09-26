@@ -28,6 +28,21 @@ const categorySchema = new mongoose.Schema(
       trim: true,
     },
 
+    image: {
+      type: String,
+      trim: true,
+    },
+
+    badge: {
+      type: String,
+      trim: true,
+    },
+
+    status: {
+      type: String,
+      trim: true,
+    },
+
     description: {
       type: String,
       required: [true, "Category description is required"],
@@ -53,6 +68,7 @@ const categorySchema = new mongoose.Schema(
           lowercase: true,
           match: [/^[a-z0-9]+(?:-[a-z0-9]+)*$/, "Subcategory slug is invalid"],
         },
+
         image: {
           type: String,
           trim: true,
