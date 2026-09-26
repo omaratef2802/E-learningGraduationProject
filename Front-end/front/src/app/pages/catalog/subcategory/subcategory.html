@@ -1,0 +1,139 @@
+<section class="breadcrumb-section">
+<div class="container">
+<div class="breadcrumb-text">
+<a routerLink="/catalog"> Home </a>
+
+<span>›</span>
+
+<a routerLink="/catalog"> Categories </a>
+
+<span>›</span>
+
+<strong> Web Development </strong>
+</div>
+</div>
+</section>
+<section class="subcategory-header">
+<div class="container">
+<div class="subcategory-header-card">
+<div class="subcategory-icon">◫</div>
+<div class="subcategory-info">
+<span class="section-label"> TECHNOLOGY & ENGINEERING </span>
+<h1>Web Development</h1>
+<p>
+Build practical skills for creating modern websites, high-performance web applications and
+digital products.
+</p>
+<div class="related-links">
+<span> RELATED FIELDS: </span>
+
+<a routerLink="/catalog/web-development"> Web Development </a>
+
+<a routerLink="/catalog/languages"> Languages </a>
+
+<a routerLink="/catalog/ui-ux-design"> UI/UX Design </a>
+
+<a routerLink="/catalog/business"> Business </a>
+</div>
+</div>
+
+<div class="subcategory-stats">
+<div>
+<strong>5</strong>
+<span>Subcategories</span>
+</div>
+
+<div>
+<strong>120</strong>
+<span>Courses</span>
+</div>
+
+<div>
+<strong>42K+</strong>
+<span>Learners</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section class="subcategory-section">
+<div class="container">
+<div class="tools-row">
+<div class="search-box">
+<span class="search-icon"> 🔍 </span>
+
+<input type="text" [(ngModel)]="searchText" placeholder="Search subcategories..." />
+</div>
+<div class="sort-area">
+<span> Sort: </span>
+
+<select [(ngModel)]="selectedSort">
+<option value="Most Popular">Most Popular</option>
+
+<option value="A-Z">A-Z</option>
+
+<option value="Z-A">Z-A</option>
+
+<option value="Courses: Low to High">Courses: Low to High</option>
+
+<option value="Courses: High to Low">Courses: High to Low</option>
+</select>
+</div>
+</div>
+<div class="track-box">
+<a class="track-name active" routerLink="/catalog/web-development"> All </a>
+
+@for (item of subcategories; track item.name) {
+<a class="track-name" [routerLink]="item.route">
+{{ item.name }}
+</a>
+}
+</div>
+@if (filteredSubcategories.length > 0) {
+<div class="subcategory-grid">
+@for (item of filteredSubcategories; track item.name) {
+<div class="subcategory-card">
+<a class="subcategory-image" [routerLink]="item.route">
+<img [src]="item.image" [alt]="item.name" />
+
+<span>
+{{ item.level }}
+</span>
+</a>
+<div class="subcategory-content">
+<div class="subcategory-meta">
+<span> {{ item.courses }} Courses </span>
+<span> {{ item.lessons }} Lessons </span>
+</div>
+<a class="subcategory-title" [routerLink]="item.route">
+{{ item.name }}
+</a>
+<p>
+{{ item.description }}
+</p>
+<div class="subcategory-bottom">
+<span> {{ item.learners }} Learners </span>
+<a class="explore-link" [routerLink]="item.route">
+  Explore Subcategory
+  <span> → </span>
+</a>
+</div>
+</div>
+</div>
+}
+</div>
+}
+
+@if (filteredSubcategories.length === 0) {
+<div class="no-results">
+<div>🔍</div>
+
+<h3>No subcategories found</h3>
+
+<p>Try another search.</p>
+
+<button (click)="clearFilters()">Show all</button>
+</div>
+}
+</div>
+</section>
