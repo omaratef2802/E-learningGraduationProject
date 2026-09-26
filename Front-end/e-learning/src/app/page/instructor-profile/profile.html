@@ -1,0 +1,569 @@
+<div class="profile-shell">
+
+  <app-instructor-sidebar></app-instructor-sidebar>
+
+  <main class="profile-main">
+
+    <!-- TOPBAR -->
+    <header class="profile-topbar">
+
+      <div class="breadcrumb">
+        <span>INSTRUCTOR PORTAL</span>
+        <strong>/ PROFILE</strong>
+      </div>
+
+      <div class="top-user">
+
+        <div class="mini-avatar">
+          <img
+            [src]="data.instructor.image"
+            [alt]="firstName + ' ' + lastName"
+          />
+        </div>
+
+        <div class="top-user-info">
+          <strong>
+            {{ firstName }} {{ lastName }}
+          </strong>
+
+          <small>
+            {{ data.instructor.role }}
+          </small>
+        </div>
+
+      </div>
+
+    </header>
+
+
+    <!-- CONTENT -->
+    <section class="profile-content">
+
+      <!-- PAGE HEADING -->
+      <div class="profile-heading">
+
+        <div>
+          <span class="eyebrow">
+            INSTRUCTOR PROFILE
+          </span>
+
+          <h1>
+            Profile
+          </h1>
+
+          <p>
+            Manage your professional information and instructor profile.
+          </p>
+        </div>
+
+        @if (!editing) {
+
+          <button
+            type="button"
+            class="edit-button"
+            (click)="toggleEdit()"
+          >
+            <span>✎</span>
+            Edit Profile
+          </button>
+
+        }
+
+      </div>
+
+
+      <!-- PROFILE HERO -->
+      <section class="profile-hero">
+
+        <div class="hero-left">
+
+          <div class="profile-photo-wrapper">
+
+            <img
+              class="profile-photo"
+              [src]="imagePreview"
+              [alt]="firstName + ' ' + lastName"
+            />
+
+            @if (editing) {
+
+              <button
+                type="button"
+                class="photo-camera"
+                (click)="chooseImage(fileInput)"
+                aria-label="Change profile photo"
+              >
+                📷
+              </button>
+
+            }
+
+          </div>
+
+
+          <div class="hero-info">
+
+            <div class="hero-name-row">
+
+              <h2>
+                {{ firstName }} {{ lastName }}
+              </h2>
+
+              <span class="profile-status">
+                Active
+              </span>
+
+            </div>
+
+            <p class="hero-role">
+              {{ data.instructor.role }}
+            </p>
+
+            <p class="hero-description">
+              {{ data.instructor.bio }}
+            </p>
+
+            @if (editing) {
+
+              <div class="photo-actions">
+
+                <button
+                  type="button"
+                  class="photo-button primary-photo-button"
+                  (click)="chooseImage(fileInput)"
+                >
+                  Change Photo
+                </button>
+
+                <button
+                  type="button"
+                  class="photo-button"
+                  (click)="removeImage(fileInput)"
+                >
+                  Remove
+                </button>
+
+              </div>
+
+            }
+
+          </div>
+
+        </div>
+
+
+        <div class="hero-role-box">
+
+          <span>
+            CURRENT ROLE
+          </span>
+
+          <strong>
+            {{ data.instructor.role }}
+          </strong>
+
+          <small>
+            Instructor
+          </small>
+
+        </div>
+
+      </section>
+
+
+      <!-- HIDDEN IMAGE INPUT -->
+      <input
+        #fileInput
+        class="hidden-file-input"
+        type="file"
+        accept="image/*"
+        (change)="onImageSelected($event)"
+      />
+
+
+      <!-- SAVE MESSAGE -->
+      @if (saveMessage) {
+
+        <div class="save-message">
+          <span>✓</span>
+          {{ saveMessage }}
+        </div>
+
+      }
+
+
+      <!-- MAIN GRID -->
+      <div class="profile-grid">
+
+
+        <!-- ABOUT -->
+        <section class="profile-card about-card">
+
+          <div class="card-heading">
+
+            <div>
+
+              <span class="card-label">
+                ABOUT YOU
+              </span>
+
+              <h2>
+                Professional Information
+              </h2>
+
+            </div>
+
+            <div class="card-icon">
+              ✦
+            </div>
+
+          </div>
+
+
+          @if (!editing) {
+
+            <div class="about-content">
+
+              <div class="name-row">
+
+                <div class="info-item">
+
+                  <span>
+                    FIRST NAME
+                  </span>
+
+                  <strong>
+                    {{ firstName }}
+                  </strong>
+
+                </div>
+
+                <div class="info-item">
+
+                  <span>
+                    LAST NAME
+                  </span>
+
+                  <strong>
+                    {{ lastName }}
+                  </strong>
+
+                </div>
+
+              </div>
+
+
+              <div class="info-item bio-item">
+
+                <span>
+                  BIO
+                </span>
+
+                <p>
+                  {{ bio }}
+                </p>
+
+              </div>
+
+            </div>
+
+          } @else {
+
+            <div class="edit-form">
+
+              <div class="name-row">
+
+                <label>
+
+                  <span>
+                    FIRST NAME
+                  </span>
+
+                  <input
+                    type="text"
+                    [(ngModel)]="firstName"
+                  />
+
+                </label>
+
+
+                <label>
+
+                  <span>
+                    LAST NAME
+                  </span>
+
+                  <input
+                    type="text"
+                    [(ngModel)]="lastName"
+                  />
+
+                </label>
+
+              </div>
+
+
+              <label>
+
+                <span>
+                  BIO
+                </span>
+
+                <textarea
+                  rows="5"
+                  [(ngModel)]="bio"
+                ></textarea>
+
+              </label>
+
+            </div>
+
+          }
+
+        </section>
+
+
+        <!-- SKILLS -->
+        <section class="profile-card skills-card">
+
+          <div class="card-heading">
+
+            <div>
+
+              <span class="card-label">
+                EXPERTISE
+              </span>
+
+              <h2>
+                Professional Skills
+              </h2>
+
+            </div>
+
+            <div class="card-icon">
+              ◆
+            </div>
+
+          </div>
+
+
+          @if (!editing) {
+
+            <div class="skills-list">
+
+              @for (
+                skill of data.instructor.skills;
+                track skill
+              ) {
+
+                <span class="skill">
+                  {{ skill }}
+                </span>
+
+              }
+
+            </div>
+
+          } @else {
+
+            <div class="skills-list">
+
+              @for (
+                skill of editableSkills;
+                track $index
+              ) {
+
+                <span class="skill editable-skill">
+
+                  {{ skill }}
+
+                  <button
+                    type="button"
+                    (click)="removeSkill($index)"
+                    aria-label="Remove skill"
+                  >
+                    ×
+                  </button>
+
+                </span>
+
+              }
+
+            </div>
+
+
+            <div class="add-skill">
+
+              <input
+                type="text"
+                [(ngModel)]="newSkill"
+                (keyup.enter)="addSkill()"
+                placeholder="Add a new skill..."
+              />
+
+              <button
+                type="button"
+                (click)="addSkill()"
+              >
+                Add
+              </button>
+
+            </div>
+
+          }
+
+        </section>
+
+
+        <!-- ROLE -->
+        <section class="profile-card role-card">
+
+          <div class="card-heading">
+
+            <div>
+
+              <span class="card-label">
+                POSITION
+              </span>
+
+              <h2>
+                Instructor Role
+              </h2>
+
+            </div>
+
+            <div class="card-icon">
+              ✓
+            </div>
+
+          </div>
+
+
+          <div class="role-content">
+
+            <div class="role-icon">
+              ◆
+            </div>
+
+            <div>
+
+              <strong>
+                {{ data.instructor.role }}
+              </strong>
+
+              <p>
+                Responsible for creating courses,
+                managing learning content, and
+                supporting students throughout
+                their learning journey.
+              </p>
+
+            </div>
+
+          </div>
+
+        </section>
+
+
+        <!-- PROFILE STATUS -->
+        <section class="profile-card status-card">
+
+          <div class="card-heading">
+
+            <div>
+
+              <span class="card-label">
+                PROFILE STATUS
+              </span>
+
+              <h2>
+                Professional Profile
+              </h2>
+
+            </div>
+
+          </div>
+
+
+          <div class="status-content">
+
+            <div class="status-check">
+              ✓
+            </div>
+
+            <div>
+
+              <strong>
+                Profile is active
+              </strong>
+
+              <p>
+                Your instructor information is visible
+                across the platform.
+              </p>
+
+            </div>
+
+          </div>
+
+        </section>
+
+
+        <!-- SAVE -->
+        @if (editing) {
+
+          <section class="save-card">
+
+            <div class="save-copy">
+
+              <div class="save-icon">
+                ✓
+              </div>
+
+              <div>
+
+                <strong>
+                  Ready to save your changes?
+                </strong>
+
+                <p>
+                  Your updated profile information will
+                  be saved across the instructor portal.
+                </p>
+
+              </div>
+
+            </div>
+
+
+            <div class="save-actions">
+
+              <button
+                type="button"
+                class="cancel-button"
+                (click)="toggleEdit()"
+              >
+                Cancel
+              </button>
+
+              <button
+                type="button"
+                class="save-button"
+                (click)="saveProfile()"
+              >
+                Save Changes
+              </button>
+
+            </div>
+
+          </section>
+
+        }
+
+      </div>
+
+    </section>
+
+  </main>
+
+</div>

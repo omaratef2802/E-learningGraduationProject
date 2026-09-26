@@ -1,0 +1,103 @@
+
+<div class="editor-shell">
+
+  <app-instructor-sidebar></app-instructor-sidebar>
+
+
+  <main class="editor-main">
+
+    <header class="editor-topbar">
+
+      <a
+        routerLink="/instructor-course-curriculum"
+        [queryParams]="{ course: courseTitle }"
+      >
+        ← Back to Course Content
+      </a>
+
+      <span>
+        INSTRUCTOR PORTAL / SECTION BUILDER
+      </span>
+
+    </header>
+
+
+    <section class="editor-content">
+
+      <div class="editor-heading">
+
+        <div>
+
+          <span>
+            COURSE CONTENT
+          </span>
+
+          <h1>
+            {{ sectionId ? 'Edit Section' : 'Add Section' }}
+          </h1>
+
+          <p>
+            Organize your course content into a clear
+            learning section.
+          </p>
+
+        </div>
+
+
+        <button
+          class="primary-action"
+          type="button"
+          (click)="saveSection()"
+        >
+          Save Section →
+        </button>
+
+      </div>
+
+
+      <form
+        class="section-form"
+        (ngSubmit)="saveSection()"
+      >
+
+        <label>
+          SECTION TITLE
+
+          <input
+            name="title"
+            [(ngModel)]="title"
+            placeholder="e.g. Introduction to HTML"
+            required
+          />
+
+        </label>
+
+
+        <div class="section-info">
+
+          <strong>
+            Section structure
+          </strong>
+
+          <p>
+            After creating the section, you can add
+            lessons and quizzes from the Course Content page.
+          </p>
+
+        </div>
+
+
+        <button
+          class="mobile-save"
+          type="submit"
+        >
+          Save Section
+        </button>
+
+      </form>
+
+    </section>
+
+  </main>
+
+</div>

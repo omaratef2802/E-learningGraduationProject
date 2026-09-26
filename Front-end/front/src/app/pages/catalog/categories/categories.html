@@ -1,179 +1,293 @@
+
 <section class="hero-section">
-<div class="container">
-<div class="hero-breadcrumb">
-<span class="home-icon">⌂</span>
-<span>HOME</span>
-<span class="breadcrumb-separator">›</span>
-<strong>CATEGORIES</strong>
-</div>
-<div class="hero-content">
-<div class="hero-text">
-<h1>Explore Learning Categories</h1>
-<p>
-Discover courses, skills, and tailored learning paths designed to help you build practical
-skills and achieve the exact path that matches your ambitions.
-</p>
-</div>
-<div class="hero-stat">
-<div class="hero-stat-icon">▥</div>
-<div class="hero-stat-copy">
-<span>Total Curricula</span>
-<strong>335+ Verified Courses</strong>
-</div>
-</div>
-</div>
-</div>
+  <div class="container">
+    <div class="hero-breadcrumb">
+      <span class="home-icon">⌂</span>
+      <span>HOME</span>
+      <span class="breadcrumb-separator">›</span>
+      <strong>CATEGORIES</strong>
+    </div>
+
+    <div class="hero-content">
+      <div class="hero-text">
+        <h1>Explore Learning Categories</h1>
+
+        <p>
+          Discover courses, skills, and tailored learning paths designed to help you build practical
+          skills and achieve the exact path that matches your ambitions.
+        </p>
+      </div>
+
+      <div class="hero-stat">
+        <div class="hero-stat-icon">▥</div>
+
+        <div class="hero-stat-copy">
+          <span>Total Curricula</span>
+
+          <strong> {{ categories.length }} Categories </strong>
+        </div>
+      </div>
+    </div>
+  </div>
 </section>
+
 <section class="categories-section">
-<div class="container">
-<div class="search-row">
-<div class="search-box">
-<span class="search-icon">🔍 </span>
-<input
-type="text"
-[(ngModel)]="searchText"
-placeholder="Search categories, subfields, or skills..."/>
-</div>
-</div>
-<div class="category-pills-row">
-<button
-class="category-pill"
-[class.active]="selectedCategory === 'All'"
-(click)="selectedCategory = 'All'"
-routerLink="/catalog">
-All
-</button>
-@for (cat of categoriesList; track cat) {
-<button
-class="category-pill"
-[class.active]="selectedCategory === cat"
-(click)="selectedCategory = cat"
-[routerLink]="categoryRoute(cat)">
-{{ cat }}
-</button>
-}
-</div>
-@if (searchText || selectedCategory !== 'All') {
-<div class="clear-row">
-<button class="clear-button" (click)="clearFilters()">Clear filters</button>
-</div>
-}
-@if (filteredCategories.length > 0) {
-<div class="category-grid">
-@for (category of filteredCategories; track category.name) {
-<div class="category-card">
-<a class="image-container" [routerLink]="category.route">
-<img [src]="category.image" [alt]="category.name" />
+  <div class="container">
+    <!-- Search -->
+    <div class="search-row">
+      <div class="search-box">
+        <span class="search-icon"> 🔍 </span>
 
-<span class="badge">
-{{ category.badge }}
-</span>
+        <input
+          type="text"
+          [(ngModel)]="searchText"
+          placeholder="Search categories, subfields, or skills..."
+        />
+      </div>
+    </div>
 
-<span class="course-badge">
-{{ category.subcategoriesCount }} Subcategories • {{ category.courses }} Courses
-</span>
-</a>
+    <!-- Category Filters -->
+    <div class="category-pills-row">
+      <!-- All -->
+      <button
+        class="category-pill"
+        [class.active]="selectedCategory === 'All'"
+        (click)="selectedCategory = 'All'"
+        routerLink="/catalog"
+      >
+        All
+      </button>
 
-<div class="card-content">
-<div class="card-heading">
-<span class="category-icon">{{ category.icon }}</span>
-<span class="status-badge">{{ category.status }}</span>
-</div>
+      <!-- Dynamic Categories -->
+      @for (cat of categoriesList; track cat) {
+        <button
+          class="category-pill"
+          [class.active]="selectedCategory === cat"
+          (click)="selectedCategory = cat"
+          [routerLink]="categoryRoute(cat)"
+        >
+          {{ cat }}
+        </button>
+      }
+    </div>
 
-<a class="category-title" [routerLink]="category.route">
-{{ category.name }}
-</a>
+    <!-- Clear Filters -->
+    @if (searchText || selectedCategory !== 'All') {
+      <div class="clear-row">
+        <button class="clear-button" (click)="clearFilters()">Clear filters</button>
+      </div>
+    }
 
-<p class="description">
-{{ category.description }}
-</p>
+    <!-- Loading -->
+    @if (loading) {
+      <div class="no-results">
+        <div class="no-results-icon">⏳</div>
 
-<span class="subcategories-label">POPULAR SUBCATEGORIES</span>
+        <h3>Loading categories...</h3>
 
-<div class="subcategories">
-@for (item of category.subcategories; track item) {
-<span>
-  {{ item }}
-</span>
-}
-</div>
+        <p>Please wait while we load the categories.</p>
+      </div>
+    }
 
-<div class="card-divider"></div>
+    <!-- Error -->
+    @if (errorMessage && !loading) {
+      <div class="no-results">
+        <div class="no-results-icon">⚠</div>
 
-<div class="card-stats">
-<span class="stats-summary">
-<b>♧</b> {{ category.courses }} Courses • {{ category.enrolled }} Enrolled</span>
-<a class="explore-button" [routerLink]="category.route">
-<span>Explore {{ category.name }}</span>
-<span>→</span>
-</a>
-</div>
-</div>
-</div>
-}
-</div>
-}
-@if (filteredCategories.length === 0) {
-<div class="no-results">
-<div class="no-results-icon">🔍</div>
-<h3>No categories found</h3>
-<p>Try another category, name, price or course number.</p>
-<button (click)="clearFilters()">Show all categories</button>
-</div>
-}
-</div>
+        <h3>
+          {{ errorMessage }}
+        </h3>
+
+        <p>Something went wrong while loading the categories.</p>
+
+        <button (click)="loadCategories()">Try Again</button>
+      </div>
+    }
+
+    <!-- Categories -->
+    @if (!loading && !errorMessage && filteredCategories.length > 0) {
+      <div class="category-grid">
+        @for (category of filteredCategories; track category._id) {
+          <div class="category-card">
+            <!-- Category Image -->
+            <a class="image-container" [routerLink]="category.route">
+              <img [src]="category.image" [alt]="category.name" />
+
+              <!-- Category Badge -->
+              @if (category.badge) {
+                <span class="badge">
+                  {{ category.badge }}
+                </span>
+              }
+
+              <!-- Courses / Subcategories -->
+              <span class="course-badge">
+                {{ category.subcategoriesCount }}
+                Subcategories •
+
+                {{ category.courses }}
+                Courses
+              </span>
+            </a>
+
+            <!-- Card Content -->
+            <div class="card-content">
+              <!-- Icon + Status -->
+              <div class="card-heading">
+                <span class="category-icon">
+                  {{ category.icon }}
+                </span>
+
+                @if (category.status) {
+                  <span class="status-badge">
+                    {{ category.status }}
+                  </span>
+                }
+              </div>
+
+              <!-- Category Name -->
+              <a class="category-title" [routerLink]="category.route">
+                {{ category.name }}
+              </a>
+
+              <!-- Description -->
+              <p class="description">
+                {{ category.description }}
+              </p>
+
+              <!-- Subcategories Title -->
+              <span class="subcategories-label"> POPULAR SUBCATEGORIES </span>
+
+              <!-- Subcategories -->
+              <div class="subcategories">
+                @for (item of category.subcategories; track item) {
+                  <span>
+                    {{ item }}
+                  </span>
+                }
+              </div>
+
+              <!-- Divider -->
+              <div class="card-divider"></div>
+
+              <!-- Stats -->
+              <div class="card-stats">
+                <span class="stats-summary">
+                  <b>♧</b>
+
+                  {{ category.courses }}
+                  Courses •
+
+                  {{ category.enrolled }}
+                  Enrolled
+                </span>
+
+                <a class="explore-button" [routerLink]="category.route">
+                  <span> Explore {{ category.name }} </span>
+
+                  <span> → </span>
+                </a>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    }
+
+    <!-- No Results -->
+    @if (!loading && !errorMessage && filteredCategories.length === 0) {
+      <div class="no-results">
+        <div class="no-results-icon">🔍</div>
+
+        <h3>No categories found</h3>
+
+        <p>Try another category, name, or skill.</p>
+
+        <button (click)="clearFilters()">Show all categories</button>
+      </div>
+    }
+  </div>
 </section>
+
+<!-- Career Goals -->
+
 <section class="career-section">
-<div class="container">
-<div class="section-heading">
-<span class="section-label"> GOAL-ORIENTED PATHWAYS </span>
-<h2>What Do You Want to Achieve?</h2>
-<p>Pick a primary career or personal growth objective to find tailored learning paths.</p>
-</div>
-<div class="career-grid">
-@for (goal of careerGoals; track goal.title) {
-<div class="career-card">
-<div class="career-icon">
-{{ goal.icon }}
-</div>
-<h3>
-{{ goal.title }}
-</h3>
-<p>
-{{ goal.text }}
-</p>
-<span class="recommendation"> Recommended: {{ goal.recommendation }} </span>
-</div>
-}
-</div>
-</div>
+  <div class="container">
+    <div class="section-heading">
+      <span class="section-label"> GOAL-ORIENTED PATHWAYS </span>
+
+      <h2>What Do You Want to Achieve?</h2>
+
+      <p>Pick a primary career or personal growth objective to find tailored learning paths.</p>
+    </div>
+
+    <div class="career-grid">
+      @for (goal of careerGoals; track goal.title) {
+        <div class="career-card">
+          <div class="career-icon">
+            {{ goal.icon }}
+          </div>
+
+          <h3>
+            {{ goal.title }}
+          </h3>
+
+          <p>
+            {{ goal.text }}
+          </p>
+
+          <span class="recommendation">
+            Recommended:
+            {{ goal.recommendation }}
+          </span>
+        </div>
+      }
+    </div>
+  </div>
 </section>
+
+<!-- Popular Tracks -->
+
 <section class="popular-section">
-<div class="container">
-<div class="section-heading popular-heading">
-<div>
-<span class="section-label">HIGH-VALUE PATHS</span>
-<h2>Popular Right Now</h2>
-<p>Top-performing learning tracks chosen by learners.</p>
-</div>
-<a class="view-all" routerLink="/catalog">View all categories</a>
-</div>
-<div class="popular-grid">
-@for (track of popularTracks; track track.category) {
-<a class="popular-card" [routerLink]="track.route">
-<div class="track-header-top">
-<span class="track-badge">{{ track.badge }}</span>
-<span class="courses-count">{{ track.courses }} Courses</span>
-</div>
-<div class="track-name-box">
-{{ track.category }}
-</div>
-<p>
-{{ track.text }}
-</p>
-<div class="track-link">Explore Track →</div>
-</a>
-}
-</div>
-</div>
+  <div class="container">
+    <div class="section-heading popular-heading">
+      <div>
+        <span class="section-label"> HIGH-VALUE PATHS </span>
+
+        <h2>Popular Right Now</h2>
+
+        <p>Top-performing learning tracks chosen by learners.</p>
+      </div>
+
+      <a class="view-all" routerLink="/catalog"> View all categories </a>
+    </div>
+
+    <div class="popular-grid">
+      @for (track of popularTracks; track track.category) {
+        <a class="popular-card" [routerLink]="track.route">
+          <div class="track-header-top">
+            <span class="track-badge">
+              {{ track.badge }}
+            </span>
+
+            <span class="courses-count">
+              {{ track.courses }}
+              Courses
+            </span>
+          </div>
+
+          <div class="track-name-box">
+            {{ track.category }}
+          </div>
+
+          <p>
+            {{ track.text }}
+          </p>
+
+          <div class="track-link">Explore Track →</div>
+        </a>
+      }
+    </div>
+  </div>
 </section>
+

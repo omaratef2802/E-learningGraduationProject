@@ -1,49 +1,21 @@
 const express = require("express");
-
 const router = express.Router();
-
-const projectController = require("../controllers/Projects");
-
 const { auth, relasedTo } = require("../middlewares/auth");
-router.post(
-  "/assign",
-  auth,
-  relasedTo("admin", "instructor"),
-  projectController.createProject
-);
-
+const {
+  createProject,
+  getProjects,
+  getProjectById,
+  updateProject,
+  deleteProject,
+} = require("../controllers/Projects");
+router.get("/", auth, relasedTo("student", "instructor", "admin"), getProjects);
 router.get(
-  "/me/projects",
+  "/:projectId",
   auth,
-  relasedTo("user"),
-  projectController.getMyProjects
+  relasedTo("student", "instructor", "admin"),
+  getProjectById,
 );
-
-router.get(
-  "/projects/:projectId",
-  auth,
-  projectController.getProjectById
-);
-
-router.post(
-  "/projects/:projectId/submissions",
-  auth,
-  relasedTo("user"),
-  projectController.submitProject
-);
-
-router.get(
-  "/instructor/projects/pending",
-  auth,
-  relasedTo("instructor"),
-  projectController.getPendingProjects
-);
-
-router.patch(
-  "/projects/:projectId/review",
-  auth,
-  relasedTo("instructor"),
-  projectController.reviewProject
-);
-
+router.post("/", auth, relasedTo("instructor"), createProject);
+router.patch("/:projectId", auth, relasedTo("instructor"), updateProject);
+router.delete("/:projectId", auth, relasedTo("instructor"), deleteProject);
 module.exports = router;

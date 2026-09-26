@@ -1,0 +1,853 @@
+<div class="admin-shell">
+
+  <app-admin-sidebar></app-admin-sidebar>
+
+  <main class="admin-main">
+
+    <!-- TOP BAR -->
+
+    <header class="profile-topbar">
+
+      <div class="breadcrumb">
+        <span>ADMIN PORTAL</span>
+        <strong>/ DASHBOARD</strong>
+      </div>
+
+      <div class="topbar-actions">
+
+        <button
+          type="button"
+          class="notification-button"
+          (click)="openNotifications()"
+          aria-label="Open notifications"
+        >
+          <span class="notification-icon">♢</span>
+          <span class="notification-dot"></span>
+        </button>
+
+        <button
+          type="button"
+          class="top-user"
+          (click)="openProfile()"
+        >
+
+          <div class="mini-avatar">
+            {{ profileInitials }}
+          </div>
+
+          <div class="top-user-info">
+            <strong>{{ profileName }}</strong>
+            <small>{{ data.admin.role }}</small>
+          </div>
+
+          <span class="profile-arrow">⌄</span>
+
+        </button>
+
+      </div>
+
+    </header>
+
+
+    <!-- CONTENT -->
+
+    <section class="admin-content">
+
+
+      <!-- PAGE HEADING -->
+
+      <div class="page-heading">
+
+        <div>
+
+          <span class="heading-kicker">
+            PLATFORM OVERVIEW
+          </span>
+
+          <h1>
+            Admin Dashboard
+          </h1>
+
+          <p>
+            Monitor your platform and manage users,
+            courses, instructors, and daily activity.
+          </p>
+
+        </div>
+
+      </div>
+
+
+      <!-- ERROR -->
+
+      @if (errorMessage) {
+
+        <div class="dashboard-error">
+
+          <span>!</span>
+
+          {{ errorMessage }}
+
+        </div>
+
+      }
+
+
+      <!-- LOADING -->
+
+      @if (loading) {
+
+        <div class="dashboard-state">
+
+          <div class="loading-spinner"></div>
+
+          <span>
+            Loading dashboard...
+          </span>
+
+        </div>
+
+      } @else {
+
+
+        <!-- STATISTICS -->
+
+        <section class="stats-grid">
+
+
+          <article class="stat-card">
+
+            <div class="stat-icon purple">
+              ♙
+            </div>
+
+            <div class="stat-info">
+
+              <span>
+                Total Users
+              </span>
+
+              <strong>
+                {{ stats.totalUsers | number }}
+              </strong>
+
+              <small>
+                All registered accounts
+              </small>
+
+            </div>
+
+          </article>
+
+
+          <article class="stat-card">
+
+            <div class="stat-icon blue">
+              ♧
+            </div>
+
+            <div class="stat-info">
+
+              <span>
+                Total Students
+              </span>
+
+              <strong>
+                {{ stats.totalStudents | number }}
+              </strong>
+
+              <small>
+                Registered learners
+              </small>
+
+            </div>
+
+          </article>
+
+
+          <article class="stat-card">
+
+            <div class="stat-icon green">
+              ◉
+            </div>
+
+            <div class="stat-info">
+
+              <span>
+                Total Instructors
+              </span>
+
+              <strong>
+                {{ stats.totalInstructors | number }}
+              </strong>
+
+              <small>
+                Teaching accounts
+              </small>
+
+            </div>
+
+          </article>
+
+
+          <article class="stat-card">
+
+            <div class="stat-icon amber">
+              ▣
+            </div>
+
+            <div class="stat-info">
+
+              <span>
+                Total Courses
+              </span>
+
+              <strong>
+                {{ stats.totalCourses | number }}
+              </strong>
+
+              <small>
+                Published and draft
+              </small>
+
+            </div>
+
+          </article>
+
+
+        </section>
+
+
+        <!-- QUICK ACTIONS -->
+
+        <section class="section-block">
+
+          <div class="section-heading">
+
+            <div>
+
+              <span class="section-kicker">
+                QUICK ACTIONS
+              </span>
+
+              <h2>
+                Manage your platform
+              </h2>
+
+            </div>
+
+          </div>
+
+
+          <div class="quick-actions">
+
+
+            <button
+              type="button"
+              class="quick-action purple"
+              (click)="addCourse()"
+            >
+
+              <span class="quick-action-icon">
+                +
+              </span>
+
+              <span class="quick-action-content">
+
+                <strong>
+                  Add Course
+                </strong>
+
+                <small>
+                  Create a new course
+                </small>
+
+              </span>
+
+              <span class="quick-arrow">
+                →
+              </span>
+
+            </button>
+
+
+            <button
+              type="button"
+              class="quick-action blue"
+              (click)="addInstructor()"
+            >
+
+              <span class="quick-action-icon">
+                +
+              </span>
+
+              <span class="quick-action-content">
+
+                <strong>
+                  Add Instructor
+                </strong>
+
+                <small>
+                  Add teaching account
+                </small>
+
+              </span>
+
+              <span class="quick-arrow">
+                →
+              </span>
+
+            </button>
+
+
+            <button
+              type="button"
+              class="quick-action green"
+              (click)="openUsers()"
+            >
+
+              <span class="quick-action-icon">
+                ♙
+              </span>
+
+              <span class="quick-action-content">
+
+                <strong>
+                  Manage Users
+                </strong>
+
+                <small>
+                  Users and account status
+                </small>
+
+              </span>
+
+              <span class="quick-arrow">
+                →
+              </span>
+
+            </button>
+
+
+            <button
+              type="button"
+              class="quick-action amber"
+              (click)="openNotifications()"
+            >
+
+              <span class="quick-action-icon">
+                ♢
+              </span>
+
+              <span class="quick-action-content">
+
+                <strong>
+                  Send Notification
+                </strong>
+
+                <small>
+                  Notify users and instructors
+                </small>
+
+              </span>
+
+              <span class="quick-arrow">
+                →
+              </span>
+
+            </button>
+
+
+          </div>
+
+        </section>
+
+
+        <!-- COURSES + ACTIVITY -->
+
+        <section class="dashboard-grid">
+
+
+          <!-- RECENT COURSES -->
+
+          <article class="dashboard-card">
+
+            <div class="card-heading">
+
+              <div>
+
+                <span class="card-kicker">
+                  COURSES
+                </span>
+
+                <h2>
+                  Recent Courses
+                </h2>
+
+              </div>
+
+              <button
+                type="button"
+                (click)="openCourses()"
+              >
+                View All
+              </button>
+
+            </div>
+
+
+            <div class="course-list">
+
+              @for (
+                course of recentCourses;
+                track course.id
+              ) {
+
+                <div class="course-row">
+
+                  <div class="course-icon">
+                    ▣
+                  </div>
+
+                  <div class="course-info">
+
+                    <strong>
+                      {{ course.title }}
+                    </strong>
+
+                    <small>
+                      {{ course.instructor }}
+                    </small>
+
+                  </div>
+
+                  <span
+                    class="status-badge"
+                    [ngClass]="
+                      getCourseStatusClass(
+                        course.status
+                      )
+                    "
+                  >
+                    {{ course.status }}
+                  </span>
+
+                </div>
+
+              } @empty {
+
+                <div class="empty-state">
+                  No courses found.
+                </div>
+
+              }
+
+            </div>
+
+          </article>
+
+
+          <!-- RECENT ACTIVITY -->
+
+          <article class="dashboard-card">
+
+            <div class="card-heading">
+
+              <div>
+
+                <span class="card-kicker">
+                  UPDATES
+                </span>
+
+                <h2>
+                  Recent Activity
+                </h2>
+
+              </div>
+
+            </div>
+
+
+            <div class="activity-list">
+
+              @for (
+                activity of recentActivities;
+                track activity.id
+              ) {
+
+                <div class="activity-row">
+
+                  <div class="activity-icon">
+                    {{ getActivityIcon(activity.type) }}
+                  </div>
+
+                  <div class="activity-content">
+
+                    <strong>
+                      {{ activity.title }}
+                    </strong>
+
+                    <p>
+                      {{ activity.description }}
+                    </p>
+
+                    <small>
+                      {{ activity.createdAt }}
+                    </small>
+
+                  </div>
+
+                </div>
+
+              } @empty {
+
+                <div class="empty-state">
+                  No recent activity.
+                </div>
+
+              }
+
+            </div>
+
+          </article>
+
+
+        </section>
+
+
+        <!-- RECENT USERS -->
+
+        <article class="dashboard-card">
+
+          <div class="card-heading">
+
+            <div>
+
+              <span class="card-kicker">
+                USERS
+              </span>
+
+              <h2>
+                Recent Users
+              </h2>
+
+            </div>
+
+            <button
+              type="button"
+              (click)="openUsers()"
+            >
+              View All
+            </button>
+
+          </div>
+
+
+          <div class="users-list">
+
+            @for (
+              user of recentUsers;
+              track user.id
+            ) {
+
+              <div class="user-row">
+
+                <div class="user-avatar">
+                  {{ getUserInitials(user.name) }}
+                </div>
+
+
+                <div class="user-info">
+
+                  <strong>
+                    {{ user.name }}
+                  </strong>
+
+                  <small>
+                    {{ user.email }}
+                  </small>
+
+                </div>
+
+
+                <div class="user-meta">
+
+                  <span
+                    class="role-badge"
+                    [class.instructor]="
+                      user.role === 'Instructor'
+                    "
+                    [class.admin]="
+                      user.role === 'Admin'
+                    "
+                  >
+                    {{ user.role }}
+                  </span>
+
+                  <small>
+                    {{ user.joinedAt }}
+                  </small>
+
+                </div>
+
+              </div>
+
+            } @empty {
+
+              <div class="empty-state">
+                No recent users found.
+              </div>
+
+            }
+
+          </div>
+
+        </article>
+
+
+        <!-- COURSE TABLE -->
+
+        <article class="dashboard-card courses-card">
+
+          <div class="card-heading">
+
+            <div>
+
+              <span class="card-kicker">
+                COURSE MANAGEMENT
+              </span>
+
+              <h2>
+                Course Overview
+              </h2>
+
+            </div>
+
+            <button
+              type="button"
+              (click)="openCourses()"
+            >
+              Manage Courses
+            </button>
+
+          </div>
+
+
+          <div class="course-table-wrapper">
+
+            @if (recentCourses.length > 0) {
+
+              <table class="course-table">
+
+                <thead>
+
+                  <tr>
+
+                    <th>
+                      Course
+                    </th>
+
+                    <th>
+                      Instructor
+                    </th>
+
+                    <th>
+                      Students
+                    </th>
+
+                    <th>
+                      Status
+                    </th>
+
+                    <th>
+                      Created
+                    </th>
+
+                  </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                  @for (
+                    course of recentCourses;
+                    track course.id
+                  ) {
+
+                    <tr>
+
+                      <td>
+
+                        <strong class="course-name">
+                          {{ course.title }}
+                        </strong>
+
+                      </td>
+
+                      <td>
+                        {{ course.instructor }}
+                      </td>
+
+                      <td>
+                        <strong>
+                          {{ course.students }}
+                        </strong>
+                      </td>
+
+                      <td>
+
+                        <span
+                          class="status-badge"
+                          [ngClass]="
+                            getCourseStatusClass(
+                              course.status
+                            )
+                          "
+                        >
+                          {{ course.status }}
+                        </span>
+
+                      </td>
+
+                      <td>
+                        {{ course.createdAt }}
+                      </td>
+
+                    </tr>
+
+                  }
+
+                </tbody>
+
+              </table>
+
+            } @else {
+
+              <div class="empty-state table-empty">
+                No courses found.
+              </div>
+
+            }
+
+          </div>
+
+        </article>
+
+
+        <!-- PLATFORM MANAGEMENT -->
+
+        <section class="section-block">
+
+          <div class="section-heading">
+
+            <div>
+
+              <span class="section-kicker">
+                PLATFORM MANAGEMENT
+              </span>
+
+              <h2>
+                Other Management Areas
+              </h2>
+
+            </div>
+
+          </div>
+
+
+          <div class="management-actions">
+
+
+            <button
+              type="button"
+              (click)="openUsers()"
+            >
+
+              <span>
+                ♙
+              </span>
+
+              <strong>
+                Users
+              </strong>
+
+              <small>
+                Manage platform accounts
+              </small>
+
+            </button>
+
+
+            <button
+              type="button"
+              (click)="openCourses()"
+            >
+
+              <span>
+                ▣
+              </span>
+
+              <strong>
+                Courses
+              </strong>
+
+              <small>
+                Review and manage courses
+              </small>
+
+            </button>
+
+
+            <button
+              type="button"
+              (click)="openCategories()"
+            >
+
+              <span>
+                ◫
+              </span>
+
+              <strong>
+                Categories
+              </strong>
+
+              <small>
+                Manage learning categories
+              </small>
+
+            </button>
+
+
+            <button
+              type="button"
+              (click)="openReports()"
+            >
+
+              <span>
+                ◒
+              </span>
+
+              <strong>
+                Reports
+              </strong>
+
+              <small>
+                Review platform reports
+              </small>
+
+            </button>
+
+
+          </div>
+
+        </section>
+
+
+      }
+
+    </section>
+
+  </main>
+
+</div>

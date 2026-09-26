@@ -1,0 +1,698 @@
+<div class="notifications-shell">
+
+  <app-admin-sidebar></app-admin-sidebar>
+
+
+  <main class="notifications-main">
+
+
+    <!-- TOP BAR -->
+
+    <header class="profile-topbar">
+
+      <div class="breadcrumb">
+
+        <span>
+          ADMIN PORTAL
+        </span>
+
+        <strong>
+          / NOTIFICATIONS
+        </strong>
+
+      </div>
+
+
+      <div class="top-user">
+
+        <div class="mini-avatar">
+
+          {{ data.admin.firstName.charAt(0) }}
+          {{ data.admin.lastName.charAt(0) }}
+
+        </div>
+
+
+        <div>
+
+          <strong>
+            {{ data.admin.firstName }}
+            {{ data.admin.lastName }}
+          </strong>
+
+          <small>
+            {{ data.admin.role }}
+          </small>
+
+        </div>
+
+      </div>
+
+    </header>
+
+
+    <section class="notifications-content">
+
+
+      <!-- HERO -->
+
+      <section class="notifications-hero">
+
+        <div class="hero-copy">
+
+          <span class="eyebrow">
+            ADMIN COMMUNICATION
+          </span>
+
+          <h1>
+
+            Notifications
+
+            <span>
+              {{ getUnreadCount() }}
+            </span>
+
+          </h1>
+
+          <p>
+
+            Stay updated with platform activity,
+            user events, course changes,
+            reports, and important system
+            notifications.
+
+          </p>
+
+        </div>
+
+
+        <div class="hero-decoration">
+
+          <div class="orbit orbit-one"></div>
+
+          <div class="orbit orbit-two"></div>
+
+          <div class="hero-dot dot-one"></div>
+
+          <div class="hero-dot dot-two"></div>
+
+          <div class="hero-center">
+            🔔
+          </div>
+
+        </div>
+
+      </section>
+
+
+      <!-- STATS -->
+
+      <section class="notification-stats">
+
+
+        <article class="stat-card featured">
+
+          <div class="stat-icon">
+            🔔
+          </div>
+
+          <div>
+
+            <span>
+              Total Notifications
+            </span>
+
+            <strong>
+              {{ getTotalCount() }}
+            </strong>
+
+            <small>
+              All admin updates
+            </small>
+
+          </div>
+
+        </article>
+
+
+        <article class="stat-card">
+
+          <div class="stat-icon unread">
+            ●
+          </div>
+
+          <div>
+
+            <span>
+              Unread
+            </span>
+
+            <strong>
+              {{ getUnreadCount() }}
+            </strong>
+
+            <small>
+              Need your attention
+            </small>
+
+          </div>
+
+        </article>
+
+
+        <article class="stat-card">
+
+          <div class="stat-icon read">
+            ✓
+          </div>
+
+          <div>
+
+            <span>
+              Read
+            </span>
+
+            <strong>
+              {{ getReadCount() }}
+            </strong>
+
+            <small>
+              Already reviewed
+            </small>
+
+          </div>
+
+        </article>
+
+      </section>
+
+
+      <!-- TOOLBAR -->
+
+      <section class="notification-toolbar">
+
+
+        <div class="notification-tabs">
+
+          <button
+            type="button"
+            [class.active]="selectedType === 'All'"
+            (click)="selectedType = 'All'; applyFilter()"
+          >
+            All
+          </button>
+
+
+          <button
+            type="button"
+            [class.active]="selectedType === 'User'"
+            (click)="selectedType = 'User'; applyFilter()"
+          >
+            Users
+          </button>
+
+
+          <button
+            type="button"
+            [class.active]="selectedType === 'Course'"
+            (click)="selectedType = 'Course'; applyFilter()"
+          >
+            Courses
+          </button>
+
+
+          <button
+            type="button"
+            [class.active]="selectedType === 'Report'"
+            (click)="selectedType = 'Report'; applyFilter()"
+          >
+            Reports
+          </button>
+
+
+          <button
+            type="button"
+            [class.active]="selectedType === 'System'"
+            (click)="selectedType = 'System'; applyFilter()"
+          >
+            System
+          </button>
+
+        </div>
+
+
+        <div class="toolbar-actions">
+
+          @if (getUnreadCount() > 0) {
+
+            <button
+              type="button"
+              class="mark-all-button"
+              (click)="markAllAsRead()"
+            >
+              Mark all as read
+            </button>
+
+          }
+
+
+          <button
+            type="button"
+            class="create-notification-button"
+            (click)="openCreateForm()"
+          >
+            <span>+</span>
+            Create Notification
+          </button>
+
+        </div>
+
+      </section>
+
+
+      <!-- ERROR -->
+
+      @if (errorMessage) {
+
+        <div class="notifications-state error">
+          {{ errorMessage }}
+        </div>
+
+      }
+
+
+      <!-- LOADING -->
+
+      @if (loading) {
+
+        <div class="notifications-state">
+          Loading notifications...
+        </div>
+
+      }
+
+
+      <!-- NOTIFICATIONS -->
+
+      @if (!loading) {
+
+        @if (filteredNotifications.length > 0) {
+
+          <section class="notification-list">
+
+            @for (
+              notification of filteredNotifications;
+              track notification.id
+            ) {
+
+              <article
+                class="notification-card"
+                [class.unread]="!notification.isRead"
+              >
+
+                <div
+                  class="notification-icon"
+                  [class.user]="notification.type === 'User'"
+                  [class.course]="notification.type === 'Course'"
+                  [class.report]="notification.type === 'Report'"
+                  [class.system]="notification.type === 'System'"
+                >
+
+                  {{ getNotificationIcon(notification.type) }}
+
+                </div>
+
+
+                <div class="notification-content">
+
+
+                  <div class="notification-head">
+
+                    <div>
+
+                      <span class="notification-type">
+                        {{ notification.type }}
+                      </span>
+
+                      <h2>
+                        {{ notification.title }}
+                      </h2>
+
+                    </div>
+
+
+                    @if (!notification.isRead) {
+
+                      <span class="unread-badge">
+                        New
+                      </span>
+
+                    }
+
+                  </div>
+
+
+                  <p>
+                    {{ notification.message }}
+                  </p>
+
+
+                  <div class="notification-footer">
+
+                    <span>
+                      {{ notification.createdAt }}
+                    </span>
+
+
+                    <div class="notification-actions">
+
+                      @if (!notification.isRead) {
+
+                        <button
+                          type="button"
+                          (click)="markAsRead(notification)"
+                        >
+                          Mark as read
+                        </button>
+
+                      }
+
+
+                      <button
+                        type="button"
+                        class="delete-button"
+                        (click)="removeNotification(notification.id)"
+                      >
+                        Delete
+                      </button>
+
+                    </div>
+
+                  </div>
+
+
+                </div>
+
+              </article>
+
+            }
+
+          </section>
+
+        } @else {
+
+          <div class="empty-notifications">
+
+            <div class="empty-icon">
+              🔔
+            </div>
+
+            <h2>
+              No notifications found
+            </h2>
+
+            <p>
+              There are no notifications matching
+              the selected category.
+            </p>
+
+          </div>
+
+        }
+
+      }
+
+    </section>
+
+  </main>
+
+</div>
+
+
+<!-- ===================================================== -->
+<!-- CREATE NOTIFICATION MODAL -->
+<!-- ===================================================== -->
+
+@if (showCreateForm) {
+
+  <div
+    class="notification-modal-backdrop"
+    (click)="closeCreateForm()"
+  >
+
+    <section
+      class="notification-modal"
+      (click)="$event.stopPropagation()"
+    >
+
+
+      <!-- MODAL HEADER -->
+
+      <div class="modal-header">
+
+        <div>
+
+          <span class="modal-eyebrow">
+            ADMIN COMMUNICATION
+          </span>
+
+          <h2>
+            Create Notification
+          </h2>
+
+          <p>
+            Send a notification to an admin or instructor.
+          </p>
+
+        </div>
+
+
+        <button
+          type="button"
+          class="modal-close"
+          (click)="closeCreateForm()"
+        >
+          ×
+        </button>
+
+      </div>
+
+
+      <!-- FORM -->
+
+      <div class="notification-form">
+
+
+        <!-- RECIPIENT -->
+
+        <div class="form-group">
+
+          <label>
+            Send To
+          </label>
+
+          <div class="recipient-options">
+
+            <button
+              type="button"
+              class="recipient-option"
+              [class.active]="notificationRecipient === 'Instructor'"
+              (click)="notificationRecipient = 'Instructor'"
+            >
+
+              <span class="recipient-icon">
+                👨‍🏫
+              </span>
+
+              <span>
+                Instructor
+              </span>
+
+            </button>
+
+
+            <button
+              type="button"
+              class="recipient-option"
+              [class.active]="notificationRecipient === 'Admin'"
+              (click)="notificationRecipient = 'Admin'"
+            >
+
+              <span class="recipient-icon">
+                🛡
+              </span>
+
+              <span>
+                Admin
+              </span>
+
+            </button>
+
+          </div>
+
+        </div>
+
+
+        <!-- INSTRUCTOR -->
+
+        @if (notificationRecipient === 'Instructor') {
+
+          <div class="form-group">
+
+            <label for="instructor">
+              Instructor
+            </label>
+
+            <select
+              id="instructor"
+              [(ngModel)]="selectedInstructorId"
+            >
+
+              <option
+                value=""
+                disabled
+              >
+                Select an instructor
+              </option>
+
+              @for (
+                instructor of instructors;
+                track instructor.id
+              ) {
+
+                <option
+                  [value]="instructor.id"
+                >
+                  {{ instructor.name }}
+                  — {{ instructor.email }}
+                </option>
+
+              }
+
+            </select>
+
+          </div>
+
+        }
+
+
+        <!-- TYPE -->
+
+        <div class="form-group">
+
+          <label for="notificationType">
+            Notification Type
+          </label>
+
+          <select
+            id="notificationType"
+            [(ngModel)]="newNotificationType"
+          >
+
+            <option value="System">
+              System
+            </option>
+
+            <option value="Course">
+              Course
+            </option>
+
+            <option value="User">
+              User
+            </option>
+
+            <option value="Report">
+              Report
+            </option>
+
+          </select>
+
+        </div>
+
+
+        <!-- TITLE -->
+
+        <div class="form-group">
+
+          <label for="notificationTitle">
+            Title
+          </label>
+
+          <input
+            id="notificationTitle"
+            type="text"
+            [(ngModel)]="newNotificationTitle"
+            placeholder="Enter notification title"
+            maxlength="100"
+          />
+
+        </div>
+
+
+        <!-- MESSAGE -->
+
+        <div class="form-group">
+
+          <label for="notificationMessage">
+            Message
+          </label>
+
+          <textarea
+            id="notificationMessage"
+            [(ngModel)]="newNotificationMessage"
+            placeholder="Write your notification message..."
+            rows="5"
+            maxlength="500"
+          ></textarea>
+
+        </div>
+
+
+        <!-- ERROR -->
+
+        @if (createError) {
+
+          <div class="create-form-error">
+            {{ createError }}
+          </div>
+
+        }
+
+
+        <!-- ACTIONS -->
+
+        <div class="modal-actions">
+
+          <button
+            type="button"
+            class="cancel-button"
+            (click)="closeCreateForm()"
+          >
+            Cancel
+          </button>
+
+
+          <button
+            type="button"
+            class="send-button"
+            [disabled]="isCreating"
+            (click)="createNotification()"
+          >
+
+            @if (isCreating) {
+              Sending...
+            } @else {
+              Send Notification
+            }
+
+          </button>
+
+        </div>
+
+      </div>
+
+    </section>
+
+  </div>
+
+}

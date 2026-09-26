@@ -1,24 +1,10 @@
 const express = require("express");
-
 const router = express.Router();
-
+const { auth, relasedTo } = require("../middlewares/auth");
 const {
   verifyCertificate,
   getMyCertificates,
 } = require("../controllers/Certificate");
-
-const { auth, relasedTo } = require("../middlewares/auth");
-
-router.get(
-  "/verify/:certificateId",
-  verifyCertificate
-);
-
-router.get(
-  "/my-certificates",
-  auth,
-  relasedTo("user"),
-  getMyCertificates
-);
-
+router.get("/verify/:certificateId", verifyCertificate);
+router.get("/myCertificates", auth, relasedTo("student"), getMyCertificates);
 module.exports = router;
