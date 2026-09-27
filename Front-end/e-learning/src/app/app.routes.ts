@@ -1,31 +1,27 @@
+import { Component } from '@angular/core';
 import { Routes } from '@angular/router';
 
 import { RoutePage } from './route-page';
 
+@Component({
+  standalone: true,
+  template: '',
+})
+export class HomeComponent {}
+
 /* =========================
    INSTRUCTOR
 ========================= */
-
 import { InstructorCourses } from './page/instructor-course/coursee';
-
 import { InstructorCreateCourse } from './page/instructor-create-course/create-course';
-
 import { InstructorProfile } from './page/instructor-profile/profile';
-
 import { InstructorNotifications } from './page/instructor-notifications/notifications';
-
 import { InstructorCatalog } from './page/instructor-catalog/catalog';
-
 import { InstructorCoursePreview } from './components/instructor-course-preview/instructor-course-preview';
-
 import { InstructorCurriculum } from './components/instructor-curriculum/curriculum';
-
 import { InstructorLesson } from './components/instructor-lesson/lesson';
-
 import { InstructorQuiz } from './components/instructor-quiz/quiz';
-
 import { InstructorCertificatesComponent } from './components/instructor-certificates/instructor-certificates';
-
 import { InstructorSection } from './components/instructor-section/instructor-section';
 
 
@@ -34,23 +30,26 @@ import { InstructorSection } from './components/instructor-section/instructor-se
 ========================= */
 
 import { AdminDashboard } from './components/admin-dashboard/admin-dashboard';
-
 import { AdminUsers } from './components/admin-users/admin-users';
-
 import { AdminCourses } from './components/admin-courses/admin-courses';
-
 import { AdminCategories } from './components/admin-categories/admin-categories';
-
 import { AdminTracks } from './components/admin-tracks/admin-tracks';
-
 import { AdminReports } from './components/admin-reports/admin-reports';
-
 import { AdminNotifications } from './components/admin-notifications/admin-notifications';
-
 import { AdminProfile } from './components/admin-profile/admin-profile';
-
 import { AdminCreateCourse } from './components/admin-create-course/admin-create-course';
 
+
+
+
+
+import { Categories } from './page/catalog/categories/categories';
+import { CourseDetails } from './page/catalog/course-details/course-details';
+import { FrontEndTracks } from './page/catalog/front-end-tracks/front-end-tracks';
+import { ReactCourses } from './page/catalog/courses/courses';
+import { Track } from './page/catalog/track/track';
+import { AboutPage } from './page/about/about';
+import { AuthComponent } from './components/auth/auth';
 
 /* =========================
    GENERAL PAGE HELPER
@@ -83,7 +82,6 @@ export const routes: Routes = [
   /* =========================
      INSTRUCTOR ROUTES
   ========================= */
-
   {
     path: 'instructor-dashboard',
     redirectTo: 'instructor-courses',
@@ -145,6 +143,102 @@ export const routes: Routes = [
     component: InstructorQuiz
   },
 
+  {
+    path: '',
+    component: HomeComponent,
+    pathMatch: 'full',
+  },
+
+  {
+    path: 'catalog',
+    component: Categories,
+  },
+
+  {
+    path: 'catalog/web-development',
+    component: Track,
+  },
+
+  {
+    path: 'catalog/languages',
+    component: Categories,
+  },
+
+  {
+    path: 'catalog/ui-ux-design',
+    component: Categories,
+  },
+
+  {
+    path: 'catalog/business',
+    component: Categories,
+  },
+
+  {
+    path: 'catalog/web-development/programming',
+    component: Track,
+  },
+
+  {
+    path: 'catalog/web-development/front-end',
+    component: Track,
+  },
+
+  {
+    path: 'catalog/web-development/front-end/tracks',
+    component: FrontEndTracks,
+  },
+
+  {
+    path: 'catalog/web-development/front-end/react',
+    component: ReactCourses,
+  },
+
+  {
+    path: 'catalog/web-development/front-end/react/course/:slug',
+    component: CourseDetails,
+  },
+
+  {
+    path: 'catalog/web-development/front-end/html-css',
+    component: Track,
+  },
+
+  {
+    path: 'catalog/web-development/front-end/javascript',
+    component: Track,
+  },
+
+  {
+    path: 'catalog/web-development/front-end/typescript',
+    component: Track,
+  },
+
+  {
+    path: 'catalog/web-development/front-end/vue',
+    component: Track,
+  },
+
+  {
+    path: 'catalog/web-development/front-end/angular',
+    component: Track,
+  },
+
+  {
+    path: 'catalog/web-development/back-end',
+    component: Track,
+  },
+
+  {
+    path: 'catalog/web-development/full-stack',
+    component: Track,
+  },
+
+  {
+    path: 'catalog/web-development/mobile',
+    component: Track,
+  },
+
 
   /* =========================
      ADMIN ROUTES
@@ -200,36 +294,35 @@ export const routes: Routes = [
      GENERAL PAGES
   ========================= */
 
-  page(
-    'categories',
-    'LEARN WITH PURPOSE',
-    'Categories',
-    'Explore focused learning areas and find the skills that move your career forward.'
-  ),
+  {
+    path: 'categories',
+    component: Categories
+  },
 
   {
     path: 'courses',
     loadComponent: () => import('./page/all-courses/all-courses').then(m => m.AllCoursesPage)
   },
 
-  page(
-    'about',
-    'ABOUT PATHWAYED',
-    'About PathwayEd',
-    'A flexible learning platform designed to turn curiosity into confident, career-ready skills.'
-  ),
+  {
+    path: 'about',
+    component: AboutPage
+  },
 
   {
     path: 'login',
-    loadComponent: () => import('./components/login/login').then(m => m.LoginComponent)
+    component: AuthComponent
   },
 
-  page(
-    'signup',
-    'START YOUR JOURNEY',
-    'Create Your Account',
-    'Join PathwayEd and start building your next professional chapter.'
-  ),
+  {
+    path: 'signup',
+    component: AuthComponent
+  },
+
+  {
+    path: 'register',
+    component: AuthComponent
+  },
 
   page(
     'profile',

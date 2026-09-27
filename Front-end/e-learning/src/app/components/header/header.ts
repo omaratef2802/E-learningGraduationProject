@@ -1,6 +1,6 @@
 import { Component, HostListener, inject } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
-import { HEADER_CONFIG } from './header.config';
+import { HEADER_CONFIG, HeaderLink } from './header.config';
 
 @Component({
   selector: 'app-header',
@@ -14,18 +14,12 @@ export class Header {
   protected readonly config = HEADER_CONFIG;
   protected isScrolled = false;
 
-  scrollToCategories(event: Event): void {
-    event.preventDefault();
-    const scrollToDisciplines = (): void => {
-      document.getElementById('disciplines')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    };
-
-    if (this.router.url.split('#')[0] === '/') {
-      scrollToDisciplines();
-      return;
+  isLinkActive(link: HeaderLink): boolean {
+    const currentUrl = this.router.url.split('?')[0].split('#')[0];
+    if (link.label === 'Home') {
+      return currentUrl === '/' || currentUrl === '' || currentUrl === '/index.html';
     }
-
-    this.router.navigate(['/'], { fragment: 'disciplines' }).then(() => setTimeout(scrollToDisciplines, 0));
+    return currentUrl === link.route;
   }
 
   @HostListener('window:scroll')

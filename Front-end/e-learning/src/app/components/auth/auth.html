@@ -1,0 +1,286 @@
+<div class="auth-page">
+  <div class="auth-wrapper">
+
+    <!-- LEFT SIDE: BRANDING & HIGHLIGHTS -->
+    <div class="auth-banner">
+      <div class="banner-overlay"></div>
+      <div class="banner-content">
+        <a routerLink="/" class="auth-brand">
+          <span class="brand-icon">◆</span>
+          <span class="brand-name">PathwayEd</span>
+        </a>
+
+        <div class="banner-hero">
+          <span class="banner-tag">✦ START YOUR JOURNEY</span>
+          <h2>Transform Your Future with World-Class Skills</h2>
+          <p>Join over 50,000+ ambitious learners building real-world projects, gaining certificates, and landing tech jobs.</p>
+        </div>
+
+        <div class="banner-features">
+          <div class="feat-pill">
+            <span class="pill-icon">🎓</span>
+            <span>350+ Certified Tracks</span>
+          </div>
+          <div class="feat-pill">
+            <span class="pill-icon">👨‍🏫</span>
+            <span>Top Industry Mentors</span>
+          </div>
+          <div class="feat-pill">
+            <span class="pill-icon">🚀</span>
+            <span>Lifetime Access</span>
+          </div>
+        </div>
+
+        <div class="banner-quote">
+          <div class="quote-stars">★★★★★</div>
+          <p>"PathwayEd completely transformed my career. The projects and mentorship helped me get hired as a Front-End Developer!"</p>
+          <div class="quote-user">
+            <span class="avatar-emoji">👩‍💻</span>
+            <div>
+              <strong>Sarah Mansour</strong>
+              <small>Full-Stack Developer</small>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT SIDE: AUTH FORM -->
+    <div class="auth-form-container">
+      <div class="auth-card">
+
+        <!-- TAB SWITCHER -->
+        <div class="auth-tabs">
+          <button
+            class="tab-btn"
+            [class.active]="mode === 'login'"
+            (click)="setMode('login')"
+          >
+            Sign In
+          </button>
+          <button
+            class="tab-btn"
+            [class.active]="mode === 'signup'"
+            (click)="setMode('signup')"
+          >
+            Create Account
+          </button>
+        </div>
+
+        <!-- FORM HEADER -->
+        <div class="form-header">
+          @if (mode === 'login') {
+            <h2>Welcome Back 👋</h2>
+            <p>Enter your credentials to access your account and courses.</p>
+          } @else {
+            <h2>Create Your Account ✨</h2>
+            <p>Start your learning journey with PathwayEd today.</p>
+          }
+        </div>
+
+        <!-- ALERTS -->
+        @if (errorMessage) {
+          <div class="alert alert-error">
+            <span class="alert-icon">⚠️</span>
+            <span>{{ errorMessage }}</span>
+          </div>
+        }
+
+        @if (successMessage) {
+          <div class="alert alert-success">
+            <span class="alert-icon">✅</span>
+            <span>{{ successMessage }}</span>
+          </div>
+        }
+
+        <!-- FORM -->
+        <form (ngSubmit)="onSubmit()" class="auth-form">
+
+          <!-- FULL NAME (SIGNUP ONLY) -->
+          @if (mode === 'signup') {
+            <div class="form-group">
+              <label for="fullName">Full Name</label>
+
+              <!-- ROLE SELECTOR -->
+              <div class="role-selector">
+                <button
+                  type="button"
+                  class="role-btn"
+                  [class.active]="role === 'student'"
+                  (click)="selectRole('student')"
+                >
+                  <span>🎓</span> Student
+                </button>
+
+                <button
+                  type="button"
+                  class="role-btn"
+                  [class.active]="role === 'instructor'"
+                  (click)="selectRole('instructor')"
+                >
+                  <span>👨‍🏫</span> Instructor
+                </button>
+              </div>
+
+              <div class="input-wrapper">
+                <span class="input-icon">👤</span>
+                <input
+                  type="text"
+                  id="fullName"
+                  name="fullName"
+                  [(ngModel)]="fullName"
+                  placeholder="John Doe"
+                  required
+                />
+              </div>
+            </div>
+          }
+
+          <!-- EMAIL -->
+          <div class="form-group">
+            <label for="email">Email Address</label>
+            <div class="input-wrapper">
+              <span class="input-icon">✉️</span>
+              <input
+                type="email"
+                id="email"
+                name="email"
+                [(ngModel)]="email"
+                placeholder="name@example.com"
+                required
+              />
+            </div>
+          </div>
+
+          <!-- PASSWORD -->
+          <div class="form-group">
+            <div class="label-row">
+              <label for="password">Password</label>
+              @if (mode === 'login') {
+                <a routerLink="/help" class="forgot-link">Forgot password?</a>
+              }
+            </div>
+
+            <div class="input-wrapper">
+              <span class="input-icon">🔒</span>
+              <input
+                [type]="showPassword ? 'text' : 'password'"
+                id="password"
+                name="password"
+                [(ngModel)]="password"
+                placeholder="••••••••"
+                required
+              />
+              <button
+                type="button"
+                class="toggle-password"
+                (click)="togglePasswordVisibility()"
+                aria-label="Toggle password visibility"
+              >
+                {{ showPassword ? '👁️' : '🙈' }}
+              </button>
+            </div>
+          </div>
+
+          <!-- CONFIRM PASSWORD (SIGNUP ONLY) -->
+          @if (mode === 'signup') {
+            <div class="form-group">
+              <label for="confirmPassword">Confirm Password</label>
+              <div class="input-wrapper">
+                <span class="input-icon">🛡️</span>
+                <input
+                  [type]="showConfirmPassword ? 'text' : 'password'"
+                  id="confirmPassword"
+                  name="confirmPassword"
+                  [(ngModel)]="confirmPassword"
+                  placeholder="••••••••"
+                  required
+                />
+                <button
+                  type="button"
+                  class="toggle-password"
+                  (click)="toggleConfirmPasswordVisibility()"
+                  aria-label="Toggle confirm password visibility"
+                >
+                  {{ showConfirmPassword ? '👁️' : '🙈' }}
+                </button>
+              </div>
+            </div>
+
+            <!-- TERMS CHECKBOX -->
+            <div class="form-checkbox">
+              <label class="checkbox-label">
+                <input
+                  type="checkbox"
+                  name="agreeTerms"
+                  [(ngModel)]="agreeTerms"
+                />
+                <span>I agree to the <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a></span>
+              </label>
+            </div>
+          }
+
+          <!-- SUBMIT BUTTON -->
+          <button
+            type="submit"
+            class="submit-btn"
+            [disabled]="isLoading"
+          >
+            @if (isLoading) {
+              <span class="spinner"></span>
+              <span>Processing...</span>
+            } @else {
+              <span>{{ mode === 'login' ? 'Sign In →' : 'Create Account ✨' }}</span>
+            }
+          </button>
+        </form>
+
+        <!-- DIVIDER -->
+        <div class="divider">
+          <span>OR</span>
+        </div>
+
+        <!-- SOCIAL LOGIN -->
+        <div class="social-buttons">
+          <button
+            type="button"
+            class="social-btn"
+            (click)="socialAuth('Google')"
+          >
+            <svg width="18" height="18" viewBox="0 0 18 18">
+              <path fill="#4285F4" d="M17.64 9.2c0-.74-.06-1.28-.19-1.84H9v3.34h4.96c-.1.83-.64 2.08-1.84 2.92l2.84 2.2c1.7-1.57 2.68-3.88 2.68-6.62z"/>
+              <path fill="#34A853" d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.84-2.2c-.76.53-1.78.9-3.12.9-2.38 0-4.41-1.57-5.13-3.72L.95 13.06C2.47 16.08 5.48 18 9 18z"/>
+              <path fill="#FBBC05" d="M3.87 10.8c-.19-.58-.3-1.19-.3-1.8s.11-1.22.3-1.8L.95 4.94C.35 6.16 0 7.54 0 9s.35 2.84.95 4.06l2.92-2.26z"/>
+              <path fill="#EA4335" d="M9 3.58c1.32 0 2.5.45 3.44 1.35l2.58-2.58C13.46.89 11.43 0 9 0 5.48 0 2.47 1.92.95 4.94l2.92 2.26C4.59 5.05 6.62 3.58 9 3.58z"/>
+            </svg>
+            <span>Google</span>
+          </button>
+
+          <button
+            type="button"
+            class="social-btn"
+            (click)="socialAuth('GitHub')"
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/>
+            </svg>
+            <span>GitHub</span>
+          </button>
+        </div>
+
+        <!-- FOOTER TOGGLE -->
+        <div class="auth-footer-toggle">
+          @if (mode === 'login') {
+            <span>Don't have an account? </span>
+            <button type="button" class="link-btn" (click)="setMode('signup')">Sign Up Free</button>
+          } @else {
+            <span>Already have an account? </span>
+            <button type="button" class="link-btn" (click)="setMode('login')">Sign In</button>
+          }
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</div>

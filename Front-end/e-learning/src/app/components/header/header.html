@@ -5,8 +5,11 @@
   </a>
 
   <nav class="nav-pill" aria-label="Main navigation">
-    @for (link of config.links; track link.route) {
-      <a [class.active]="link.label === 'Home'" [routerLink]="link.route" [fragment]="link.fragment" (click)="link.label === 'Categories' ? scrollToCategories($event) : null">{{ link.label }}</a>
+    @for (link of config.links; track link.label) {
+      <a
+        [class.active]="isLinkActive(link)"
+        [routerLink]="link.route"
+      >{{ link.label }}</a>
     }
   </nav>
 

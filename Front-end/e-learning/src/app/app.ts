@@ -82,19 +82,19 @@ export class App implements OnDestroy {
         });
   }
 
-
   private updatePageState(url: string): void {
+    const cleanUrl = url.split('?')[0].split('#')[0];
 
     this.isHome.set(
-      url === '/'
+      cleanUrl === '/' || cleanUrl === '' || cleanUrl === '/index.html'
     );
 
     this.isDashboard.set(
-      url.startsWith('/instructor-')
+      cleanUrl.startsWith('/instructor-')
     );
 
     this.isAdmin.set(
-      url.startsWith('/admin-')
+      cleanUrl.startsWith('/admin-')
     );
   }
 

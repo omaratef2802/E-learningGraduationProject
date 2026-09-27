@@ -8,7 +8,7 @@ export const HEADER_CONFIG = {
   brandName: 'PathwayEd',
   links: [
     { label: 'Home', route: '/' },
-    { label: 'Categories', route: '/', fragment: 'disciplines' },
+    { label: 'Categories', route: '/categories' },
     { label: 'Courses', route: '/courses' },
     { label: 'About', route: '/about' },
   ] satisfies HeaderLink[],
