@@ -1,0 +1,74 @@
+<aside class="sidebar">
+
+  <div class="sidebar-header">
+
+    <a
+      class="dashboard-brand"
+      routerLink="/instructor-dashboard"
+    >
+      <span class="brand-icon">◆</span>
+
+      <span>
+        <strong>{{ config.brand }}</strong>
+        <small>{{ config.role }}</small>
+      </span>
+    </a>
+
+    <button
+      class="sidebar-toggle"
+      type="button"
+      (click)="toggleMenu()"
+    >
+      ☰
+    </button>
+
+  </div>
+
+  <nav
+    class="sidebar-nav"
+    [class.open]="menuOpen"
+  >
+
+    @for (item of config.items; track item.label) {
+
+      <button
+        type="button"
+        [class.active]="isActive(item.route)"
+        (click)="navigate(item.route)"
+      >
+
+        <span class="nav-icon">
+          {{ item.icon }}
+        </span>
+
+        <span>
+          {{ item.label }}
+        </span>
+
+      </button>
+
+    }
+
+  </nav>
+
+  <div class="sidebar-profile">
+
+    <span class="avatar">
+      {{ profileInitial }}
+    </span>
+
+    <span>
+      <strong>{{ profileName }}</strong>
+      <small>{{ config.profileRole }}</small>
+    </span>
+
+    <button
+      type="button"
+      aria-label="Account menu"
+    >
+      ⌄
+    </button>
+
+  </div>
+
+</aside>
