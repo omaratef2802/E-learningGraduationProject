@@ -64,7 +64,7 @@ const deleteUser = async (dbModule, id) => {
 
 const updateUser = async (dbModule, updates, id) => {
   try {
-    const allowedFields = ["firstName", "lastName", "dateBirth", "phone", "bio", "trackId"];
+    const allowedFields = ["firstName", "lastName", "dateBirth", "phone", "bio", "trackId", "verifiedSkills"];
     const filteredUpdates = {};
     for (const field of allowedFields) if (updates[field] !== undefined) filteredUpdates[field] = updates[field];
     if (filteredUpdates.trackId) {
