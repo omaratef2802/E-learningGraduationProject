@@ -1,0 +1,286 @@
+<main class="tracks-page">
+<div class="page-shell">
+
+<nav class="breadcrumbs" aria-label="Breadcrumb">
+<a routerLink="/catalog">⌂ Home</a>
+
+<span>›</span>
+
+<a routerLink="/catalog/web-development">
+Categories
+</a>
+
+<span>›</span>
+
+<a routerLink="/catalog/web-development">
+Web Development
+</a>
+
+<span>›</span>
+
+<a routerLink="/catalog/web-development/front-end">
+Front-End Development
+</a>
+
+<span>›</span>
+
+<strong>Tracks</strong>
+</nav>
+
+<section class="hero-panel">
+<div class="hero-copy">
+
+<div class="eyebrow">
+<span class="eyebrow-icon">&lt;/&gt;</span>
+Web Development Subcategory
+<b>•</b>
+Career Ready Tracks
+</div>
+
+<h1>Front-End Development</h1>
+
+<p>
+Build modern, responsive user interfaces and learn the skills needed
+to create professional web applications. Master the full stack of
+client-side engineering from semantic architecture to distributed state.
+</p>
+
+</div>
+
+<div class="placement-card">
+<span class="placement-icon">✧</span>
+<strong>94%</strong>
+<small>JOB PLACEMENT RATE</small>
+</div>
+
+<div class="hero-stats">
+
+<div>
+<b>⇵</b>
+<strong>6 Tracks</strong>
+<span>Structured Paths</span>
+</div>
+
+<div>
+<b>▣</b>
+<strong>45 Courses</strong>
+<span>Verified Syllabus</span>
+</div>
+
+<div>
+<b>♟</b>
+<strong>18,500+</strong>
+<span>Active Learners</span>
+</div>
+
+<div>
+<b>♜</b>
+<strong>Top Certified</strong>
+<span>Corporate Standard</span>
+</div>
+
+</div>
+</section>
+
+<section class="toolbar-panel">
+
+<label class="search-box">
+<span>⌕</span>
+
+<input
+[(ngModel)]="searchText"
+type="search"
+placeholder="Search tracks in Front-End Development..."
+/>
+</label>
+
+<div class="toolbar-row">
+
+<div
+class="level-filters"
+aria-label="Filter by level"
+>
+
+<button
+[class.active]="selectedLevel === 'All'"
+(click)="selectedLevel = 'All'"
+>
+All Levels
+</button>
+
+<button
+[class.active]="selectedLevel === 'Beginner'"
+(click)="selectedLevel = 'Beginner'"
+>
+Beginner
+</button>
+
+<button
+[class.active]="selectedLevel === 'Intermediate'"
+(click)="selectedLevel = 'Intermediate'"
+>
+Intermediate
+</button>
+
+<button
+[class.active]="selectedLevel === 'Advanced'"
+(click)="selectedLevel = 'Advanced'"
+>
+Advanced
+</button>
+
+</div>
+
+<div class="sort-controls">
+
+<select
+[(ngModel)]="selectedDuration"
+aria-label="Filter by duration"
+>
+<option>Any Duration</option>
+<option>Under 7 Weeks</option>
+<option>7+ Weeks</option>
+</select>
+
+<select
+[(ngModel)]="selectedRating"
+aria-label="Filter by rating"
+>
+<option>Any Rating</option>
+<option>4.5+</option>
+<option>4.8+</option>
+</select>
+
+<select
+[(ngModel)]="selectedSort"
+aria-label="Sort tracks"
+>
+<option>Most Popular</option>
+<option>A-Z</option>
+<option>Most Courses</option>
+</select>
+
+<button
+class="reset-button"
+type="button"
+(click)="clearFilters()"
+aria-label="Reset filters"
+>
+↻
+</button>
+
+</div>
+</div>
+
+<div class="toolbar-footer">
+<span>
+Showing {{ filteredTracks.length }} curated tracks
+</span>
+
+<span>
+ALL TRACKS INCLUDE FREE REVIEW &amp; CAPSTONE
+</span>
+</div>
+
+</section>
+
+@if (filteredTracks.length > 0) {
+
+<section
+class="track-grid"
+aria-label="Front-end development tracks"
+>
+
+@for (
+track of filteredTracks;
+track track.title
+) {
+
+<article class="track-card">
+
+<a
+class="track-image"
+[routerLink]="track.route"
+>
+
+<img
+[src]="track.image"
+[alt]="track.title"
+/>
+
+<span class="level-badge">
+{{ track.levelRange }}
+</span>
+
+<span class="rating-badge">
+★ {{ track.rating }}
+</span>
+
+</a>
+
+<div class="track-card-body">
+
+<div class="track-meta">
+<span>
+◉ {{ track.courses }} Courses
+</span>
+
+<span>
+◷ {{ track.weeks }} Weeks
+</span>
+</div>
+
+<h2>
+<a [routerLink]="track.route">
+{{ track.title }}
+</a>
+</h2>
+
+<p>
+{{ track.description }}
+</p>
+
+<div class="track-footer">
+
+<div>
+<small>Community</small>
+<strong>{{ track.learners }}</strong>
+</div>
+
+<a [routerLink]="track.route">
+Explore Track
+<span>→</span>
+</a>
+
+</div>
+
+</div>
+
+</article>
+}
+
+</section>
+
+} @else {
+
+<section class="empty-state">
+
+<h2>No tracks found</h2>
+
+<p>
+Try another search or level.
+</p>
+
+<button
+type="button"
+(click)="clearFilters()"
+>
+Show all tracks
+</button>
+
+</section>
+
+}
+
+</div>
+</main>

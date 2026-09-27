@@ -1,0 +1,302 @@
+<section class="breadcrumb-section">
+<div class="container breadcrumb-text">
+<a routerLink="/catalog">
+<span class="home-icon">⌂</span>
+<span>Home</span>
+</a>
+
+<span class="sep">›</span>
+
+<a routerLink="/catalog/web-development">
+Categories
+</a>
+
+<span class="sep">›</span>
+
+<strong>Web Development</strong>
+
+<span class="sep">›</span>
+
+<a
+class="tracks-breadcrumb-link"
+routerLink="/catalog/web-development/front-end/tracks"
+>
+Front-End Tracks
+</a>
+</div>
+</section>
+
+<section class="track-header">
+<div class="container">
+
+<a
+class="back-to-tracks"
+routerLink="/catalog/web-development/front-end/tracks"
+>
+<span aria-hidden="true">←</span>
+Back to Front-End Tracks
+</a>
+
+<div class="track-header-card">
+
+<div class="track-icon">
+▣
+</div>
+
+<div class="track-info">
+
+<div class="track-heading">
+<span class="track-label">
+{{ currentTrack.label }}
+</span>
+
+<span class="accredited">
+<i>●</i>
+Accredited Curriculum
+</span>
+</div>
+
+<h1>
+{{ currentTrack.title }}
+</h1>
+
+<p>
+{{ currentTrack.description }}
+</p>
+
+<div class="related-links">
+<span>RELATED FIELDS:</span>
+
+<a routerLink="/catalog/web-development">
+Web Development
+</a>
+
+<a
+href="#"
+(click)="$event.preventDefault()"
+>
+Languages
+</a>
+
+<a
+href="#"
+(click)="$event.preventDefault()"
+>
+UI/UX Design
+</a>
+
+<a
+href="#"
+(click)="$event.preventDefault()"
+>
+Business
+</a>
+</div>
+
+</div>
+
+<div class="track-stats">
+<div>
+<strong>5</strong>
+<span>Subcategories</span>
+</div>
+
+<div>
+<strong>{{ filteredCourses.length }}</strong>
+<span>Courses</span>
+</div>
+
+<div>
+<strong>42K+</strong>
+<span>Enrolled</span>
+</div>
+</div>
+
+</div>
+</div>
+</section>
+
+<section class="courses-section">
+<div class="container">
+
+<div class="course-toolbar">
+
+<div class="search-box">
+<span class="search-icon">⌕</span>
+
+<input
+type="text"
+[(ngModel)]="searchText"
+placeholder="Search courses..."
+/>
+</div>
+
+@if (
+currentTrack.title === 'Web Development'
+) {
+<div class="filter-buttons">
+
+<button
+[class.active]="selectedCategory === 'All'"
+(click)="setCategory('All')"
+>
+All
+</button>
+
+<button
+[class.active]="selectedCategory === 'programming'"
+(click)="setCategory('programming')"
+>
+Programming
+</button>
+
+<button
+[class.active]="selectedCategory === 'front-end'"
+(click)="setCategory('front-end')"
+>
+Frontend
+</button>
+
+<button
+[class.active]="selectedCategory === 'back-end'"
+(click)="setCategory('back-end')"
+>
+Backend
+</button>
+
+<button
+[class.active]="selectedCategory === 'full-stack'"
+(click)="setCategory('full-stack')"
+>
+Full-Stack
+</button>
+
+<button
+[class.active]="selectedCategory === 'mobile'"
+(click)="setCategory('mobile')"
+>
+Mobile
+</button>
+
+</div>
+}
+
+<div class="sort-area">
+<span>Sort:</span>
+
+<select [(ngModel)]="selectedSort">
+<option value="Most Popular">
+Most Popular
+</option>
+
+<option value="A-Z">
+A-Z
+</option>
+
+<option value="Price: Low to High">
+Price: Low to High
+</option>
+
+<option value="Price: High to Low">
+Price: High to Low
+</option>
+</select>
+</div>
+
+</div>
+
+@if (filteredCourses.length > 0) {
+
+<div class="course-grid">
+
+@for (
+course of filteredCourses;
+track course.title
+) {
+
+<article class="course-card">
+
+<a
+class="course-image"
+[routerLink]="course.route"
+>
+
+<img
+[src]="course.image"
+[alt]="course.title"
+/>
+
+<span class="course-category">
+{{ course.category }}
+</span>
+
+</a>
+
+<div class="course-content">
+
+<div class="course-meta">
+
+<span>
+<b class="course-meta-icon">
+{{ course.icon }}
+</b>
+
+{{ course.lessons }} Lessons
+</span>
+
+<span class="course-level">
+{{ course.displayLevel }}
+</span>
+
+</div>
+
+<a
+class="course-title"
+[routerLink]="course.route"
+>
+{{ course.title }}
+</a>
+
+<p>
+{{ course.description }}
+</p>
+
+<a
+[routerLink]="course.route"
+class="explore-course"
+>
+Explore Course →
+</a>
+
+</div>
+
+</article>
+}
+
+</div>
+
+} @else {
+
+<div class="no-results">
+
+<div>⌕</div>
+
+<h3>
+No courses found
+</h3>
+
+<p>
+Try another search or change the filters.
+</p>
+
+<button
+type="button"
+(click)="clearFilters()"
+>
+Show all courses
+</button>
+
+</div>
+}
+</div>
+</section>

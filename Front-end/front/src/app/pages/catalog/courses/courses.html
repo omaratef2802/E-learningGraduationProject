@@ -1,0 +1,221 @@
+<main class="react-page">
+<div class="page-shell">
+<nav class="breadcrumbs" aria-label="Breadcrumb">
+<a routerLink="/catalog">⌂ Home</a><span>›</span>
+<a routerLink="/catalog/web-development">Categories</a><span>›</span>
+<a routerLink="/catalog/web-development">Web Development</a><span>›</span>
+<a routerLink="/catalog/web-development/front-end/tracks">Front-End Development</a>
+<span>›</span> <strong>React</strong><span>›</span><strong>Courses</strong>
+</nav>
+
+<section class="react-hero">
+<div class="hero-copy">
+<div class="eyebrow">● Career Ready Track • Front-End Development</div>
+<h1>React Development</h1>
+<p>
+Master React and build modern, scalable, and interactive web applications using
+industry-standard development practices.
+</p>
+<div class="hero-stats">
+<div>
+<small><i class="stat-icon curriculum-icon">▣</i> Curriculum</small
+><strong>12 Courses</strong>
+</div>
+<div>
+<small><i class="stat-icon learners-icon">♟</i> Learners</small><strong>18,500+</strong>
+</div>
+<div>
+<small><i class="stat-icon rating-icon">★</i> Rating</small
+><strong>4.9 <em>(5.2k)</em></strong>
+</div>
+<div>
+<small><i class="stat-icon duration-icon">◷</i> Duration</small><strong>8 Weeks</strong>
+</div>
+</div>
+</div>
+<div class="hero-image">
+<img
+src="https://images.unsplash.com/photo-1633356122544-f134324a6cee?auto=format&fit=crop&w=900&h=540&q=90"
+alt="React development workspace"
+/><span>MASTER PROJECT</span><small>React 19 &amp; Next.js Ready</small>
+</div>
+</section>
+
+<section class="courses-heading">
+<div>
+<h2>Courses</h2>
+<p>
+Explore courses designed to help you build practical React skills from fundamentals to
+advanced development.
+</p>
+</div>
+<div class="course-summary">
+☷ &nbsp; Showing {{ paginatedCourses.length }} of {{ filteredCourses.length }} courses
+<b>•</b> <a href="#courses">React 19 Verified</a>
+</div>
+</section>
+
+<section class="toolbar-panel">
+<div class="toolbar-row">
+<label class="search-box"
+><span>⌕</span
+><input
+[(ngModel)]="searchText"
+type="search"
+placeholder="Search courses by topic, hooks, libraries..."
+/></label>
+<div class="filters">
+<label class="filter-select"
+><b class="filter-label">Price:</b
+><select [(ngModel)]="selectedPrice">
+<option>All</option>
+<option>Under $30</option>
+<option>$30 - $50</option>
+<option>Over $50</option>
+</select></label
+><label class="filter-select"
+><b class="filter-label">Level:</b
+><select [(ngModel)]="selectedLevel">
+<option>All Levels</option>
+<option>Beginner</option>
+<option>Intermediate</option>
+<option>Advanced</option>
+</select></label
+><label class="filter-select"
+><b class="filter-label">Rating:</b
+><select [(ngModel)]="selectedRating">
+<option>Any</option>
+<option>4.5+</option>
+<option>4.8+</option>
+</select></label
+><label class="filter-select"
+><b class="filter-label">Instructor:</b
+><select [(ngModel)]="selectedInstructor">
+<option>All</option>
+<option>Ahmed Hassan</option>
+<option>Sara Mohamed</option>
+</select></label
+>
+</div>
+</div>
+<div class="toolbar-bottom">
+<div class="quick-tags">
+<small class="filter-label">Quick Tag:</small
+><button
+type="button"
+[class.active]="selectedQuickTag === 'All'"
+(click)="setQuickTag('All')"
+>
+All</button
+><button
+type="button"
+[class.active]="selectedQuickTag === 'Beginner'"
+(click)="setQuickTag('Beginner')"
+>
+Beginner</button
+><button
+type="button"
+[class.active]="selectedQuickTag === 'Advanced Architecture'"
+(click)="setQuickTag('Advanced Architecture')"
+>
+Advanced Architecture</button
+><button
+type="button"
+[class.active]="selectedQuickTag === 'Next.js &amp; Full-Stack'"
+(click)="setQuickTag('Next.js &amp; Full-Stack')"
+>
+Next.js &amp; Full-Stack
+</button>
+</div>
+<div class="sort-controls">
+<label class="filter-label">Sort:</label
+><select [(ngModel)]="selectedSort">
+<option>Most Popular</option>
+<option>Price: Low to High</option>
+<option>A-Z</option></select
+><button type="button" (click)="resetFilters()">↻ Reset</button>
+</div>
+</div>
+</section>
+
+@if (filteredCourses.length > 0) {
+<section id="courses" class="course-grid">
+@for (course of paginatedCourses; track course.title) {
+<article class="course-card">
+<a
+class="course-image"
+[routerLink]="[
+'/catalog/web-development/front-end/react/course',
+courseSlug(course.title),
+]"
+><img [src]="course.image" [alt]="course.title" /><span class="course-badge">{{
+course.badge
+}}</span
+><span class="course-level">{{ course.level }}</span></a>
+<div class="course-body">
+<div class="course-meta">
+<span class="course-meta-item">
+<i class="meta-icon duration-icon">◷</i> {{ course.lessons }} Hours</span>
+<span class="course-meta-item">
+<i class="meta-icon lesson-icon">▷</i> {{ course.students }}</span>
+<span class="course-meta-item rating-meta">
+<i class="meta-icon rating-icon">★</i> {{ course.rating }} ({{
+formatReviews(course.reviews)
+}})</span>
+</div>
+<h3>
+<a
+[routerLink]="[
+'/catalog/web-development/front-end/react/course',
+courseSlug(course.title),
+]"
+>{{ course.title }}</a>
+</h3>
+<p>{{ course.description }}</p>
+<div class="instructor">
+<img class="avatar" [src]="course.instructorImage" [alt]="course.instructor" /><span>
+<strong>{{ course.instructor }}</strong>
+<small>{{ course.role }}</small></span>
+</div>
+<div class="course-footer">
+<div class="price-block">
+<strong>${{ course.price.toFixed(2) }}</strong
+><del>${{ course.originalPrice.toFixed(2) }}</del
+><small>{{ course.discount }}% OFF</small>
+</div>
+<a
+[routerLink]="[
+'/catalog/web-development/front-end/react/course',
+courseSlug(course.title),
+]"
+>View Course <span>→</span></a>
+</div>
+</div>
+</article>
+}
+</section>
+} @else {
+<section class="empty-state">
+<h2>No courses found</h2>
+<p>Try another search or reset the filters.</p>
+<button type="button" (click)="clearFilters()">Show all courses</button>
+</section>
+}
+<div class="pagination">
+<button type="button" [disabled]="currentPage === 1" (click)="setPage(currentPage - 1)">
+‹ Previous
+</button>
+@for (page of pageNumbers; track page) {
+<button type="button" [class.active]="currentPage === page" (click)="setPage(page)">
+{{ page }}
+</button>
+}
+<button
+type="button"
+[disabled]="currentPage === pageNumbers.length"
+(click)="setPage(currentPage + 1)">
+Next ›
+</button>
+</div>
+</div>
+</main>
