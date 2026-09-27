@@ -1,0 +1,519 @@
+<div class="certificates-shell">
+
+  <!-- =========================
+       SIDEBAR
+  ========================== -->
+
+  <app-instructor-sidebar></app-instructor-sidebar>
+
+
+  <main class="certificates-main">
+
+    <!-- =========================
+         TOP BAR
+    ========================== -->
+
+    <header class="profile-topbar">
+
+      <div class="breadcrumb">
+
+        <span>
+          INSTRUCTOR PORTAL
+        </span>
+
+        <strong>
+          / CERTIFICATES
+        </strong>
+
+      </div>
+
+
+      <div
+        class="top-user"
+        (click)="openProfile()"
+      >
+
+        <div class="mini-avatar">
+
+          <img
+            [src]="data.instructor.image"
+            [alt]="
+              data.instructor.firstName +
+              ' ' +
+              data.instructor.lastName
+            "
+          />
+
+        </div>
+
+
+        <div>
+
+          <strong>
+
+            {{ data.instructor.firstName }}
+            {{ data.instructor.lastName }}
+
+          </strong>
+
+          <small>
+
+            {{ data.instructor.role }}
+
+          </small>
+
+        </div>
+
+      </div>
+
+    </header>
+
+
+    <!-- =========================
+         CONTENT
+    ========================== -->
+
+    <section class="certificates-content">
+
+
+      <!-- =========================
+           HEADING
+      ========================== -->
+
+      <div class="certificates-heading">
+
+        <div>
+
+          <span>
+            INSTRUCTOR ACHIEVEMENTS
+          </span>
+
+          <h1>
+            Certificates
+          </h1>
+
+          <p>
+            View certificates earned by students
+            who completed your courses.
+          </p>
+
+        </div>
+
+
+        <button
+          type="button"
+          class="export-btn"
+          (click)="exportRecords()"
+          [disabled]="!filteredCertificates.length"
+        >
+
+          ↓ Export Records
+
+        </button>
+
+      </div>
+
+
+      <!-- =========================
+           FILTERS
+      ========================== -->
+
+      <div class="certificates-filters">
+
+
+        <!-- SEARCH -->
+
+        <div class="search-box">
+
+          <span>
+            ⌕
+          </span>
+
+          <input
+            type="text"
+            [(ngModel)]="searchText"
+            (input)="applyFilters()"
+            placeholder="Search by student, course or certificate ID..."
+          />
+
+        </div>
+
+
+        <!-- COURSE FILTER -->
+
+        <select
+          [(ngModel)]="selectedCourse"
+          (change)="applyFilters()"
+        >
+
+          <option value="all">
+            All Courses
+          </option>
+
+
+          @for (
+            course of courses;
+            track course
+          ) {
+
+            <option [value]="course">
+
+              {{ course }}
+
+            </option>
+
+          }
+
+        </select>
+
+
+        <!-- STATUS FILTER -->
+
+        <select
+          [(ngModel)]="selectedStatus"
+          (change)="applyFilters()"
+        >
+
+          <option value="all">
+            All Status
+          </option>
+
+          <option value="Issued">
+            Issued
+          </option>
+
+          <option value="Pending">
+            Pending
+          </option>
+
+          <option value="Revoked">
+            Revoked
+          </option>
+
+        </select>
+
+
+        <!-- CLEAR -->
+
+        <button
+          type="button"
+          class="clear-btn"
+          (click)="clearFilters()"
+        >
+
+          Clear Filters
+
+        </button>
+
+      </div>
+
+
+      <!-- =========================
+           LOADING
+      ========================== -->
+
+      @if (loading) {
+
+        <div class="state-box">
+
+          Loading certificates...
+
+        </div>
+
+      }
+
+
+      <!-- =========================
+           ERROR
+      ========================== -->
+
+      @if (
+        !loading &&
+        errorMessage
+      ) {
+
+        <div class="state-box error">
+
+          {{ errorMessage }}
+
+        </div>
+
+      }
+
+
+      <!-- =========================
+           EMPTY
+      ========================== -->
+
+      @if (
+        !loading &&
+        !errorMessage &&
+        !filteredCertificates.length
+      ) {
+
+        <div class="state-box">
+
+          No certificates found.
+
+        </div>
+
+      }
+
+
+      <!-- =========================
+           TABLE
+      ========================== -->
+
+      @if (
+        !loading &&
+        !errorMessage &&
+        filteredCertificates.length
+      ) {
+
+        <div class="certificates-table-card">
+
+          <table>
+
+            <!-- TABLE HEADER -->
+
+            <thead>
+
+              <tr>
+
+                <th>
+                  STUDENT
+                </th>
+
+                <th>
+                  COURSE
+                </th>
+
+                <th>
+                  CERTIFICATE
+                </th>
+
+                <th>
+                  COMPLETION
+                </th>
+
+                <th>
+                  ISSUED DATE
+                </th>
+
+                <th>
+                  STATUS
+                </th>
+
+                <th>
+                  ACTION
+                </th>
+
+              </tr>
+
+            </thead>
+
+
+            <!-- TABLE BODY -->
+
+            <tbody>
+
+              @for (
+                certificate of filteredCertificates;
+                track certificate.id
+              ) {
+
+                <tr>
+
+
+                  <!-- =========================
+                       STUDENT
+                  ========================== -->
+
+                  <td>
+
+                    <div class="student-info">
+
+                      <div class="student-avatar">
+
+                        {{ certificate.studentInitials }}
+
+                      </div>
+
+
+                      <div>
+
+                        <strong>
+
+                          {{ certificate.studentName }}
+
+                        </strong>
+
+                        <small>
+
+                          {{ certificate.studentEmail }}
+
+                        </small>
+
+                      </div>
+
+                    </div>
+
+                  </td>
+
+
+                  <!-- =========================
+                       COURSE
+                  ========================== -->
+
+                  <td>
+
+                    {{ certificate.courseTitle }}
+
+                  </td>
+
+
+                  <!-- =========================
+                       CERTIFICATE ID
+                  ========================== -->
+
+                  <td>
+
+                    <span class="certificate-id">
+
+                      {{ certificate.certId }}
+
+                    </span>
+
+                  </td>
+
+
+                  <!-- =========================
+                       COMPLETION
+                  ========================== -->
+
+                  <td>
+
+                    <div class="completion">
+
+                      <div class="progress">
+
+                        <span
+                          [style.width.%]="
+                            certificate.completionRate
+                          "
+                        ></span>
+
+                      </div>
+
+
+                      <strong>
+
+                        {{ certificate.completionRate }}%
+
+                      </strong>
+
+                    </div>
+
+                  </td>
+
+
+                  <!-- =========================
+                       DATE
+                  ========================== -->
+
+                  <td>
+
+                    {{ certificate.issuedDate }}
+
+                  </td>
+
+
+                  <!-- =========================
+                       STATUS
+                  ========================== -->
+
+                  <td>
+
+                    <span
+                      class="status"
+
+                      [class.issued]="
+                        certificate.status === 'Issued'
+                      "
+
+                      [class.pending]="
+                        certificate.status === 'Pending'
+                      "
+
+                      [class.revoked]="
+                        certificate.status === 'Revoked'
+                      "
+                    >
+
+                      ●
+
+                      {{ certificate.status }}
+
+                    </span>
+
+                  </td>
+
+
+                  <!-- =========================
+                       ACTION
+                  ========================== -->
+
+                  <td>
+
+                    <button
+                      type="button"
+                      class="action-btn"
+                      title="View Certificate"
+                      (click)="
+                        viewCertificate(
+                          certificate
+                        )
+                      "
+                    >
+
+                      👁
+
+                    </button>
+
+                  </td>
+
+
+                </tr>
+
+              }
+
+            </tbody>
+
+          </table>
+
+
+          <!-- =========================
+               FOOTER
+          ========================== -->
+
+          <div class="table-footer">
+
+            <span>
+
+              Showing
+              {{ filteredCertificates.length }}
+              certificate(s)
+
+            </span>
+
+          </div>
+
+        </div>
+
+      }
+
+    </section>
+
+  </main>
+
+</div>

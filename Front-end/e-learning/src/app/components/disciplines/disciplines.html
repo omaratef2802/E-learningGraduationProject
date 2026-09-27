@@ -1,0 +1,25 @@
+<section id="disciplines" class="disciplines-section" aria-labelledby="disciplines-title">
+  <div class="section-topline">
+    <div>
+      <span class="section-kicker">{{ config.eyebrow }}</span>
+      <h2 id="disciplines-title">{{ config.title }}</h2>
+      <p>{{ config.description }}</p>
+    </div>
+    <button class="browse-link" type="button" (click)="explore('all disciplines')">{{ config.browseLabel }} <span>→</span></button>
+  </div>
+
+  <div class="disciplines-grid">
+    @for (discipline of disciplinesList; track discipline.title) {
+      <article class="discipline-card">
+        <span class="discipline-icon" aria-hidden="true">{{ discipline.icon }}</span>
+        <span class="discipline-label">{{ discipline.label }}</span>
+        <h3>{{ discipline.title }}</h3>
+        <p>{{ discipline.description }}</p>
+        <div class="card-footer">
+          <span>{{ discipline.courses }}</span>
+          <button type="button" (click)="explore(discipline.query)" [attr.aria-label]="'Explore ' + discipline.title">→</button>
+        </div>
+      </article>
+    }
+  </div>
+</section>

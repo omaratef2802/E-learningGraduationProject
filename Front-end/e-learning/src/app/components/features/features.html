@@ -1,0 +1,16 @@
+<section class="features-section" aria-labelledby="features-title">
+  <div class="features-heading">
+    <h2 id="features-title">{{ config.title }}</h2>
+    <p>{{ config.description }}</p>
+  </div>
+
+  <div class="features-grid">
+    @for (feature of config.items; track feature.title) {
+      <article class="feature-card">
+        <span class="feature-icon" aria-hidden="true">{{ feature.icon }}</span>
+        <h3>{{ feature.title }}</h3>
+        <p>{{ feature.description }}</p>
+      </article>
+    }
+  </div>
+</section>

@@ -1,0 +1,23 @@
+<section class="career-section" aria-labelledby="career-title">
+  <div class="career-glow career-glow-one"></div>
+  <div class="career-glow career-glow-two"></div>
+  <div class="career-content">
+    <span class="career-eyebrow"><i></i>{{ config.eyebrow }}</span>
+    <h2 id="career-title">{{ config.title }}</h2>
+    <p>{{ config.description }}</p>
+    <div class="career-tags">
+      @for (tag of config.tags; track tag) {
+        <span><b>{{ $index === 0 ? '♧' : $index === 1 ? '◇' : '▣' }}</b>{{ tag }}</span>
+      }
+    </div>
+    <button class="career-button" type="button" (click)="explore()">{{ config.buttonLabel }} <strong>→</strong></button>
+  </div>
+  <div class="career-media">
+    <div class="media-orbit orbit-one"></div>
+    <div class="media-orbit orbit-two"></div>
+    <div class="media-window">
+      <img [src]="config.image" alt="Career analytics dashboard on a desktop screen" />
+      <div class="dashboard-chip"><span>✦</span><small>SKILL MOMENTUM</small><strong>+28.4%</strong></div>
+    </div>
+  </div>
+</section>

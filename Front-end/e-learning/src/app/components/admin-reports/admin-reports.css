@@ -1,0 +1,1259 @@
+/* ==========================================================================
+   BASE
+   ========================================================================== */
+
+:host {
+  display: block;
+  min-height: 100vh;
+  background: #f4f6fa;
+  color: #1e293b;
+  font-family:
+    'Plus Jakarta Sans',
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Roboto,
+    sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+.reports-shell {
+  display: flex;
+  min-height: 100vh;
+  background: #f4f6fa;
+}
+
+
+/* ==========================================================================
+   MAIN LAYOUT
+   ========================================================================== */
+
+.reports-main {
+  width: calc(100% - 258px);
+  min-width: 0;
+  min-height: 100vh;
+  margin-inline-start: 258px;
+  padding: 1.25rem 1.5rem 2.5rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  background: #f4f6fa;
+}
+
+
+/* ==========================================================================
+   TOP BAR
+   ========================================================================== */
+
+.profile-topbar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+
+  width: 100%;
+  min-height: 64px;
+
+  padding: 0 1.5rem;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(12px);
+
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+
+  box-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.03);
+}
+
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+
+  color: #64748b;
+
+  font-size: 0.8125rem;
+  font-weight: 700;
+
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+}
+
+.breadcrumb strong {
+  color: #4f46e5;
+}
+
+.top-user {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  padding: 6px 12px;
+
+  border-radius: 12px;
+
+  transition:
+    background-color 0.2s ease;
+}
+
+.top-user:hover {
+  background: #f1f5f9;
+}
+
+.top-user strong {
+  display: block;
+
+  color: #0f172a;
+
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.top-user small {
+  display: block;
+
+  margin-top: 2px;
+
+  color: #64748b;
+
+  font-size: 0.75rem;
+}
+
+.mini-avatar {
+  width: 38px;
+  height: 38px;
+
+  display: grid;
+  place-items: center;
+
+  border-radius: 50%;
+
+  color: #fff;
+
+  background:
+    linear-gradient(
+      135deg,
+      #6366f1,
+      #4f46e5
+    );
+
+  font-size: 0.875rem;
+  font-weight: 700;
+
+  box-shadow:
+    0 2px 6px rgba(79, 70, 229, 0.25);
+}
+
+
+/* ==========================================================================
+   CONTENT
+   ========================================================================== */
+
+.reports-content {
+  width: 100%;
+  max-width: 1280px;
+
+  margin: 0 auto;
+
+  display: flex;
+  flex-direction: column;
+
+  gap: 1.5rem;
+}
+
+
+/* ==========================================================================
+   HERO
+   ========================================================================== */
+
+.reports-hero {
+  position: relative;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 25px;
+
+  padding: 2rem;
+
+  overflow: hidden;
+
+  background: #fff;
+
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+
+  box-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.02);
+}
+
+.hero-copy {
+  position: relative;
+  z-index: 1;
+
+  max-width: 620px;
+}
+
+.eyebrow {
+  display: block;
+
+  margin-bottom: 6px;
+
+  color: #4f46e5;
+
+  font-size: 0.75rem;
+  font-weight: 800;
+
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.hero-copy h1 {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  margin: 0 0 10px;
+
+  color: #0f172a;
+
+  font-size: 1.75rem;
+  font-weight: 800;
+
+  letter-spacing: -0.025em;
+}
+
+.hero-copy h1 span {
+  padding: 4px 10px;
+
+  color: #4f46e5;
+
+  background: #eef2ff;
+
+  border-radius: 999px;
+
+  font-size: 0.875rem;
+  font-weight: 700;
+}
+
+.hero-copy p {
+  max-width: 580px;
+
+  margin: 0;
+
+  color: #64748b;
+
+  font-size: 0.9375rem;
+  line-height: 1.6;
+}
+
+
+/* ==========================================================================
+   HERO DECORATION
+   ========================================================================== */
+
+.hero-decoration {
+  position: absolute;
+
+  top: 50%;
+  right: 2rem;
+
+  width: 160px;
+  height: 160px;
+
+  transform: translateY(-50%);
+
+  pointer-events: none;
+}
+
+.orbit {
+  position: absolute;
+
+  top: 50%;
+  left: 50%;
+
+  border: 1px solid #c7d2fe;
+  border-radius: 50%;
+
+  transform: translate(-50%, -50%);
+}
+
+.orbit-one {
+  width: 100px;
+  height: 100px;
+}
+
+.orbit-two {
+  width: 150px;
+  height: 150px;
+
+  border-style: dashed;
+}
+
+.hero-center {
+  position: absolute;
+
+  top: 50%;
+  left: 50%;
+
+  width: 52px;
+  height: 52px;
+
+  display: grid;
+  place-items: center;
+
+  color: #fff;
+
+  background:
+    linear-gradient(
+      135deg,
+      #6366f1,
+      #4f46e5
+    );
+
+  border-radius: 14px;
+
+  font-size: 1.25rem;
+
+  transform: translate(-50%, -50%);
+
+  box-shadow:
+    0 4px 12px rgba(79, 70, 229, 0.3);
+}
+
+.hero-dot {
+  position: absolute;
+
+  width: 8px;
+  height: 8px;
+
+  border-radius: 50%;
+
+  background: #4f46e5;
+
+  box-shadow:
+    0 0 0 4px rgba(79, 70, 229, 0.15);
+}
+
+.dot-one {
+  top: 15px;
+  left: 75px;
+}
+
+.dot-two {
+  right: 10px;
+  bottom: 40px;
+}
+
+.dot-three {
+  left: 20px;
+  bottom: 25px;
+}
+
+
+/* ==========================================================================
+   KPI CARDS
+   ========================================================================== */
+
+.report-stats {
+  display: grid;
+
+  grid-template-columns:
+    repeat(4, minmax(0, 1fr));
+
+  gap: 1.25rem;
+}
+
+.stat-card {
+  padding: 1.25rem 1.5rem;
+
+  display: flex;
+  flex-direction: column;
+
+  background: #fff;
+
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+
+  box-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.02);
+
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-2px);
+
+  box-shadow:
+    0 8px 12px -2px rgba(0, 0, 0, 0.04);
+}
+
+.stat-card.featured {
+  border-color: #c7d2fe;
+
+  background:
+    linear-gradient(
+      180deg,
+      #fff,
+      #f5f3ff
+    );
+}
+
+.stat-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  margin-bottom: 1rem;
+}
+
+.stat-icon {
+  width: 42px;
+  height: 42px;
+
+  display: grid;
+  place-items: center;
+
+  border-radius: 12px;
+
+  font-size: 1.2rem;
+}
+
+.stat-icon.users {
+  color: #4f46e5;
+  background: #eef2ff;
+}
+
+.stat-icon.enrollments {
+  color: #0284c7;
+  background: #e0f2fe;
+}
+
+.stat-icon.certificates {
+  color: #d97706;
+  background: #fef3c7;
+}
+
+.stat-icon.revenue {
+  color: #166534;
+  background: #dcfce7;
+}
+
+.trend {
+  padding: 3px 8px;
+
+  border-radius: 999px;
+
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.trend.positive {
+  color: #166534;
+  background: #dcfce7;
+}
+
+.stat-label {
+  display: block;
+
+  margin-bottom: 4px;
+
+  color: #64748b;
+
+  font-size: 0.75rem;
+  font-weight: 700;
+
+  letter-spacing: 0.05em;
+
+  text-transform: uppercase;
+}
+
+.stat-card > strong {
+  display: block;
+
+  color: #0f172a;
+
+  font-size: 1.625rem;
+  font-weight: 800;
+
+  line-height: 1.2;
+}
+
+.stat-card small {
+  display: block;
+
+  margin-top: 6px;
+
+  color: #94a3b8;
+
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+
+/* ==========================================================================
+   OVERVIEW GRID
+   ========================================================================== */
+
+.overview-grid {
+  display: grid;
+
+  grid-template-columns:
+    minmax(0, 1.6fr)
+    minmax(300px, 0.8fr);
+
+  gap: 1.25rem;
+}
+
+.analytics-card {
+  padding: 1.5rem;
+
+  background: #fff;
+
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+
+  box-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.02);
+}
+
+.analytics-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+
+  margin-bottom: 1.5rem;
+}
+
+.section-kicker {
+  display: block;
+
+  margin-bottom: 2px;
+
+  color: #4f46e5;
+
+  font-size: 0.6875rem;
+  font-weight: 800;
+
+  letter-spacing: 0.08em;
+
+  text-transform: uppercase;
+}
+
+.analytics-header h2 {
+  margin: 0;
+
+  color: #0f172a;
+
+  font-size: 1.125rem;
+  font-weight: 700;
+}
+
+.header-value {
+  text-align: end;
+}
+
+.header-value strong {
+  display: block;
+
+  color: #0f172a;
+
+  font-size: 1.25rem;
+  font-weight: 800;
+
+  line-height: 1;
+}
+
+.header-value small {
+  color: #94a3b8;
+
+  font-size: 0.75rem;
+}
+
+
+/* ==========================================================================
+   ONLY CHART — USER GROWTH
+   ========================================================================== */
+
+.growth-card {
+  min-height: 320px;
+}
+
+.bar-chart {
+  height: 220px;
+
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+
+  gap: 16px;
+
+  padding: 20px 10px 0;
+
+  border-top: 1px solid #f1f5f9;
+}
+
+.bar-column {
+  height: 100%;
+
+  flex: 1;
+
+  min-width: 0;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.bar-value {
+  margin-bottom: 7px;
+
+  color: #64748b;
+
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.bar-track {
+  width: 100%;
+  max-width: 38px;
+
+  flex: 1;
+
+  display: flex;
+  align-items: flex-end;
+
+  overflow: hidden;
+
+  background: #f1f5f9;
+
+  border-radius: 9px;
+}
+
+.bar-fill {
+  width: 100%;
+
+  min-height: 4px;
+
+  border-radius: 9px 9px 0 0;
+
+  transition:
+    height 0.4s ease;
+}
+
+.users-fill {
+  background:
+    linear-gradient(
+      180deg,
+      #818cf8,
+      #4f46e5
+    );
+}
+
+.bar-label {
+  margin-top: 8px;
+
+  color: #64748b;
+
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+
+/* ==========================================================================
+   LEARNING ACTIVITY
+   ========================================================================== */
+
+.activity-card {
+  display: flex;
+  flex-direction: column;
+}
+
+.activity-list {
+  display: flex;
+  flex-direction: column;
+
+  gap: 12px;
+
+  padding-top: 1rem;
+
+  border-top: 1px solid #f1f5f9;
+}
+
+.activity-item {
+  display: flex;
+  align-items: center;
+
+  gap: 12px;
+
+  padding: 12px;
+
+  background: #f8fafc;
+
+  border: 1px solid #f1f5f9;
+  border-radius: 12px;
+
+  transition:
+    transform 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.activity-item:hover {
+  transform: translateX(2px);
+
+  border-color: #e2e8f0;
+}
+
+.activity-icon {
+  width: 40px;
+  height: 40px;
+
+  display: grid;
+  place-items: center;
+
+  flex-shrink: 0;
+
+  border-radius: 11px;
+
+  font-size: 1rem;
+}
+
+.activity-icon.enrollments {
+  color: #0284c7;
+  background: #e0f2fe;
+}
+
+.activity-icon.courses {
+  color: #7e22ce;
+  background: #f3e8ff;
+}
+
+.activity-icon.certificates {
+  color: #d97706;
+  background: #fef3c7;
+}
+
+.activity-info small {
+  display: block;
+
+  color: #64748b;
+
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.activity-info strong {
+  display: block;
+
+  margin-top: 2px;
+
+  color: #0f172a;
+
+  font-size: 1rem;
+  font-weight: 800;
+}
+
+.activity-footer {
+  margin-top: auto;
+  padding-top: 1rem;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  border-top: 1px solid #f1f5f9;
+
+  color: #64748b;
+
+  font-size: 0.75rem;
+}
+
+.activity-footer strong {
+  color: #4f46e5;
+
+  font-weight: 700;
+}
+
+
+/* ==========================================================================
+   BOTTOM GRID
+   ========================================================================== */
+
+.bottom-grid {
+  display: grid;
+
+  grid-template-columns:
+    minmax(0, 1.7fr)
+    minmax(300px, 0.8fr);
+
+  gap: 1.25rem;
+}
+
+
+/* ==========================================================================
+   REVENUE
+   ========================================================================== */
+
+.revenue-card {
+  min-width: 0;
+}
+
+.revenue-list {
+  display: flex;
+  flex-direction: column;
+
+  gap: 13px;
+
+  padding-top: 1rem;
+
+  border-top: 1px solid #f1f5f9;
+}
+
+.revenue-row {
+  display: flex;
+  align-items: center;
+
+  gap: 16px;
+}
+
+.revenue-month {
+  width: 82px;
+
+  display: flex;
+  align-items: center;
+
+  gap: 8px;
+
+  flex-shrink: 0;
+}
+
+.month-dot {
+  width: 8px;
+  height: 8px;
+
+  flex-shrink: 0;
+
+  border-radius: 50%;
+
+  background: #22c55e;
+
+  box-shadow:
+    0 0 0 4px #dcfce7;
+}
+
+.revenue-month strong {
+  color: #334155;
+
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.revenue-progress {
+  flex: 1;
+
+  height: 9px;
+
+  overflow: hidden;
+
+  background: #f1f5f9;
+
+  border-radius: 999px;
+}
+
+.revenue-progress-fill {
+  height: 100%;
+
+  background:
+    linear-gradient(
+      90deg,
+      #4f46e5,
+      #22c55e
+    );
+
+  border-radius: 999px;
+
+  transition:
+    width 0.4s ease;
+}
+
+.revenue-value {
+  width: 92px;
+
+  flex-shrink: 0;
+
+  color: #0f172a;
+
+  font-size: 0.875rem;
+  font-weight: 700;
+
+  text-align: end;
+}
+
+
+/* ==========================================================================
+   PLATFORM SNAPSHOT
+   ========================================================================== */
+
+.summary-card {
+  display: flex;
+  flex-direction: column;
+}
+
+.snapshot-list {
+  display: flex;
+  flex-direction: column;
+
+  gap: 10px;
+
+  padding-top: 1rem;
+
+  border-top: 1px solid #f1f5f9;
+}
+
+.snapshot-item {
+  display: flex;
+  align-items: center;
+
+  gap: 12px;
+
+  padding: 10px;
+
+  background: #f8fafc;
+
+  border: 1px solid #f1f5f9;
+
+  border-radius: 12px;
+}
+
+.snapshot-icon {
+  width: 38px;
+  height: 38px;
+
+  display: grid;
+  place-items: center;
+
+  flex-shrink: 0;
+
+  border-radius: 10px;
+
+  font-size: 1rem;
+}
+
+.snapshot-icon.users {
+  color: #4f46e5;
+  background: #eef2ff;
+}
+
+.snapshot-icon.enrollments {
+  color: #0284c7;
+  background: #e0f2fe;
+}
+
+.snapshot-icon.courses {
+  color: #7e22ce;
+  background: #f3e8ff;
+}
+
+.snapshot-icon.certificates {
+  color: #d97706;
+  background: #fef3c7;
+}
+
+.snapshot-item small {
+  display: block;
+
+  color: #64748b;
+
+  font-size: 0.75rem;
+}
+
+.snapshot-item strong {
+  display: block;
+
+  margin-top: 2px;
+
+  color: #0f172a;
+
+  font-size: 0.9375rem;
+  font-weight: 700;
+}
+
+.snapshot-footer {
+  margin-top: 1rem;
+  padding-top: 1rem;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  border-top: 1px solid #f1f5f9;
+
+  color: #64748b;
+
+  font-size: 0.75rem;
+}
+
+.snapshot-footer strong {
+  color: #4f46e5;
+
+  font-weight: 700;
+}
+
+
+/* ==========================================================================
+   MONTHLY TABLE
+   ========================================================================== */
+
+.report-table-card {
+  padding: 1.5rem;
+
+  background: #fff;
+
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+
+  box-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.02);
+}
+
+.table-period {
+  padding: 5px 10px;
+
+  color: #64748b;
+
+  background: #f8fafc;
+
+  border: 1px solid #e2e8f0;
+  border-radius: 999px;
+
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+
+.table-wrapper {
+  width: 100%;
+
+  margin-top: 1rem;
+
+  overflow-x: auto;
+
+  border-top: 1px solid #f1f5f9;
+}
+
+table {
+  width: 100%;
+
+  border-collapse: collapse;
+
+  text-align: start;
+}
+
+th {
+  padding: 12px 16px;
+
+  color: #64748b;
+
+  background: #f8fafc;
+
+  border-bottom: 1px solid #e2e8f0;
+
+  font-size: 0.75rem;
+  font-weight: 700;
+
+  letter-spacing: 0.05em;
+
+  text-transform: uppercase;
+
+  white-space: nowrap;
+}
+
+td {
+  padding: 14px 16px;
+
+  color: #334155;
+
+  border-bottom: 1px solid #f1f5f9;
+
+  font-size: 0.875rem;
+  font-weight: 500;
+
+  white-space: nowrap;
+}
+
+tbody tr:last-child td {
+  border-bottom: none;
+}
+
+tbody tr:hover td {
+  background: #f8fafc;
+}
+
+td strong {
+  color: #0f172a;
+
+  font-weight: 700;
+}
+
+.table-revenue {
+  color: #166534;
+
+  font-weight: 700;
+}
+
+
+/* ==========================================================================
+   STATES
+   ========================================================================== */
+
+.reports-state {
+  padding: 48px 20px;
+
+  color: #64748b;
+
+  background: #fff;
+
+  border: 1px dashed #cbd5e1;
+  border-radius: 16px;
+
+  text-align: center;
+
+  font-size: 0.9375rem;
+}
+
+.reports-state.error {
+  color: #dc2626;
+
+  background: #fef2f2;
+
+  border-color: #fecaca;
+  border-style: solid;
+}
+
+
+/* ==========================================================================
+   RESPONSIVE
+   ========================================================================== */
+
+@media (max-width: 1150px) {
+
+  .report-stats {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+
+  .overview-grid,
+  .bottom-grid {
+    grid-template-columns: 1fr;
+  }
+
+}
+
+
+@media (max-width: 900px) {
+
+  .reports-main {
+    width: 100%;
+
+    margin-inline-start: 0;
+
+    padding: 1rem;
+  }
+
+  .reports-hero {
+    align-items: flex-start;
+
+    flex-direction: column;
+  }
+
+  .hero-decoration {
+    display: none;
+  }
+
+}
+
+
+@media (max-width: 600px) {
+
+  .profile-topbar {
+    padding: 0 1rem;
+  }
+
+  .top-user {
+    display: none;
+  }
+
+  .reports-hero,
+  .analytics-card,
+  .report-table-card {
+    padding: 1.15rem;
+  }
+
+  .hero-copy h1 {
+    font-size: 1.45rem;
+  }
+
+  .report-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .bar-chart {
+    gap: 7px;
+
+    height: 200px;
+
+    padding-inline: 2px;
+  }
+
+  .bar-value {
+    font-size: 0.65rem;
+  }
+
+  .bar-label {
+    font-size: 0.68rem;
+  }
+
+  .revenue-row {
+    display: grid;
+
+    grid-template-columns: 60px 1fr;
+
+    gap: 8px;
+  }
+
+  .revenue-month {
+    width: auto;
+  }
+
+  .revenue-progress {
+    min-width: 0;
+  }
+
+  .revenue-value {
+    grid-column: 2;
+
+    width: auto;
+
+    text-align: start;
+  }
+
+  .analytics-header {
+    gap: 12px;
+  }
+
+  .header-value strong {
+    font-size: 1rem;
+  }
+
+}

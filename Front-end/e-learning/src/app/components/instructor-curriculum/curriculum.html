@@ -1,0 +1,800 @@
+<div class="curriculum-shell">
+  <app-instructor-sidebar></app-instructor-sidebar>
+
+  <main class="curriculum-main">
+
+    <!-- TOPBAR -->
+    <header class="curriculum-topbar">
+
+      <a
+        routerLink="/instructor-catalog"
+        class="back-link"
+      >
+        <span>←</span>
+        Back to My Courses
+      </a>
+
+      <div class="topbar-actions">
+
+        <button
+          type="button"
+          class="save-btn"
+          (click)="saveChanges()"
+        >
+          Save Changes
+        </button>
+
+        <button
+          type="button"
+          class="preview-btn"
+          (click)="previewCourse()"
+        >
+          Preview
+        </button>
+
+      </div>
+
+    </header>
+
+
+    <!-- CONTENT -->
+    <section class="curriculum-content">
+
+      <!-- PAGE HEADING -->
+      <div class="curriculum-heading">
+
+        <div class="heading-info">
+
+          <div class="heading-meta">
+
+            <span class="status-pill">
+              {{ course.status }}
+            </span>
+
+            <span class="course-category">
+              {{ course.category }}
+            </span>
+
+          </div>
+
+
+          <h1>
+            {{ course.title }}
+          </h1>
+
+
+          <p>
+            Manage your course curriculum, sections,
+            lessons, and quizzes below.
+          </p>
+
+
+          <!-- SINGLE REVIEW BUTTON -->
+          <button
+            type="button"
+            class="review-button"
+            [class.draft-review]="
+              course.status === 'Draft' ||
+              course.status === 'Assigned'
+            "
+            [class.changes-required]="
+              course.status === 'Changes Required'
+            "
+            [class.pending-review]="
+              course.status === 'In Review'
+            "
+            [class.published-review]="
+              course.status === 'Published'
+            "
+            [disabled]="
+              course.status === 'In Review' ||
+              course.status === 'Published'
+            "
+            (click)="submitForReview()"
+          >
+
+            <!-- DRAFT / ASSIGNED -->
+            <ng-container
+              *ngIf="
+                course.status === 'Draft' ||
+                course.status === 'Assigned'
+              "
+            >
+              <span>
+                Submit for Review
+              </span>
+
+              <span class="review-arrow">
+                →
+              </span>
+            </ng-container>
+
+
+            <!-- CHANGES REQUIRED -->
+            <ng-container
+              *ngIf="
+                course.status === 'Changes Required'
+              "
+            >
+              <span>
+                Resubmit for Review
+              </span>
+
+              <span class="review-arrow">
+                →
+              </span>
+            </ng-container>
+
+
+            <!-- IN REVIEW -->
+            <ng-container
+              *ngIf="
+                course.status === 'In Review'
+              "
+            >
+              <span class="review-check">
+                ✓
+              </span>
+
+              <span>
+                Pending Review
+              </span>
+            </ng-container>
+
+
+            <!-- PUBLISHED -->
+            <ng-container
+              *ngIf="
+                course.status === 'Published'
+              "
+            >
+              <span class="review-check">
+                ✓
+              </span>
+
+              <span>
+                Published
+              </span>
+            </ng-container>
+
+          </button>
+
+        </div>
+
+      </div>
+
+
+      <!-- COURSE OVERVIEW -->
+      <section class="course-overview">
+
+        <div class="overview-image-wrapper">
+
+          <img
+            [src]="course.image"
+            [alt]="course.title"
+          />
+
+        </div>
+
+
+        <div class="overview-copy">
+
+          <span class="overview-kicker">
+            COURSE OVERVIEW
+          </span>
+
+          <h2>
+            {{ course.title }}
+          </h2>
+
+          <p>
+            {{
+              course.description ||
+              'Manage your course content and prepare it for review.'
+            }}
+          </p>
+
+
+          <div class="overview-stats">
+
+            <div class="overview-stat">
+
+              <span class="stat-icon">
+                ◷
+              </span>
+
+              <div>
+                <b>
+                  {{ course.duration || '—' }}
+                </b>
+
+                <small>
+                  Duration
+                </small>
+              </div>
+
+            </div>
+
+
+            <div class="overview-stat">
+
+              <span class="stat-icon">
+                ▣
+              </span>
+
+              <div>
+                <b>
+                  {{ data.sections.length }}
+                </b>
+
+                <small>
+                  Sections
+                </small>
+              </div>
+
+            </div>
+
+
+            <div class="overview-stat">
+
+              <span class="stat-icon">
+                ▤
+              </span>
+
+              <div>
+                <b>
+                  {{ totalLessons }}
+                </b>
+
+                <small>
+                  Lessons
+                </small>
+              </div>
+
+            </div>
+
+
+            <div class="overview-stat">
+
+              <span class="stat-icon">
+                ▧
+              </span>
+
+              <div>
+                <b>
+                  {{ totalQuizzes }}
+                </b>
+
+                <small>
+                  Quizzes
+                </small>
+              </div>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      </section>
+
+
+      <!-- CURRICULUM TITLE -->
+      <div class="curriculum-title-row">
+
+        <div class="curriculum-title">
+
+          <div class="title-icon">
+            ≡
+          </div>
+
+          <div>
+
+            <h2>
+              Course Curriculum
+            </h2>
+
+            <span>
+              Organize your sections, lessons and quizzes
+            </span>
+
+          </div>
+
+        </div>
+
+
+        <button
+          type="button"
+          class="add-section-btn"
+          (click)="addSection()"
+        >
+          <span>+</span>
+          Add Section
+        </button>
+
+      </div>
+
+
+      <!-- SECTIONS -->
+      <div class="sections-list">
+
+        <article
+          class="curriculum-section"
+          *ngFor="
+            let section of data.sections;
+            let sectionIndex = index
+          "
+        >
+
+          <!-- SECTION HEADER -->
+          <div class="section-header">
+
+            <div class="section-heading">
+
+              <span class="section-number">
+                SECTION {{ sectionIndex + 1 }}
+              </span>
+
+              <h3>
+                {{ section.title }}
+              </h3>
+
+              <span class="section-meta">
+                {{ sectionMeta(section) }}
+              </span>
+
+            </div>
+
+
+            <div class="section-header-actions">
+
+              <button
+                type="button"
+                class="icon-btn edit-icon"
+                title="Edit Section"
+                (click)="editSection(section.id)"
+              >
+                ✎
+              </button>
+
+
+              <button
+                type="button"
+                class="icon-btn delete-icon"
+                title="Delete Section"
+                (click)="deleteSection(section.id)"
+              >
+                🗑
+              </button>
+
+
+              <button
+                type="button"
+                class="icon-btn collapse-icon"
+                [title]="
+                  collapsedSections[section.id]
+                    ? 'Expand Section'
+                    : 'Collapse Section'
+                "
+                (click)="toggleSection(section.id)"
+              >
+                {{
+                  collapsedSections[section.id]
+                    ? '⌄'
+                    : '⌃'
+                }}
+              </button>
+
+            </div>
+
+          </div>
+
+
+          <!-- SECTION CONTENT -->
+          <div
+            class="lesson-list"
+            *ngIf="
+              !collapsedSections[section.id]
+            "
+          >
+
+            <!-- LESSONS -->
+            <div
+              class="lesson-row"
+              *ngFor="
+                let lesson of section.lessons
+              "
+            >
+
+              <span class="drag">
+                ⋮⋮
+              </span>
+
+
+              <span
+                class="lesson-icon"
+                [class.video-icon]="
+                  lesson.type === 'Video'
+                "
+                [class.document-icon]="
+                  lesson.type !== 'Video'
+                "
+              >
+                {{
+                  lesson.type === 'Video'
+                    ? '▶'
+                    : '▤'
+                }}
+              </span>
+
+
+              <div class="lesson-content">
+
+                <strong>
+                  {{ lesson.title }}
+                </strong>
+
+                <small>
+                  {{ lessonMeta(lesson) }}
+                </small>
+
+              </div>
+
+
+              <div class="lesson-actions">
+
+                <!-- LESSON QUIZ -->
+                <button
+                  type="button"
+                  class="quiz-action"
+                  [class.quiz-ready]="
+                    getLessonQuiz(
+                      section,
+                      lesson.id
+                    )
+                  "
+                  [class.quiz-not-ready]="
+                    !getLessonQuiz(
+                      section,
+                      lesson.id
+                    )
+                  "
+                  [title]="
+                    getLessonQuiz(
+                      section,
+                      lesson.id
+                    )
+                      ? 'Edit Lesson Quiz'
+                      : 'Add Lesson Quiz'
+                  "
+                  (click)="
+                    openLessonQuiz(
+                      section.id,
+                      lesson.id
+                    )
+                  "
+                >
+
+                  <span>
+                    {{
+                      getLessonQuiz(
+                        section,
+                        lesson.id
+                      )
+                        ? '✓'
+                        : '+'
+                    }}
+                  </span>
+
+                  {{
+                    getLessonQuiz(
+                      section,
+                      lesson.id
+                    )
+                      ? 'Quiz Ready'
+                      : 'Add Quiz'
+                  }}
+
+                </button>
+
+
+                <!-- EDIT LESSON -->
+                <button
+                  type="button"
+                  class="lesson-edit-btn"
+                  title="Edit Lesson"
+                  (click)="
+                    editLesson(
+                      section.id,
+                      lesson.id
+                    )
+                  "
+                >
+                  ✎
+                </button>
+
+
+                <!-- DELETE LESSON -->
+                <button
+                  type="button"
+                  class="lesson-delete-btn"
+                  title="Delete Lesson"
+                  (click)="
+                    deleteLesson(
+                      section.id,
+                      lesson.id
+                    )
+                  "
+                >
+                  🗑
+                </button>
+
+              </div>
+
+            </div>
+
+
+            <!-- FINAL SECTION QUIZ -->
+            <div
+              class="lesson-row final-quiz-row"
+              *ngIf="
+                getSectionFinalQuiz(section)
+                  as finalQuiz
+              "
+            >
+
+              <span class="drag final-drag">
+                ⋮⋮
+              </span>
+
+
+              <span class="lesson-icon final-quiz-icon">
+                ✦
+              </span>
+
+
+              <div class="lesson-content">
+
+                <div class="final-quiz-label">
+                  SECTION FINAL QUIZ
+                </div>
+
+                <strong>
+                  {{ finalQuiz.title }}
+                </strong>
+
+                <small>
+                  {{ quizMeta(finalQuiz) }}
+                </small>
+
+              </div>
+
+
+              <div
+                class="lesson-actions final-quiz-actions"
+              >
+
+                <button
+                  type="button"
+                  class="final-quiz-edit-btn"
+                  title="Edit Final Quiz"
+                  (click)="
+                    openFinalQuiz(section.id)
+                  "
+                >
+                  ✎
+                  <span>
+                    Edit Final Quiz
+                  </span>
+                </button>
+
+
+                <button
+                  type="button"
+                  class="lesson-delete-btn"
+                  title="Delete Final Quiz"
+                  (click)="
+                    deleteQuiz(
+                      section.id,
+                      finalQuiz.id
+                    )
+                  "
+                >
+                  🗑
+                </button>
+
+              </div>
+
+            </div>
+
+
+            <!-- EMPTY SECTION -->
+            <div
+              class="empty-state"
+              *ngIf="
+                section.lessons.length === 0 &&
+                !getSectionFinalQuiz(section)
+              "
+            >
+
+              <div class="empty-icon">
+                +
+              </div>
+
+              <strong>
+                This section is empty
+              </strong>
+
+              <span>
+                Add a lesson or create a final quiz
+                to start building this section.
+              </span>
+
+            </div>
+
+
+            <!-- SECTION ACTIONS -->
+            <div class="section-actions">
+
+              <button
+                type="button"
+                class="add-lesson"
+                (click)="addLesson(section.id)"
+              >
+                <span>+</span>
+                Add Lesson
+              </button>
+
+
+              <button
+                type="button"
+                class="add-quiz"
+                [class.edit-final-quiz]="
+                  getSectionFinalQuiz(section)
+                "
+                [class.add-final-quiz]="
+                  !getSectionFinalQuiz(section)
+                "
+                (click)="
+                  openFinalQuiz(section.id)
+                "
+              >
+
+                <span>
+                  {{
+                    getSectionFinalQuiz(section)
+                      ? '✎'
+                      : '+'
+                  }}
+                </span>
+
+                {{
+                  getSectionFinalQuiz(section)
+                    ? 'Edit Final Quiz'
+                    : 'Add Final Quiz'
+                }}
+
+              </button>
+
+            </div>
+
+          </div>
+
+        </article>
+
+
+        <!-- NO SECTIONS -->
+        <div
+          class="empty-state page-empty-state"
+          *ngIf="
+            data.sections.length === 0
+          "
+        >
+
+          <div class="empty-icon">
+            +
+          </div>
+
+          <strong>
+            No sections yet
+          </strong>
+
+          <span>
+            Start building your course by adding
+            your first section.
+          </span>
+
+          <button
+            type="button"
+            class="empty-add-btn"
+            (click)="addSection()"
+          >
+            + Add Section
+          </button>
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- DELETE MODAL -->
+    <div
+      class="delete-overlay"
+      *ngIf="showDeleteModal"
+      (click)="closeDeleteModal()"
+    >
+
+      <div
+        class="delete-modal"
+        (click)="$event.stopPropagation()"
+      >
+
+        <div class="delete-icon-large">
+          <span>!</span>
+        </div>
+
+
+        <div class="delete-content">
+
+          <h2>
+            Are you sure?
+          </h2>
+
+          <p>
+            You are about to delete
+            <strong>
+              "{{ deleteTitle }}"
+            </strong>.
+          </p>
+
+
+          <small
+            *ngIf="
+              deleteType === 'section'
+            "
+          >
+            This will also remove all lessons
+            and quizzes inside this section.
+          </small>
+
+
+          <small
+            *ngIf="
+              deleteType === 'lesson'
+            "
+          >
+            The quiz attached to this lesson
+            will also be removed.
+          </small>
+
+        </div>
+
+
+        <div class="delete-actions">
+
+          <button
+            type="button"
+            class="cancel-delete"
+            (click)="closeDeleteModal()"
+          >
+            Cancel
+          </button>
+
+          <button
+            type="button"
+            class="confirm-delete"
+            (click)="confirmDelete()"
+          >
+            Delete
+          </button>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </main>
+</div>

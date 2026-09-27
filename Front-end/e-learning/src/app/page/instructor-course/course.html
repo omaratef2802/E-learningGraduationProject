@@ -1,0 +1,338 @@
+<div class="dashboard-shell">
+
+  <app-instructor-sidebar></app-instructor-sidebar>
+
+  <main class="dashboard-main">
+
+    <header class="profile-topbar">
+
+      <div class="breadcrumb">
+        <span>INSTRUCTOR PORTAL</span>
+        <strong>/ MY COURSES</strong>
+      </div>
+
+      <div class="top-user" routerLink="/instructor-profile" style="cursor: pointer;">
+
+        <div class="mini-avatar">
+          <img
+            [src]="data.instructor.image"
+            [alt]="
+              data.instructor.firstName +
+              ' ' +
+              data.instructor.lastName
+            "
+          />
+        </div>
+
+        <div>
+          <strong>
+            {{ data.instructor.firstName }}
+            {{ data.instructor.lastName }}
+          </strong>
+
+          <small>
+            {{ data.instructor.role }}
+          </small>
+        </div>
+
+      </div>
+
+    </header>
+
+
+    <section class="dashboard-content">
+
+      <div class="page-heading">
+
+        <div>
+
+          <span class="heading-kicker">
+            INSTRUCTOR WORKSPACE
+          </span>
+
+          <h1>
+            My Courses
+
+            <span>
+              {{ data.courses.length }} Active Units
+            </span>
+          </h1>
+
+          <p>
+            Create, manage, and track your courses.
+          </p>
+
+        </div>
+
+
+        <div class="heading-actions">
+
+          <button
+            type="button"
+            class="catalog-button"
+            (click)="openCatalog()"
+          >
+            ▦ Catalog
+          </button>
+
+          <button
+            type="button"
+            class="preview-button"
+            [class.active]="emptyView"
+            (click)="toggleEmptyView()"
+          >
+            ▣
+            {{ emptyView ? 'Show Courses' : 'Empty View' }}
+          </button>
+
+          <a
+            class="new-course-button"
+            routerLink="/instructor-create-course"
+          >
+            ⊕ Create New Course
+          </a>
+
+        </div>
+
+      </div>
+
+
+      <div class="course-toolbar">
+
+        <label class="course-search">
+
+          <span>⌕</span>
+
+          <input
+            [(ngModel)]="query"
+            placeholder="Search courses by title, topic, or keyword..."
+          />
+
+        </label>
+
+
+        <select
+          [(ngModel)]="status"
+          aria-label="Filter by status"
+        >
+          <option>All Status</option>
+          <option>Published</option>
+          <option>Draft</option>
+          <option>In Review</option>
+        </select>
+
+
+        <select
+          [(ngModel)]="track"
+          aria-label="Filter by track"
+        >
+          <option>All Tracks</option>
+          <option>Frontend</option>
+          <option>React</option>
+          <option>Product Design</option>
+          <option>Backend</option>
+          <option>JavaScript</option>
+          <option>TypeScript</option>
+        </select>
+
+
+        <span class="course-count">
+          ● Showing {{ filteredCourses.length }} courses
+        </span>
+
+      </div>
+
+
+      @if (!emptyView && pagedCourses.length) {
+
+        <div class="course-grid">
+
+          @for (course of pagedCourses; track course.title) {
+
+            <article class="dashboard-course-card">
+
+              <div class="course-cover">
+
+                <img
+                  [src]="course.image"
+                  [alt]="course.title"
+                />
+
+                <span class="course-category">
+                  {{ course.category }}
+                </span>
+
+                <span
+                  class="course-status"
+                  [class.draft]="course.status !== 'Published'"
+                >
+                  ● {{ course.status }}
+                </span>
+
+              </div>
+
+
+              <div class="course-info">
+
+                <div class="course-title-row">
+
+                  <h2>
+                    {{ course.title }}
+                  </h2>
+
+                  <strong>
+                    {{ course.price }}
+                  </strong>
+
+                </div>
+
+
+                <p>
+                  Master modern tools, practical workflows,
+                  and professional techniques through focused lessons.
+                </p>
+
+
+                <div class="course-metrics">
+
+                  <span>
+                    ♙
+                    <b>{{ course.students }}</b>
+                    <small>Students</small>
+                  </span>
+
+                  <span>
+                    ★
+                    <b>{{ course.rating }}</b>
+                    <small>Rating</small>
+                  </span>
+
+                  <span>
+                    ◷
+                    <b>{{ course.updated }}</b>
+                    <small>Updated</small>
+                  </span>
+
+                </div>
+
+
+                <div class="course-actions">
+
+                  <button
+                    class="manage-button"
+                    type="button"
+                    (click)="openCourse(course.id, course.title)"
+                  >
+                    ☷
+
+                    {{
+                      course.status === 'In Review'
+                        ? 'Review Status'
+                        : course.status === 'Draft'
+                          ? 'Continue Draft'
+                          : 'Manage Course'
+                    }}
+
+                    <span>⋮</span>
+                  </button>
+
+
+                  <button
+                    class="delete-button"
+                    type="button"
+                    (click)="deleteCourse(course.id, course.title)"
+                  >
+                    Delete
+                  </button>
+
+                </div>
+
+              </div>
+
+            </article>
+
+          }
+
+        </div>
+
+
+        <div class="dashboard-pagination">
+
+          <span>
+            Showing
+            {{ pageStart }}
+            to
+            {{ pageEnd }}
+            of
+            {{ filteredCourses.length }}
+            courses
+          </span>
+
+
+          <div>
+
+            <button
+              type="button"
+              [disabled]="currentPage === 1"
+              (click)="setPage(currentPage - 1)"
+            >
+              ‹ Previous
+            </button>
+
+
+            @for (page of pageNumbers; track page) {
+
+              <button
+                type="button"
+                [class.active]="currentPage === page"
+                (click)="setPage(page)"
+              >
+                {{ page }}
+              </button>
+
+            }
+
+
+            <button
+              type="button"
+              [disabled]="currentPage === totalPages"
+              (click)="setPage(currentPage + 1)"
+            >
+              Next ›
+            </button>
+
+          </div>
+
+        </div>
+
+      }
+
+      @else {
+
+        <div class="empty-course-state">
+
+          <strong>
+            {{
+              emptyView
+                ? 'Empty View'
+                : 'No courses found'
+            }}
+          </strong>
+
+          <span>
+            {{
+              emptyView
+                ? 'Your course workspace is clear for a focused review.'
+                : 'Try another search or filter.'
+            }}
+          </span>
+
+        </div>
+
+      }
+
+    </section>
+
+  </main>
+
+</div>

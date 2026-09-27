@@ -1,0 +1,127 @@
+<div class="about-page">
+  <!-- Hero Section -->
+  <section class="about-hero">
+    <div class="hero-container">
+      <div class="eyebrow-badge">
+        <span class="badge-dot"></span>
+        <span>WHO WE ARE</span>
+      </div>
+
+      <h1 class="hero-title">
+        Empowering Minds, Shaping Futures with <em>PathwayEd</em>
+      </h1>
+
+      <p class="hero-subtitle">
+        We are on a mission to make high-quality tech and professional education accessible, practical, and career-defining for learners everywhere.
+      </p>
+
+      <div class="hero-actions">
+        <a routerLink="/courses" class="btn-primary">
+          Explore Courses <span>→</span>
+        </a>
+        <a routerLink="/signup" class="btn-secondary">
+          Join PathwayEd <span>✨</span>
+        </a>
+      </div>
+
+      <!-- Stats Grid -->
+      <div class="stats-grid">
+        @for (stat of stats; track stat.label) {
+          <div class="stat-card">
+            <div class="stat-icon">{{ stat.icon }}</div>
+            <div class="stat-content">
+              <span class="stat-number">{{ stat.value }}</span>
+              <span class="stat-label">{{ stat.label }}</span>
+              <span class="stat-sub">{{ stat.sublabel }}</span>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- Mission, Vision & Values -->
+  <section class="section-values">
+    <div class="section-container">
+      <div class="section-header">
+        <span class="section-tag">WHAT DRIVES US</span>
+        <h2>Guided by Purpose & Passion</h2>
+        <p>Discover the core pillars that guide everything we build at PathwayEd.</p>
+      </div>
+
+      <div class="values-grid">
+        @for (item of values; track item.title) {
+          <div class="value-card">
+            <div class="value-header">
+              <span class="value-icon">{{ item.icon }}</span>
+              <span class="value-tag">{{ item.tag }}</span>
+            </div>
+            <h3>{{ item.title }}</h3>
+            <p>{{ item.description }}</p>
+          </div>
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- Key Features Grid -->
+  <section class="section-features">
+    <div class="section-container">
+      <div class="features-wrapper">
+        <div class="features-header">
+          <span class="section-tag">THE PATHWAYED DIFFERENCE</span>
+          <h2>Why Learners Choose Us</h2>
+          <p>We blend interactive learning, industry relevance, and continuous support to ensure your success.</p>
+        </div>
+
+        <div class="features-grid">
+          @for (feat of features; track feat.title) {
+            <div class="feature-box">
+              <div class="feat-icon-bubble">{{ feat.icon }}</div>
+              <h3>{{ feat.title }}</h3>
+              <p>{{ feat.description }}</p>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Journey / Timeline -->
+  <section class="section-timeline">
+    <div class="section-container">
+      <div class="section-header">
+        <span class="section-tag">OUR JOURNEY</span>
+        <h2>Building the Future of Learning</h2>
+        <p>A look at how PathwayEd has grown to support thousands of learners worldwide.</p>
+      </div>
+
+      <div class="timeline-stepper">
+        @for (step of timeline; track step.year) {
+          <div class="timeline-item">
+            <div class="timeline-badge">{{ step.year }}</div>
+            <div class="timeline-content">
+              <h3>{{ step.title }}</h3>
+              <p>{{ step.description }}</p>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- Call to Action Banner -->
+  <section class="section-cta">
+    <div class="cta-card">
+      <div class="cta-glow"></div>
+      <div class="cta-content">
+        <h2>Ready to Start Your Learning Journey?</h2>
+        <p>Unlock hundreds of expert-led courses, hands-on projects, and career-boosting credentials today.</p>
+        <div class="cta-buttons">
+          <a routerLink="/courses" class="btn-cta-main">Get Started Now →</a>
+          <a routerLink="/contact" class="btn-cta-sub">Contact Us</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
