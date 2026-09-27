@@ -37,7 +37,7 @@
 
           <div class="top-user-info" routerLink="/admin-profile" style="cursor: pointer;">
             <strong>{{ profileName }}</strong>
-            <small>{{ data.admin.role }}</small>
+            <small>Administrator</small>
           </div>
 
           <span class="profile-arrow">⌄</span>
@@ -128,7 +128,7 @@
               </span>
 
               <strong>
-                {{ stats.totalUsers | number }}
+                {{ stats.totalStudents | number }}
               </strong>
 
               <small>
@@ -492,7 +492,7 @@
                     </p>
 
                     <small>
-                      {{ activity.createdAt }}
+                      {{ activity.time }}
                     </small>
 
                   </div>
@@ -585,7 +585,7 @@
                   </span>
 
                   <small>
-                    {{ user.joinedAt }}
+                    {{ user.joinDate }}
                   </small>
 
                 </div>
@@ -691,7 +691,7 @@
 
                       <td>
                         <strong>
-                          {{ course.students }}
+                          {{ course.studentsCount }}
                         </strong>
                       </td>
 
@@ -711,7 +711,7 @@
                       </td>
 
                       <td>
-                        {{ course.createdAt }}
+                        {{ course.date }}
                       </td>
 
                     </tr>

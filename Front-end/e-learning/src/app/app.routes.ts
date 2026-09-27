@@ -219,12 +219,10 @@ export const routes: Routes = [
     'A flexible learning platform designed to turn curiosity into confident, career-ready skills.'
   ),
 
-  page(
-    'login',
-    'WELCOME BACK',
-    'Log In',
-    'Your learning journey is waiting for you.'
-  ),
+  {
+    path: 'login',
+    loadComponent: () => import('./components/login/login').then(m => m.LoginComponent)
+  },
 
   page(
     'signup',

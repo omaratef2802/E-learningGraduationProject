@@ -1,4 +1,5 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 
 // =========================================================
 // INTERFACES
@@ -258,12 +259,152 @@ export interface AdminNotification {
 })
 export class InstructorData {
 
+  constructor() {
+    this.fetchCourses();
+    
+    this.fetchNotifications();
+    this.fetchCertificates();
+    this.fetchInstructorProfile();
+  }
+
+  fetchCourses() {
+    this.http.get<any>(`${this.baseUrl}/course/myCourses`, this.headers).subscribe({
+      next: (res) => {
+        if(res.data) {
+          this.courses.length = 0;
+          this.courses.push(...res.data.map((c: any) => ({
+             ...c, 
+             id: c._id,
+             // Map backend status to frontend status format
+             status: c.status === 'published' ? 'Published' : (c.status === 'draft' ? 'Draft' : 'In Review')
+          })));
+        }
+      },
+      error: (err) => console.error(err)
+    });
+  }
+
+  fetchSections(courseId: string) {
+    if (!courseId) return;
+    this.http.get<any>(`${this.baseUrl}/section/course/${courseId}`, this.headers).subscribe({
+      next: (res) => {
+        if(res.data) {
+          const fetchedSections = res.data.map((s: any) => ({ 
+             ...s, 
+             id: s._id,
+             lessons: [],
+             quizzes: []
+          }));
+          
+          this.sections.length = 0;
+          this.sections.push(...fetchedSections);
+          
+          // Now fetch lessons for this course and map them to their sections
+          this.http.get<any>(`${this.baseUrl}/lesson/course/${courseId}`, this.headers).subscribe({
+            next: (lessonRes) => {
+              if (lessonRes.data) {
+                lessonRes.data.forEach((lesson: any) => {
+                  const sectionId = lesson.sectionId?._id || lesson.sectionId;
+                  const targetSection = this.sections.find(s => s.id === sectionId);
+                  if (targetSection) {
+                    targetSection.lessons.push({
+                      id: lesson._id,
+                      title: lesson.title,
+                      type: lesson.type === 'video' ? 'Video' : 'Document',
+                      duration: lesson.duration + 'm',
+                      preview: lesson.isPreview || false,
+                      description: lesson.description || '',
+                      content: lesson.textContent || lesson.videoUrl || '',
+                      order: lesson.order || 1
+                    });
+                    
+                    // If lesson has a quiz, we can push it to quizzes array or handle it
+                    if (lesson.quizId) {
+                      targetSection.quizzes.push({
+                        id: lesson.quizId._id || lesson.quizId,
+                        title: lesson.quizId.title || 'Lesson Quiz',
+                        type: 'Lesson',
+                        lessonId: lesson._id,
+                        description: '', questions: [], passingScore: lesson.quizId.passingScore || 50, duration: '10m'
+                      });
+                    }
+                  }
+                });
+              }
+            },
+            error: (err) => console.error("Error fetching lessons:", err)
+          });
+          
+        } else {
+          this.sections.length = 0;
+        }
+      },
+      error: (err) => {
+         console.error(err);
+         this.sections.length = 0;
+      }
+    });
+  }
+
+  fetchNotifications() {
+    this.http.get<any>(`${this.baseUrl}/Notification/getNotification`, this.headers).subscribe({
+      next: (res) => {
+        if(res.data) {
+          this.notifications.length = 0;
+          this.notifications.push(...res.data.map((n: any) => ({
+             ...n, 
+             id: n._id,
+             // Ensure 'type' matches frontend expectations ('General' | 'Course' | 'System' | 'Payment')
+             type: ['General', 'Course', 'System', 'Payment'].includes(n.type) ? n.type : 'System'
+          })));
+        }
+      },
+      error: (err) => console.error(err)
+    });
+  }
+
+  fetchCertificates() {
+    this.http.get<any>(`${this.baseUrl}/certificate`, this.headers).subscribe({
+      next: (res) => {
+        if(res.data) {
+          this.certificates.length = 0;
+          this.certificates.push(...res.data.map((c: any) => ({ ...c, id: c._id })));
+        }
+      },
+      error: (err) => console.error(err)
+    });
+  }
+
+  fetchInstructorProfile() {
+    this.http.get<any>(`${this.baseUrl}/users/myProfile`, this.headers).subscribe({
+      next: (res) => {
+        if(res.data) {
+           Object.assign(this.instructor, { 
+             ...res.data, 
+             id: res.data._id,
+             image: res.data.img || this.instructor.image,
+             skills: res.data.verifiedSkills || this.instructor.skills
+           });
+        }
+      },
+      error: (err) => console.error(err)
+    });
+  }
+
+
+  private http = inject(HttpClient);
+  private baseUrl = 'http://localhost:5000/E-learning';
+
+  private get headers() {
+    const token = localStorage.getItem('token') || '';
+    return { headers: new HttpHeaders({ Authorization: `Bearer ${token}` }) };
+  }
+
   // =========================================================
   // CERTIFICATES
   // =========================================================
 
-  certificates: Certificate[] =
-    this.readCertificates();
+  certificates: Certificate[] = [];
 
   // =========================================================
   // INSTRUCTOR
@@ -283,15 +424,13 @@ export class InstructorData {
   // COURSES
   // =========================================================
 
-  readonly courses: InstructorCourse[] =
-    this.readCourses();
+  courses: InstructorCourse[] = [];
 
   // =========================================================
   // NOTIFICATIONS
   // =========================================================
 
-  notifications: InstructorNotification[] =
-    this.readNotifications();
+  notifications: InstructorNotification[] = [];
 
   readonly notificationTypes:
     InstructorNotification['type'][] = [
@@ -305,8 +444,7 @@ export class InstructorData {
   // CURRICULUM
   // =========================================================
 
-  sections: CurriculumSection[] =
-    this.readSections();
+  sections: CurriculumSection[] = [];
 
   // =========================================================
   // ADMIN STATS
@@ -618,19 +756,25 @@ export class InstructorData {
   // COURSES METHODS
   // =========================================================
 
-  addCourse(
-    course: Omit<InstructorCourse, 'id'>
-  ): InstructorCourse {
-
-    const newCourse: InstructorCourse = {
-      ...course,
-      id: this.generateId()
-    };
-
-    this.courses.unshift(newCourse);
-    this.persistCourses();
-
-    return newCourse;
+  addCourse(course: Omit<InstructorCourse, 'id'>): InstructorCourse {
+    const tempCourse = { ...course, id: 'temp-' + Date.now() } as InstructorCourse;
+    this.courses.unshift(tempCourse);
+    
+    this.http.post<any>(`${this.baseUrl}/course/addCourse`, course, this.headers).subscribe({
+      next: (res) => {
+        if(res.data) {
+          const index = this.courses.findIndex(c => c.id === tempCourse.id);
+          if (index !== -1) {
+            this.courses[index] = { ...res.data, id: res.data._id };
+          }
+        }
+      },
+      error: (err) => {
+        console.error(err);
+        this.courses = this.courses.filter(c => c.id !== tempCourse.id);
+      }
+    });
+    return tempCourse;
   }
 
   createCourseByAdmin(
@@ -667,24 +811,20 @@ export class InstructorData {
     return newCourse;
   }
 
-  updateCourse(
-    id: string,
-    updates: Partial<InstructorCourse>
-  ): void {
-
-    const course =
-      this.courses.find(
-        item => item.id === id
-      );
-
-    if (!course) {
-      return;
-    }
-
+  updateCourse(id: string, updates: Partial<InstructorCourse>): void {
+    const course = this.courses.find(item => item.id === id);
+    if (!course) return;
+    
+    const original = { ...course };
     Object.assign(course, updates);
     course.updated = 'Just now';
 
-    this.persistCourses();
+    this.http.put<any>(`${this.baseUrl}/course/updateCourse/${id}`, updates, this.headers).subscribe({
+      error: (err) => {
+        console.error(err);
+        Object.assign(course, original);
+      }
+    });
   }
 
   submitCourseForReview(
@@ -788,18 +928,18 @@ export class InstructorData {
   }
 
   removeCourse(id: string): void {
-
-    const index =
-      this.courses.findIndex(
-        course => course.id === id
-      );
-
-    if (index === -1) {
-      return;
-    }
-
+    const index = this.courses.findIndex(course => course.id === id);
+    if (index === -1) return;
+    
+    const removed = this.courses[index];
     this.courses.splice(index, 1);
-    this.persistCourses();
+
+    this.http.delete<any>(`${this.baseUrl}/course/deleteCourse/${id}`, this.headers).subscribe({
+      error: (err) => {
+        console.error(err);
+        this.courses.splice(index, 0, removed);
+      }
+    });
   }
 
   getCourseById(
@@ -831,52 +971,27 @@ export class InstructorData {
     this.persistSections();
   }
 
-  addSection(
-    section: Omit<CurriculumSection, 'id'>
-  ): void {
-
-    this.sections.push({
-      ...section,
-      id: this.generateId()
+    addSection(courseId: string, section: Omit<CurriculumSection, 'id'>): void {
+    const payload = { title: section.title };
+    this.http.post<any>(`${this.baseUrl}/section/course/${courseId}`, payload, this.headers).subscribe({
+      next: (res) => this.fetchSections(courseId),
+      error: (err) => console.error(err)
     });
-
-    this.persistSections();
   }
 
-  updateSection(
-    sectionId: string,
-    section: Omit<CurriculumSection, 'id'>
-  ): void {
-
-    const index =
-      this.sections.findIndex(
-        item =>
-          item.id === sectionId
-      );
-
-    if (index < 0) {
-      return;
-    }
-
-    this.sections[index] = {
-      ...section,
-      id: sectionId
-    };
-
-    this.persistSections();
+    updateSection(courseId: string, sectionId: string, section: Omit<CurriculumSection, 'id'>): void {
+    const payload = { title: section.title };
+    this.http.patch<any>(`${this.baseUrl}/section/${sectionId}`, payload, this.headers).subscribe({
+      next: (res) => this.fetchSections(courseId),
+      error: (err) => console.error(err)
+    });
   }
 
-  removeSection(
-    sectionId: string
-  ): void {
-
-    this.sections =
-      this.sections.filter(
-        item =>
-          item.id !== sectionId
-      );
-
-    this.persistSections();
+    removeSection(courseId: string, sectionId: string): void {
+    this.http.delete<any>(`${this.baseUrl}/section/${sectionId}`, this.headers).subscribe({
+      next: (res) => this.fetchSections(courseId),
+      error: (err) => console.error(err)
+    });
   }
 
   // =========================================================

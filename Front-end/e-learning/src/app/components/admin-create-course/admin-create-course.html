@@ -136,6 +136,20 @@
             </div>
 
             <div class="form-group">
+              <label>SUBCATEGORY</label>
+              <select
+                name="subcategory"
+                [(ngModel)]="subcategory"
+              >
+                @for (item of subcategories; track item) {
+                  <option [value]="item">
+                    {{ item }}
+                  </option>
+                }
+              </select>
+            </div>
+
+            <div class="form-group">
 
               <label>
                 TRACK

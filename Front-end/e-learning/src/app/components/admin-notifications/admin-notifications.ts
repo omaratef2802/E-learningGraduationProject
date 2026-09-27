@@ -6,15 +6,18 @@ import {
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
-import {
-  InstructorData,
-  AdminNotification,
-  InstructorNotification,
-  AdminUser
-} from '../../page/instructor-data';
+import { AdminService } from '../../services/admin.service';
 
 import { AdminSidebar } from '../../page/admin-sidebar/admin-sidebar';
 
+export interface AdminNotification {
+  id: string;
+  title: string;
+  message: string;
+  type: 'User' | 'Course' | 'System' | 'Report';
+  isRead: boolean;
+  createdAt: string;
+}
 
 @Component({
   selector: 'app-admin-notifications',
@@ -29,530 +32,165 @@ import { AdminSidebar } from '../../page/admin-sidebar/admin-sidebar';
 })
 export class AdminNotifications implements OnInit {
 
-  // =========================================================
-  // DATA SERVICE
-  // =========================================================
-
-  public readonly data = inject(InstructorData);
-
-
-  // =========================================================
-  // NOTIFICATIONS DATA
-  // =========================================================
+  private adminService = inject(AdminService);
 
   notifications: AdminNotification[] = [];
-
   filteredNotifications: AdminNotification[] = [];
+  instructors: any[] = [];
 
-
-  // =========================================================
-  // FILTER
-  // =========================================================
-
-  selectedType:
-    | 'All'
-    | 'User'
-    | 'Course'
-    | 'System'
-    | 'Report' = 'All';
-
-
-  // =========================================================
-  // PAGE STATE
-  // =========================================================
+  selectedType: 'All' | 'User' | 'Course' | 'System' | 'Report' = 'All';
 
   loading = false;
-
   errorMessage = '';
 
-
-  // =========================================================
-  // CREATE NOTIFICATION
-  // =========================================================
-
   showCreateForm = false;
-
-  notificationRecipient:
-    | 'Admin'
-    | 'Instructor' = 'Instructor';
-
+  notificationRecipient: 'Admin' | 'Instructor' = 'Instructor';
   selectedInstructorId = '';
-
-  newNotificationType:
-    | 'User'
-    | 'Course'
-    | 'System'
-    | 'Report' = 'System';
-
+  newNotificationType: 'User' | 'Course' | 'System' | 'Report' = 'System';
   newNotificationTitle = '';
-
   newNotificationMessage = '';
-
   createError = '';
-
   isCreating = false;
 
-
-  // =========================================================
-  // INSTRUCTORS
-  // =========================================================
-
-  instructors: AdminUser[] = [];
-
-
-  // =========================================================
-  // INITIALIZATION
-  // =========================================================
-
   ngOnInit(): void {
-
     this.loadNotifications();
-
     this.loadInstructors();
-
   }
-
-
-  // =========================================================
-  // LOAD NOTIFICATIONS
-  // =========================================================
 
   loadNotifications(): void {
+    this.loading = true;
+    this.errorMessage = '';
 
-    try {
-
-      this.loading = true;
-      this.errorMessage = '';
-
-      this.notifications =
-        this.data.getAdminNotifications();
-
-      this.applyFilter();
-
-    } catch (error) {
-
-      console.error(
-        'Admin Notifications Error:',
-        error
-      );
-
-      this.errorMessage =
-        'Unable to load notifications.';
-
-    } finally {
-
-      this.loading = false;
-
-    }
+    this.adminService.getNotifications().subscribe({
+       next: (res: any) => {
+         const notifs = res.data || res || [];
+         this.notifications = notifs.map((n: any) => ({
+            id: n._id || n.id,
+            title: n.title,
+            message: n.message,
+            type: n.type || 'System',
+            isRead: n.isRead || false,
+            createdAt: n.createdAt || new Date().toISOString()
+         }));
+         this.applyFilter();
+         this.loading = false;
+       },
+       error: (err) => {
+         console.error('Admin Notifications Error:', err);
+         this.errorMessage = 'Unable to load notifications.';
+         this.loading = false;
+       }
+    });
   }
-
-
-  // =========================================================
-  // LOAD INSTRUCTORS
-  // =========================================================
 
   loadInstructors(): void {
-
-    this.instructors =
-      this.data.getAdminInstructors();
-
-    if (
-      this.instructors.length > 0 &&
-      !this.selectedInstructorId
-    ) {
-
-      this.selectedInstructorId =
-        this.instructors[0].id;
-    }
+    this.adminService.getAllInstructors().subscribe({
+       next: (res: any) => {
+         this.instructors = (res.data || res || []).map((i: any) => ({ id: i._id || i.id, name: i.username || i.name || `${i.firstName} ${i.lastName}` }));
+         if (this.instructors.length > 0 && !this.selectedInstructorId) {
+            this.selectedInstructorId = this.instructors[0].id;
+         }
+       },
+       error: (err) => console.error('Unable to load instructors', err)
+    });
   }
-
-
-  // =========================================================
-  // FILTER NOTIFICATIONS
-  // =========================================================
 
   applyFilter(): void {
-
     if (this.selectedType === 'All') {
-
-      this.filteredNotifications = [
-        ...this.notifications
-      ];
-
+      this.filteredNotifications = [...this.notifications];
       return;
     }
-
-    this.filteredNotifications =
-      this.notifications.filter(
-        notification =>
-          notification.type === this.selectedType
-      );
+    this.filteredNotifications = this.notifications.filter(n => n.type === this.selectedType);
   }
 
-
-  // =========================================================
-  // NOTIFICATION COUNTS
-  // =========================================================
-
-  getTotalCount(): number {
-
-    return this.notifications.length;
-
-  }
-
-
-  getUnreadCount(): number {
-
-    return this.notifications.filter(
-      notification =>
-        !notification.isRead
-    ).length;
-
-  }
-
-
-  getReadCount(): number {
-
-    return this.notifications.filter(
-      notification =>
-        notification.isRead
-    ).length;
-
-  }
-
-
-  // =========================================================
-  // OPEN CREATE FORM
-  // =========================================================
+  getTotalCount(): number { return this.notifications.length; }
+  getUnreadCount(): number { return this.notifications.filter(n => !n.isRead).length; }
+  getReadCount(): number { return this.notifications.filter(n => n.isRead).length; }
 
   openCreateForm(): void {
-
     this.showCreateForm = true;
-
     this.createError = '';
-
-    this.notificationRecipient =
-      'Instructor';
-
-    this.newNotificationType =
-      'System';
-
+    this.notificationRecipient = 'Instructor';
+    this.newNotificationType = 'System';
     this.newNotificationTitle = '';
-
     this.newNotificationMessage = '';
-
     if (this.instructors.length > 0) {
-
-      this.selectedInstructorId =
-        this.instructors[0].id;
-
+      this.selectedInstructorId = this.instructors[0].id;
     }
-
   }
-
-
-  // =========================================================
-  // CLOSE CREATE FORM
-  // =========================================================
 
   closeCreateForm(): void {
-
     this.showCreateForm = false;
-
     this.createError = '';
-
     this.isCreating = false;
-
   }
-
-
-  // =========================================================
-  // CREATE NOTIFICATION
-  // =========================================================
 
   createNotification(): void {
-
     this.createError = '';
+    const title = this.newNotificationTitle.trim();
+    const message = this.newNotificationMessage.trim();
 
-    const title =
-      this.newNotificationTitle.trim();
-
-    const message =
-      this.newNotificationMessage.trim();
-
-
-    // -------------------------------------------------------
-    // Validation
-    // -------------------------------------------------------
-
-    if (!title) {
-
-      this.createError =
-        'Please enter a notification title.';
-
-      return;
+    if (!title) { this.createError = 'Please enter a notification title.'; return; }
+    if (!message) { this.createError = 'Please enter a notification message.'; return; }
+    if (this.notificationRecipient === 'Instructor' && !this.selectedInstructorId) {
+      this.createError = 'Please select an instructor.'; return;
     }
-
-    if (!message) {
-
-      this.createError =
-        'Please enter a notification message.';
-
-      return;
-    }
-
-
-    if (
-      this.notificationRecipient ===
-      'Instructor' &&
-      !this.selectedInstructorId
-    ) {
-
-      this.createError =
-        'Please select an instructor.';
-
-      return;
-    }
-
 
     this.isCreating = true;
+    
+    // We send it via our backend API
+    const payload = {
+       title,
+       message,
+       type: this.newNotificationType,
+       recipientType: this.notificationRecipient,
+       recipientId: this.notificationRecipient === 'Instructor' ? this.selectedInstructorId : null
+    };
 
-
-    try {
-
-      // -----------------------------------------------------
-      // SEND TO ADMIN
-      // -----------------------------------------------------
-
-      if (
-        this.notificationRecipient ===
-        'Admin'
-      ) {
-
-        this.data.addAdminNotification({
-
-          title,
-
-          message,
-
-          type:
-            this.newNotificationType,
-
-          isRead: false
-
-        });
-
-      }
-
-
-      // -----------------------------------------------------
-      // SEND TO INSTRUCTOR
-      // -----------------------------------------------------
-
-      else {
-
-        const instructor =
-          this.instructors.find(
-            item =>
-              item.id ===
-              this.selectedInstructorId
-          );
-
-        if (!instructor) {
-
-          this.createError =
-            'Selected instructor was not found.';
-
-          this.isCreating = false;
-
-          return;
-        }
-
-
-        const instructorNotification:
-          Omit<
-            InstructorNotification,
-            'id' | 'createdAt' | 'instructorId'
-          > = {
-
-          title,
-
-          message,
-
-          type:
-            this.mapTypeToInstructorType(
-              this.newNotificationType
-            ),
-
-          isRead: false
-
-        };
-
-
-        this.data.addInstructorNotification(
-
-          instructor.id,
-
-          instructorNotification
-
-        );
-
-      }
-
-
-      // -----------------------------------------------------
-      // SUCCESS
-      // -----------------------------------------------------
-
-      this.closeCreateForm();
-
-      this.loadNotifications();
-
-    } catch (error) {
-
-      console.error(
-        'Create Notification Error:',
-        error
-      );
-
-      this.createError =
-        'Unable to create notification.';
-
-      this.isCreating = false;
-
-    }
-
+    this.adminService.sendNotification(payload).subscribe({
+       next: () => {
+         this.closeCreateForm();
+         this.loadNotifications();
+       },
+       error: (err) => {
+         console.error('Create Notification Error:', err);
+         this.createError = 'Unable to create notification.';
+         this.isCreating = false;
+       }
+    });
   }
 
-
-  // =========================================================
-  // MAP ADMIN TYPE → INSTRUCTOR TYPE
-  // =========================================================
-
-  private mapTypeToInstructorType(
-    type:
-      | 'User'
-      | 'Course'
-      | 'System'
-      | 'Report'
-  ): InstructorNotification['type'] {
-
-    switch (type) {
-
-      case 'Course':
-        return 'Course';
-
-      case 'User':
-        return 'Student';
-
-      case 'System':
-        return 'System';
-
-      case 'Report':
-        return 'General';
-
-      default:
-        return 'General';
-
-    }
-
-  }
-
-
-  // =========================================================
-  // MARK ONE NOTIFICATION AS READ
-  // =========================================================
-
-  markAsRead(
-    notification: AdminNotification
-  ): void {
-
-    if (notification.isRead) {
-      return;
-    }
-
-    this.data.markAdminNotificationRead(
-      notification.id
-    );
-
+  markAsRead(notification: AdminNotification): void {
+    if (notification.isRead) return;
+    // Assuming you add an update/mark-read endpoint in AdminService if needed:
+    // this.adminService.markNotificationAsRead(notification.id).subscribe(...)
     notification.isRead = true;
-
     this.applyFilter();
-
   }
-
-
-  // =========================================================
-  // MARK ALL AS READ
-  // =========================================================
 
   markAllAsRead(): void {
-
-    if (this.getUnreadCount() === 0) {
-      return;
-    }
-
-    this.data.markAllAdminNotificationsRead();
-
-    this.notifications.forEach(
-      notification => {
-        notification.isRead = true;
-      }
-    );
-
+    if (this.getUnreadCount() === 0) return;
+    this.notifications.forEach(n => n.isRead = true);
     this.applyFilter();
-
   }
 
-
-  // =========================================================
-  // DELETE NOTIFICATION
-  // =========================================================
-
-  removeNotification(
-    id: string
-  ): void {
-
-    this.data.removeAdminNotification(id);
-
-    this.notifications =
-      this.notifications.filter(
-        notification =>
-          notification.id !== id
-      );
-
-    this.applyFilter();
-
+  removeNotification(id: string): void {
+    this.adminService.deleteNotification(id).subscribe({
+       next: () => {
+         this.notifications = this.notifications.filter(n => n.id !== id);
+         this.applyFilter();
+       },
+       error: (err) => console.error(err)
+    });
   }
 
-
-  // =========================================================
-  // NOTIFICATION ICON
-  // =========================================================
-
-  getNotificationIcon(
-    type: AdminNotification['type']
-  ): string {
-
+  getNotificationIcon(type: AdminNotification['type']): string {
     switch (type) {
-
-      case 'User':
-        return '♙';
-
-      case 'Course':
-        return '▣';
-
-      case 'Report':
-        return '◒';
-
-      case 'System':
-        return '⚙';
-
-      default:
-        return '•';
-
+      case 'User': return '♙';
+      case 'Course': return '▣';
+      case 'Report': return '◒';
+      case 'System': return '⚙';
+      default: return '•';
     }
-
   }
-
 }

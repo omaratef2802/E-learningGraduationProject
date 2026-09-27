@@ -7,13 +7,16 @@ import {
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
-import {
-  InstructorData,
-  AdminProfile as AdminProfileModel
-} from '../../page/instructor-data';
+import { AdminService } from '../../services/admin.service';
 
 import { AdminSidebar } from '../../page/admin-sidebar/admin-sidebar';
 
+export interface AdminProfileModel {
+  firstName: string;
+  lastName: string;
+  role: string;
+  id?: string;
+}
 
 @Component({
   selector: 'app-admin-profile',
@@ -28,126 +31,101 @@ import { AdminSidebar } from '../../page/admin-sidebar/admin-sidebar';
 })
 export class AdminProfile implements OnInit {
 
-  public readonly data =
-    inject(InstructorData);
-
+  private adminService = inject(AdminService);
 
   profile: AdminProfileModel = {
     firstName: '',
     lastName: '',
-    role: ''
+    role: 'admin'
   };
 
+  originalProfile: AdminProfileModel = {
+    firstName: '',
+    lastName: '',
+    role: 'admin'
+  };
 
   editing = false;
-
   savedMessage = '';
-
+  errorMessage = '';
 
   ngOnInit(): void {
-
     this.loadProfile();
-
   }
-
 
   loadProfile(): void {
-
-    this.profile = {
-      ...this.data.admin
-    };
-
+    // Attempt to load the current admin profile from the API
+    this.adminService.getAllAdmins().subscribe({
+       next: (res: any) => {
+         const admins = res.data || res || [];
+         if (admins.length > 0) {
+           const admin = admins[0]; // Assuming we get the first admin or current admin
+           this.profile = {
+             id: admin._id || admin.id,
+             firstName: admin.firstName || admin.username || 'Admin',
+             lastName: admin.lastName || '',
+             role: admin.role || 'admin'
+           };
+           this.originalProfile = { ...this.profile };
+         }
+       },
+       error: (err) => {
+         console.error(err);
+         this.errorMessage = 'Unable to load profile data.';
+       }
+    });
   }
-
 
   startEditing(): void {
-
     this.savedMessage = '';
-
-    this.profile = {
-      ...this.data.admin
-    };
-
+    this.errorMessage = '';
+    this.profile = { ...this.originalProfile };
     this.editing = true;
-
   }
-
 
   cancelEditing(): void {
-
-    this.profile = {
-      ...this.data.admin
-    };
-
+    this.profile = { ...this.originalProfile };
     this.editing = false;
-
     this.savedMessage = '';
-
+    this.errorMessage = '';
   }
-
 
   saveProfile(): void {
+    const firstName = this.profile.firstName.trim();
+    const lastName = this.profile.lastName.trim();
 
-    const firstName =
-      this.profile.firstName.trim();
-
-    const lastName =
-      this.profile.lastName.trim();
-
-    const role =
-      this.profile.role.trim();
-
-
-    if (
-      !firstName ||
-      !lastName ||
-      !role
-    ) {
-
-      this.savedMessage =
-        'Please complete all fields.';
-
+    if (!firstName) {
+      this.errorMessage = 'Please complete all fields.';
       return;
-
     }
 
-
-    this.data.updateAdminProfile({
-
+    const payload = {
       firstName,
       lastName,
-      role
-
-    });
-
-
-    this.profile = {
-      ...this.data.admin
+      // You can add email, username, etc. based on your schema
     };
 
-
-    this.editing = false;
-
-    this.savedMessage =
-      'Profile updated successfully.';
-
+    this.adminService.updateAdmin(payload).subscribe({
+       next: (res: any) => {
+          this.originalProfile = { ...this.profile };
+          this.editing = false;
+          this.savedMessage = 'Profile updated successfully.';
+          this.errorMessage = '';
+       },
+       error: (err) => {
+          console.error(err);
+          this.errorMessage = 'Failed to update profile.';
+       }
+    });
   }
-
 
   getFullName(): string {
-
-    return `${this.data.admin.firstName} ${this.data.admin.lastName}`;
-
+    return `${this.originalProfile.firstName} ${this.originalProfile.lastName}`.trim() || 'Admin User';
   }
-
 
   getInitials(): string {
-
-    return (
-      this.data.admin.firstName.charAt(0) +
-      this.data.admin.lastName.charAt(0)
-    ).toUpperCase();
-
+    const first = this.originalProfile.firstName ? this.originalProfile.firstName.charAt(0) : 'A';
+    const last = this.originalProfile.lastName ? this.originalProfile.lastName.charAt(0) : 'U';
+    return (first + last).toUpperCase();
   }
-
 }

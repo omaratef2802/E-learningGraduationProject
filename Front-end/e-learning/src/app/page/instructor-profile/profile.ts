@@ -26,25 +26,16 @@ export class InstructorProfile {
 
   protected editing = false;
 
-  protected firstName =
-    this.data.instructor.firstName;
-
-  protected lastName =
-    this.data.instructor.lastName;
-
-  protected bio =
-    this.data.instructor.bio;
-
-  protected editableSkills: string[] = [
-    ...this.data.instructor.skills
-  ];
-
+  
+  protected firstName = '';
+  protected lastName = '';
+  protected bio = '';
+  protected editableSkills: string[] = [];
   protected newSkill = '';
-
   protected saveMessage = '';
+  protected imagePreview = '';
+  protected selectedImageFile: File | undefined;
 
-  protected imagePreview =
-    this.data.instructor.image;
 
   protected readonly defaultImage =
     'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=300&q=85';

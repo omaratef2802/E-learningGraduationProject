@@ -489,7 +489,7 @@ export class InstructorCurriculum {
   confirmDelete(): void {
 
     if (this.deleteType === 'section') {
-      this.data.removeSection(this.deleteSectionId);
+      this.data.removeSection(this.course.id, this.deleteSectionId);
     }
 
     if (this.deleteType === 'lesson') {

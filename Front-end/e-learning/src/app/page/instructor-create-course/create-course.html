@@ -143,57 +143,30 @@
               <div class="form-grid compact-grid">
 
                 <label>
-
                   CATEGORY
-
-                  <select
-                    name="category"
-                    [(ngModel)]="category"
-                    (ngModelChange)="onCategoryChange()"
-                  >
-
-                    @for (
-                      item of config.categories;
-                      track item
-                    ) {
-
-                      <option
-                        [value]="item"
-                      >
-                        {{ item }}
-                      </option>
-
+                  <select name="category" [(ngModel)]="category" (ngModelChange)="onCategoryChange()">
+                    @for (item of allCategories; track item._id) {
+                      <option [value]="item.name">{{ item.name }}</option>
                     }
-
                   </select>
-
                 </label>
 
                 <label>
-
-                  TRACK
-
-                  <select
-                    name="track"
-                    [(ngModel)]="track"
-                    (ngModelChange)="onTrackChange()"
-                  >
-
-                    @for (
-                      item of categoryOptions.tracks;
-                      track item
-                    ) {
-
-                      <option
-                        [value]="item"
-                      >
-                        {{ item }}
-                      </option>
-
+                  SUBCATEGORY
+                  <select name="subcategory" [(ngModel)]="subcategory" (ngModelChange)="onSubcategoryChange()">
+                    @for (item of availableSubcategories; track item.name) {
+                      <option [value]="item.name">{{ item.name }}</option>
                     }
-
                   </select>
+                </label>
 
+                <label>
+                  TRACK
+                  <select name="track" [(ngModel)]="track" (ngModelChange)="onTrackChange()">
+                    @for (item of availableTracks; track item._id) {
+                      <option [value]="item.name || item.title">{{ item.name || item.title }}</option>
+                    }
+                  </select>
                 </label>
 
                 <label>
@@ -451,30 +424,12 @@
               </label>
 
               <label>
-
                 SUBCATEGORY
-
-                <select
-                  name="subcategory"
-                  [(ngModel)]="subcategory"
-                  (ngModelChange)="onSubcategoryChange()"
-                >
-
-                  @for (
-                    item of categoryOptions.subcategories;
-                    track item
-                  ) {
-
-                    <option
-                      [value]="item"
-                    >
-                      {{ item }}
-                    </option>
-
+                <select name="subcategory" [(ngModel)]="subcategory" (ngModelChange)="onSubcategoryChange()">
+                  @for (item of availableSubcategories; track item.name) {
+                    <option [value]="item.name">{{ item.name }}</option>
                   }
-
                 </select>
-
               </label>
 
             </section>
