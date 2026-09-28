@@ -6,13 +6,54 @@
 
   <nav class="nav-pill" aria-label="Main navigation">
     @for (link of config.links; track link.route) {
-      <a [class.active]="link.label === 'Home'" [routerLink]="link.route" [fragment]="link.fragment" (click)="link.label === 'Categories' ? scrollToCategories($event) : null">{{ link.label }}</a>
+      <a
+        [class.active]="isLinkActive(link)"
+        [routerLink]="link.route"
+        [fragment]="link.fragment"
+        (click)="link.label === 'Categories' ? scrollToCategories($event) : null"
+      >
+        {{ link.label }}
+      </a>
     }
   </nav>
 
   <div class="header-actions">
-    <a class="login-link" [routerLink]="config.loginRoute">Log In</a>
-    <a class="signup-button" [routerLink]="config.signupRoute">Sign Up</a>
-    <a class="account-button" [routerLink]="config.profileRoute" aria-label="Account">♟</a>
+    <a class="icon-button" routerLink="/wishlist" aria-label="Wishlist" title="Wishlist">
+      <i class="fa-regular fa-heart"></i>
+    </a>
+
+    <a class="icon-button" routerLink="/cart" aria-label="Shopping Cart" title="Shopping Cart">
+      <i class="fa-solid fa-cart-shopping"></i>
+    </a>
+
+    <button
+      class="language-button"
+      type="button"
+      (click)="toggleLanguage()"
+      aria-label="Change language"
+      title="Change language"
+    >
+      <i class="fa-solid fa-globe"></i>
+    </button>
+
+    <button
+      class="theme-button"
+      type="button"
+      (click)="toggleTheme()"
+      [attr.aria-label]="isDarkMode ? 'Switch to light mode' : 'Switch to dark mode'"
+      [title]="isDarkMode ? 'Light Mode' : 'Dark Mode'"
+    >
+      @if (isDarkMode) {
+        <i class="fa-solid fa-sun"></i>
+      } @else {
+        <i class="fa-solid fa-moon"></i>
+      }
+    </button>
+
+    <a class="login-link" [routerLink]="config.loginRoute"> Log In </a>
+
+    <a class="signup-button" [routerLink]="config.signupRoute"> Sign Up </a>
+
+    <a class="account-button" [routerLink]="config.profileRoute" aria-label="Account"> ♟ </a>
   </div>
 </header>
