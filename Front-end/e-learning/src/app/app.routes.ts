@@ -50,6 +50,9 @@ import { ReactCourses } from './page/catalog/courses/courses';
 import { Track } from './page/catalog/track/track';
 import { AboutPage } from './page/about/about';
 import { AuthComponent } from './components/auth/auth';
+import { Cart } from './page/cart/cart';
+import { Payment } from './page/payment/payment';
+import { WishlistComponent } from './page/wishlist/wishlist';
 
 /* =========================
    GENERAL PAGE HELPER
@@ -323,6 +326,18 @@ export const routes: Routes = [
     path: 'register',
     component: AuthComponent
   },
+  {
+  path: 'cart',
+  component: Cart
+},
+{
+  path: 'payment',
+  component: Payment
+},
+{
+  path: 'wishlist',
+  component: WishlistComponent
+},
 
   page(
     'profile',
@@ -351,14 +366,6 @@ export const routes: Routes = [
     'Certificates',
     'View and share the credentials you have earned.'
   ),
-
-  page(
-    'wishlist',
-    'SAVED FOR LATER',
-    'Wishlist',
-    'Keep the courses and learning paths you want to explore next.'
-  ),
-
   page(
     'help',
     'WE ARE HERE TO HELP',
