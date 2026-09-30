@@ -1,0 +1,167 @@
+<div class="cart-page">
+  <div class="cart-header">
+    <div>
+      <h1>Shopping Cart</h1>
+      <p>Review your courses before checkout</p>
+    </div>
+
+    @if (cart() && getCoursesCount() > 0) {
+      <span class="cart-count"> {{ getCoursesCount() }} Courses </span>
+    }
+  </div>
+
+  @if (successMessage()) {
+    <div class="success-message">
+      <i class="fa-solid fa-circle-check"></i>
+      {{ successMessage() }}
+    </div>
+  }
+
+  @if (errorMessage()) {
+    <div class="error-message">
+      <i class="fa-solid fa-circle-exclamation"></i>
+      {{ errorMessage() }}
+    </div>
+  }
+
+  @if (loading()) {
+    <div class="loading">
+      <i class="fa-solid fa-spinner fa-spin"></i>
+      <p>Loading your cart...</p>
+    </div>
+  } @else if (cart() && cart()!.courses.length > 0) {
+    <div class="cart-layout">
+      <!-- Courses -->
+      <div class="cart-courses">
+        <div class="courses-header">
+          <h2>Your Courses</h2>
+
+          <button class="clear-button" type="button" (click)="clearCart()">
+            <i class="fa-regular fa-trash-can"></i>
+            Clear Cart
+          </button>
+        </div>
+
+        @for (item of cart()!.courses; track item.courseId._id) {
+          <div class="course-card">
+            <div class="course-image">
+              @if (item.courseId.image) {
+                <img [src]="item.courseId.image" [alt]="item.courseId.title" />
+              } @else {
+                <div class="image-placeholder">
+                  <i class="fa-solid fa-book-open"></i>
+                </div>
+              }
+            </div>
+
+            <div class="course-info">
+              <h3>
+                {{ item.courseId.title }}
+              </h3>
+
+              <p class="instructor">
+                <i class="fa-solid fa-user"></i>
+
+                {{ getInstructorName(item.courseId) }}
+              </p>
+
+              <div class="course-details">
+                <span>
+                  <i class="fa-solid fa-signal"></i>
+                  {{ item.courseId.level }}
+                </span>
+
+                @if (getDuration(item.courseId)) {
+                  <span>
+                    <i class="fa-regular fa-clock"></i>
+                    {{ getDuration(item.courseId) }}
+                  </span>
+                }
+
+                <span>
+                  <i class="fa-solid fa-star"></i>
+                  {{ item.courseId.rating }}
+                </span>
+              </div>
+            </div>
+
+            <div class="course-price">
+              <strong> ${{ item.price | number: '1.2-2' }} </strong>
+
+              <button
+                type="button"
+                class="remove-button"
+                (click)="removeFromCart(item.courseId._id)"
+              >
+                <i class="fa-regular fa-trash-can"></i>
+                Remove
+              </button>
+            </div>
+          </div>
+        }
+      </div>
+      <div class="cart-summary">
+        <h2>Order Summary</h2>
+
+        <div class="summary-row">
+          <span> Courses </span>
+
+          <span>
+            {{ getCoursesCount() }}
+          </span>
+        </div>
+
+        <div class="summary-row">
+          <span> Subtotal </span>
+
+          <span> ${{ getTotalPrice() | number: '1.2-2' }} </span>
+        </div>
+
+        <div class="summary-divider"></div>
+
+        <div class="total-row">
+          <span> Total </span>
+
+          <strong> ${{ getTotalPrice() | number: '1.2-2' }} </strong>
+        </div>
+
+        <a routerLink="/payment" class="checkout-button">
+          Proceed to Checkout
+
+          <i class="fa-solid fa-arrow-right"></i>
+        </a>
+
+        <a routerLink="/courses" class="continue-button">
+          <i class="fa-solid fa-arrow-left"></i>
+
+          Continue Shopping
+        </a>
+
+        <div class="secure-payment">
+          <i class="fa-solid fa-shield-halved"></i>
+
+          <div>
+            <strong>Secure Checkout</strong>
+            <span>Your payment information is protected</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  } @else {
+    <div class="empty-cart">
+      <div class="empty-icon">
+        <i class="fa-solid fa-cart-shopping"></i>
+      </div>
+
+      <h2>Your Cart is Empty</h2>
+
+      <p>You haven't added any courses to your cart yet.</p>
+
+      <a routerLink="/courses" class="browse-button">
+        Browse Courses
+
+        <i class="fa-solid fa-arrow-right"></i>
+      </a>
+    </div>
+  }
+</div>
