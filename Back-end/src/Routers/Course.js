@@ -15,7 +15,8 @@ const {
 
 const { auth, relasedTo } = require("../middlewares/auth");
 
-router.get("/", getAllCourses);`nrouter.get("/myCourses", auth, getAllCourses);
+router.get("/", getAllCourses);
+router.get("/myCourses", auth, getAllCourses);
 router.get("/courses", getAllCourses);
 router.get("/track/:trackId", getCoursesByTrack);
 router.get("/category/:categoryId", getCoursesByCategory);
