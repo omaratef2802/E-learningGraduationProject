@@ -1,0 +1,155 @@
+<div class="wishlist-container">
+  <div class="wishlist-header">
+    <div>
+      <h1>Wishlist</h1>
+
+      <p>
+        {{ activeCoursesCount }}
+        {{ activeCoursesCount === 1 ? 'course' : 'courses' }}
+        in your wishlist
+      </p>
+    </div>
+  </div>
+
+  <div class="search-container">
+    <div class="search-box">
+      <i class="fa-solid fa-magnifying-glass search-icon"></i>
+
+      <input
+        type="text"
+        placeholder="Search your wishlist..."
+        [value]="searchQuery"
+        (input)="updateSearch($event)"
+      />
+
+      @if (searchQuery) {
+        <button class="clear-search" (click)="clearSearch()">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      }
+    </div>
+  </div>
+
+  @if (successMessage) {
+    <div class="success-message">
+      <i class="fa-solid fa-circle-check"></i>
+      {{ successMessage }}
+    </div>
+  }
+
+  @if (errorMessage) {
+    <div class="error-message">
+      <i class="fa-solid fa-circle-exclamation"></i>
+      {{ errorMessage }}
+    </div>
+  }
+
+  @if (displayedCourses.length > 0) {
+    <div class="courses-grid">
+      @for (course of displayedCourses; track course._id) {
+        <div class="course-card">
+          <div class="course-image-container">
+            <img
+              [src]="course.image || 'assets/images/default-course.jpg'"
+              [alt]="course.title"
+              class="course-image"
+            />
+
+            <button
+              class="remove-button"
+              (click)="removeFromWishlist(course._id)"
+              title="Remove from wishlist"
+            >
+              <i class="fa-solid fa-heart"></i>
+            </button>
+          </div>
+
+          <div class="course-content">
+            <div class="course-top">
+              <span class="level">
+                {{ course.level }}
+              </span>
+
+              <span class="rating">
+                <i class="fa-solid fa-star"></i>
+                {{ course.rating }}
+              </span>
+            </div>
+
+            <h2>
+              {{ course.title }}
+            </h2>
+
+            <p class="description">
+              {{ course.description }}
+            </p>
+
+            <div class="instructor">
+              @if (course.instructorId?.img) {
+                <img
+                  [src]="course.instructorId.img"
+                  [alt]="getInstructorName(course)"
+                  class="instructor-image"
+                />
+              } @else {
+                <div class="instructor-placeholder">
+                  {{ course.instructorId?.firstName?.charAt(0) }}
+                </div>
+              }
+
+              <span>
+                {{ getInstructorName(course) }}
+              </span>
+            </div>
+
+            <div class="course-info">
+              <span>
+                <i class="fa-regular fa-clock"></i>
+                {{ getDuration(course) }}
+              </span>
+            </div>
+
+            <div class="course-bottom">
+              <div class="price">{{ course.price }} EGP</div>
+
+              <button class="view-button" [routerLink]="['/courses', course._id]">
+                <i class="fa-solid fa-eye"></i>
+                View Course
+              </button>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  } @else if (searchQuery) {
+    <div class="empty-state">
+      <div class="empty-icon">
+        <i class="fa-solid fa-magnifying-glass"></i>
+      </div>
+
+      <h2>No courses found</h2>
+
+      <p>We couldn't find any course matching "{{ searchQuery }}"</p>
+
+      <button class="browse-button" (click)="clearSearch()">
+        <i class="fa-solid fa-xmark"></i>
+        Clear Search
+      </button>
+    </div>
+  } @else {
+    <div class="empty-state">
+      <div class="empty-icon">
+        <i class="fa-regular fa-heart"></i>
+      </div>
+
+      <h2>Your wishlist is empty</h2>
+
+      <p>Save courses you are interested in and find them here later.</p>
+
+      <button class="browse-button" routerLink="/courses">
+        Browse Courses
+        <i class="fa-solid fa-arrow-right"></i>
+      </button>
+    </div>
+  }
+</div>
