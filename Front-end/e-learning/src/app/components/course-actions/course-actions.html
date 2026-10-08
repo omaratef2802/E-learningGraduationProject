@@ -1,0 +1,34 @@
+<div class="course-actions">
+  <button type="button" class="cart-action" [disabled]="busyAction !== ''" (click)="addToCart()">
+    {{ busyAction === 'cart' ? 'Adding...' : 'Add to cart' }}
+  </button>
+  @if (showWishlist) {
+    <button
+      type="button"
+      class="wishlist-action"
+      [disabled]="busyAction !== ''"
+      (click)="saveToWishlist()"
+      aria-label="Save course to wishlist"
+      title="Save to wishlist"
+    >{{ busyAction === 'wishlist' ? 'Saving...' : '♡' }}</button>
+  }
+</div>
+
+@if (message) {
+  <p class="action-message" role="status">
+    {{ message }}
+    @if (completedAction === 'cart') {
+      <a routerLink="/cart">View cart</a>
+    } @else if (completedAction === 'wishlist') {
+      <a routerLink="/wishlist">View wishlist</a>
+    }
+  </p>
+}
+@if (error) {
+  <p class="action-error" role="alert">
+    {{ error }}
+    @if (requiresLogin) {
+      <a routerLink="/login">Log in</a>
+    }
+  </p>
+}

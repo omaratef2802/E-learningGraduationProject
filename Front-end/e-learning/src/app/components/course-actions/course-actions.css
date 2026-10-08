@@ -1,0 +1,61 @@
+:host {
+  display: block;
+}
+
+.course-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.course-actions button {
+  min-height: 38px;
+  border: 1px solid #dfe2f3;
+  border-radius: 6px;
+  background: #fff;
+  color: #5148e8;
+  cursor: pointer;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.course-actions .cart-action {
+  flex: 1;
+  padding: 0 12px;
+  background: #5148e8;
+  border-color: #5148e8;
+  color: #fff;
+}
+
+.course-actions .wishlist-action {
+  width: 40px;
+  font-size: 18px;
+}
+
+.course-actions button:disabled {
+  cursor: wait;
+  opacity: 0.65;
+}
+
+.action-message,
+.action-error {
+  margin: 7px 0 0;
+  font-size: 11px;
+  line-height: 1.4;
+}
+
+.action-message {
+  color: #176b50;
+}
+
+.action-message a {
+  margin-left: 6px;
+  color: #5148e8;
+  font-weight: 700;
+}
+
+.action-error {
+  color: #a33b35;
+}

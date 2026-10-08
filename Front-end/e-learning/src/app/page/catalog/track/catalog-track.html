@@ -1,0 +1,97 @@
+<section class="breadcrumb-section">
+  <div class="container breadcrumb-text">
+    <a routerLink="/catalog">Home</a>
+    <span class="sep">›</span>
+    @if (category) {
+      <a [routerLink]="['/catalog', category.slug]">{{ category.name }}</a>
+    }
+    <span class="sep">›</span>
+    <strong>{{ track?.title || 'Track courses' }}</strong>
+  </div>
+</section>
+
+<section class="track-header">
+  <div class="container">
+    @if (category) {
+      <a class="back-to-tracks" [routerLink]="['/catalog', category.slug]">
+        <span aria-hidden="true">←</span> Back to {{ category.name }} tracks
+      </a>
+    }
+    <div class="track-header-card">
+      <div class="track-icon" aria-hidden="true">▣</div>
+      <div class="track-info">
+        <div class="track-heading">
+          <span class="track-label">{{ category?.name }}</span>
+        </div>
+        <h1>{{ track?.title || 'Track courses' }}</h1>
+        <p>{{ track?.description }}</p>
+      </div>
+      <div class="track-stats">
+        <div>
+          <strong>{{ filteredCourses.length }}</strong>
+          <span>Published courses</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="courses-section">
+  <div class="container">
+    <div class="course-toolbar">
+      <div class="search-box">
+        <span class="search-icon" aria-hidden="true">⌕</span>
+        <input type="search" [(ngModel)]="searchText" placeholder="Search courses..." />
+      </div>
+      <div class="sort-area">
+        <label for="course-sort">Sort:</label>
+        <select id="course-sort" [(ngModel)]="selectedSort">
+          <option value="Most Popular">Most Popular</option>
+          <option value="A-Z">A-Z</option>
+          <option value="Price: Low to High">Price: Low to High</option>
+          <option value="Price: High to Low">Price: High to Low</option>
+        </select>
+      </div>
+    </div>
+
+    @if (loading) {
+      <div class="no-results" role="status"><p>Loading courses...</p></div>
+    } @else if (error) {
+      <div class="no-results" role="alert"><h3>{{ error }}</h3></div>
+    } @else if (filteredCourses.length) {
+      <div class="course-grid">
+        @for (course of filteredCourses; track course._id) {
+          <article class="course-card">
+            <div class="course-image">
+              @if (course.image) {
+                <img [src]="course.image" [alt]="course.title" />
+              } @else {
+                <div class="course-image-placeholder" aria-hidden="true">{{ course.title.slice(0, 1) }}</div>
+              }
+              <span class="course-category">{{ track?.title }}</span>
+            </div>
+            <div class="course-content">
+              <div class="course-meta">
+                <span>{{ course.duration }} min</span>
+                <span class="course-level">{{ displayLevel(course.level) }}</span>
+              </div>
+              <h2 class="course-title">{{ course.title }}</h2>
+              <p>{{ course.description }}</p>
+              <div class="course-footer">
+                <span class="course-rating">★ {{ course.rating | number: '1.1-1' }}</span>
+                <strong>{{ course.price | currency }}</strong>
+              </div>
+              <app-course-actions [courseId]="course._id"></app-course-actions>
+            </div>
+          </article>
+        }
+      </div>
+    } @else {
+      <div class="no-results">
+        <h3>No published courses found</h3>
+        <p>This track does not have published courses matching your search.</p>
+        <button type="button" (click)="clearFilters()">Clear search and sorting</button>
+      </div>
+    }
+  </div>
+</section>
