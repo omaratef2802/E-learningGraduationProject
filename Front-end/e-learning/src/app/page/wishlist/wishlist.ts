@@ -1,28 +1,26 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
+import { Router, RouterLink } from '@angular/router';
 import { WishlistService } from '../../services/wishlist';
-import { RouterLink } from '@angular/router';
+import { CommonModule } from '@angular/common';
 
 interface Instructor {
   _id: string;
   firstName: string;
   lastName: string;
-  img: string | null;
+  img?: string | null;
 }
 
 interface Course {
   _id: string;
   title: string;
-  description: string;
-  slug: string;
-  image: string;
+  description?: string;
+  slug?: string;
+  image?: string;
   price: number;
-  level: string;
-  rating: number;
-  duration: {
-    value: number;
-    unit: string;
-  };
-  instructorId: Instructor;
+  level?: string;
+  rating?: number;
+  duration?: number;
+  instructorId?: Instructor | null;
 }
 
 @Component({
@@ -30,67 +28,64 @@ interface Course {
   standalone: true,
   templateUrl: './wishlist.html',
   styleUrl: './wishlist.css',
-  imports: [RouterLink],
+  imports: [RouterLink, CommonModule],
 })
 export class WishlistComponent implements OnInit {
+  private readonly wishlistService = inject(WishlistService);
+  private readonly router = inject(Router);
+  private readonly changeDetector = inject(ChangeDetectorRef);
+
   courses: Course[] = [];
   displayedCourses: Course[] = [];
-
-  searchQuery: string = '';
-
-  errorMessage: string = '';
-  successMessage: string = '';
-
-  constructor(private wishlistService: WishlistService) {}
+  searchQuery = '';
+  errorMessage = '';
+  successMessage = '';
+  loading = true;
+  removingId = '';
 
   ngOnInit(): void {
     this.getWishlist();
   }
 
   getWishlist(): void {
+    this.loading = true;
     this.errorMessage = '';
 
     this.wishlistService.getWishlist().subscribe({
       next: (response) => {
-        this.courses = response?.courses || [];
+        this.courses = Array.isArray(response?.courses) ? response.courses : [];
         this.displayedCourses = [...this.courses];
+        this.loading = false;
+        this.changeDetector.detectChanges();
       },
-
       error: (error) => {
         this.courses = [];
         this.displayedCourses = [];
-
-        if (error.status !== 404) {
-          this.errorMessage = error.error?.message || 'Failed to load wishlist';
-        }
+        this.loading = false;
+        this.errorMessage = error.error?.message || 'Failed to load wishlist';
+        this.changeDetector.detectChanges();
       },
     });
   }
 
   updateSearch(event: Event): void {
-    const input = event.target as HTMLInputElement;
-
-    this.searchQuery = input.value;
+    this.searchQuery = (event.target as HTMLInputElement).value;
     this.searchCourses();
   }
 
   searchCourses(): void {
     const query = this.searchQuery.toLowerCase().trim();
-
     if (!query) {
       this.displayedCourses = [...this.courses];
       return;
     }
 
     this.displayedCourses = this.courses.filter((course) => {
-      const instructorName = course.instructorId
-        ? course.instructorId.firstName + ' ' + course.instructorId.lastName
-        : '';
-
+      const instructorName = this.getInstructorName(course).toLowerCase();
       return (
-        course.title.toLowerCase().includes(query) ||
-        course.description.toLowerCase().includes(query) ||
-        instructorName.toLowerCase().includes(query)
+        course.title?.toLowerCase().includes(query) ||
+        course.description?.toLowerCase().includes(query) ||
+        instructorName.includes(query)
       );
     });
   }
@@ -101,50 +96,57 @@ export class WishlistComponent implements OnInit {
   }
 
   removeFromWishlist(courseId: string): void {
+    if (this.removingId) return;
+    this.removingId = courseId;
     this.errorMessage = '';
 
     this.wishlistService.removeFromWishlist(courseId).subscribe({
       next: () => {
         this.courses = this.courses.filter((course) => course._id !== courseId);
-
         this.searchCourses();
-
-        this.successMessage = 'Course removed from wishlist';
-
-        setTimeout(() => {
-          this.successMessage = '';
-        }, 2000);
+        this.removingId = '';
+        this.showSuccess('Course removed from wishlist');
+        this.changeDetector.detectChanges();
       },
-
       error: (error) => {
-        console.log('Remove wishlist error:', error);
-
+        this.removingId = '';
         this.errorMessage = error.error?.message || 'Failed to remove course from wishlist';
-
-        setTimeout(() => {
-          this.errorMessage = '';
-        }, 3000);
+        this.changeDetector.detectChanges();
       },
     });
   }
 
-  getInstructorName(course: Course): string {
-    if (!course.instructorId) {
-      return 'Unknown Instructor';
-    }
+  openCourse(courseId: string): void {
+    this.router.navigate(['/course', courseId]);
+  }
 
-    return course.instructorId.firstName + ' ' + course.instructorId.lastName;
+  getInstructorName(course: Course): string {
+    if (!course.instructorId) return 'Lead Instructor';
+    return `${course.instructorId.firstName ?? ''} ${course.instructorId.lastName ?? ''}`.trim() || 'Lead Instructor';
+  }
+
+  getInstructorInitial(course: Course): string {
+    return this.getInstructorName(course).charAt(0).toUpperCase();
   }
 
   getDuration(course: Course): string {
-    if (!course.duration) {
-      return '';
-    }
+    return course.duration ? `${course.duration}h` : 'Self-paced';
+  }
 
-    return course.duration.value + ' ' + course.duration.unit;
+  getLevel(course: Course): string {
+    if (!course.level) return 'All Levels';
+    return course.level.charAt(0).toUpperCase() + course.level.slice(1);
   }
 
   get activeCoursesCount(): number {
     return this.courses.length;
+  }
+
+  private showSuccess(message: string): void {
+    this.successMessage = message;
+    setTimeout(() => {
+      this.successMessage = '';
+      this.changeDetector.detectChanges();
+    }, 2200);
   }
 }

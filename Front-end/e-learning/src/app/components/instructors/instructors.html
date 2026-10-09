@@ -8,12 +8,19 @@
   <div class="instructors-grid">
     @for (instructor of instructorsList; track instructor.name) {
       <article class="instructor-card" [class]="instructor.tone">
-        <div class="portrait-wrap"><span class="portrait-ring"></span><img [src]="instructor.image" [alt]="instructor.name" /></div>
+        <div class="portrait-wrap">
+          <span class="portrait-ring"></span>
+          @if (instructor.image) {
+            <img [src]="instructor.image" [alt]="instructor.name" />
+          } @else {
+            <span class="portrait-initials" aria-hidden="true">{{ instructor.name.charAt(0) }}</span>
+          }
+        </div>
         <h3>{{ instructor.name }}</h3>
         <span class="instructor-role">{{ instructor.role }}</span>
         <p>{{ instructor.bio }}</p>
-        <div class="instructor-stats"><span><b>★</b> {{ instructor.rating }} Rating</span><span>{{ instructor.learners }} Learners</span></div>
-        <button type="button" (click)="viewInstructor(instructor.name)" [attr.aria-label]="'View courses by ' + instructor.name">View profile <strong>→</strong></button>
+        <div class="instructor-stats"><span>PathwayEd Instructor</span></div>
+        <button type="button" (click)="viewInstructor(instructor)" [attr.aria-label]="'View profile of ' + instructor.name">View profile <strong>→</strong></button>
       </article>
     }
   </div>

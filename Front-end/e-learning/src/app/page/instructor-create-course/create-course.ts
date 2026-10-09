@@ -1,12 +1,12 @@
-import { Component, OnInit, inject } from '@angular/core';
+﻿import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 
 import { CREATE_COURSE_CONFIG } from './create-course.config';
 import { InstructorSidebar } from '../instructor-sidebar/sidebar';
-import { InstructorData } from '../instructor-data';
 import { InstructorService } from '../../services/instructor.service';
+import { InstructorDataService } from '../../services/instructor-data.service';
 
 @Component({
   selector: 'app-instructor-create-course',
@@ -21,10 +21,11 @@ import { InstructorService } from '../../services/instructor.service';
   styleUrl: './create-course.css',
 })
 export class InstructorCreateCourse implements OnInit {
+  public data: any = { instructor: {} };
 
   private readonly router = inject(Router);
-  protected readonly data = inject(InstructorData);
-  private instructorService = inject(InstructorService);
+    private instructorService = inject(InstructorService);
+  private readonly instructorData = inject(InstructorDataService);
 
   protected readonly config = CREATE_COURSE_CONFIG;
   protected activeNav = 'Create Course';
@@ -41,6 +42,8 @@ export class InstructorCreateCourse implements OnInit {
   protected prerequisites = '';
   protected imageUrl = 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=500&q=85';
   protected imageName = 'Preview Image Banner';
+  protected createError = '';
+  protected isCreating = false;
 
   allCategories: any[] = [];
   allTracks: any[] = [];
@@ -49,16 +52,25 @@ export class InstructorCreateCourse implements OnInit {
   availableTracks: any[] = [];
 
   ngOnInit(): void {
+    this.instructorData.getProfile().subscribe({
+      next: (profile) => this.data.instructor = {
+        firstName: profile.firstName || '',
+        lastName: profile.lastName || '',
+        image: profile.img || 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=100&q=80',
+        role: profile.role || 'Instructor',
+      },
+      error: () => {},
+    });
     this.instructorService.getCategories().subscribe({
-      next: (res: any) => { 
-        this.allCategories = res.categories || res.data || (Array.isArray(res) ? res : []);
+      next: (cats) => { 
+         this.allCategories = cats;
         this.updateDropdowns();
       },
       error: (err) => console.error(err)
     });
     this.instructorService.getTracks().subscribe({
-      next: (res: any) => { 
-        this.allTracks = res.tracks || res.data || (Array.isArray(res) ? res : []);
+      next: (tracks) => { 
+         this.allTracks = tracks;
         this.updateDropdowns();
       },
       error: (err) => console.error(err)
@@ -77,10 +89,10 @@ export class InstructorCreateCourse implements OnInit {
     if (!this.allCategories.length) return;
 
     // Find selected category object
-    let selectedCat = this.allCategories.find(c => c.name === this.category);
+    let selectedCat = this.allCategories.find(c => (c.name || c.title) === this.category || c._id === this.category);
     if (!selectedCat) {
       selectedCat = this.allCategories[0];
-      this.category = selectedCat.name;
+      this.category = selectedCat.name || selectedCat.title;
     }
 
     // Set Subcategories
@@ -96,12 +108,16 @@ export class InstructorCreateCourse implements OnInit {
 
     // Set Tracks based on Category ID
     if (this.allTracks.length > 0) {
-      const catId = selectedCat._id || selectedCat.id;
-      this.availableTracks = this.allTracks.filter(t => t.categoryId === catId || t.category === catId || (t.category && (t.category._id === catId || t.category.id === catId)));
+      const catId = selectedCat._id;
+      this.availableTracks = this.allTracks.filter((track) => {
+        const relation = track.categoryId ?? (track as any).category;
+        const relationId = typeof relation === 'object' ? relation?._id : relation;
+        return String(relationId ?? '') === String(catId);
+      });
       
       if (this.availableTracks.length > 0) {
-        if (!this.availableTracks.find(t => t.name === this.track || t.title === this.track)) {
-          this.track = this.availableTracks[0].name || this.availableTracks[0].title;
+        if (!this.availableTracks.some((item) => item._id === this.track)) {
+          this.track = this.availableTracks[0]._id;
         }
       } else {
         this.track = '';
@@ -143,43 +159,48 @@ export class InstructorCreateCourse implements OnInit {
   }
   
   private createCourseAPI(action: 'draft' | 'continue'): void {
+    this.createError = '';
     const courseTitle = this.title.trim() || 'Untitled Course';
-    let catId = this.allCategories.find(c => c.name.toLowerCase() === this.category.toLowerCase())?._id;
-    let trackId = this.allTracks.find(t => t.name.toLowerCase() === this.track.toLowerCase())?._id;
-    
-    // Fallback to first available category/track if not exact match (to prevent API crash)
-    if (!catId && this.allCategories.length) catId = this.allCategories[0]._id;
-    if (!trackId && this.allTracks.length) trackId = this.allTracks[0]._id;
+    const category = this.allCategories.find((item) => (item.name || item.title) === this.category || item._id === this.category);
+    const selectedTrack = this.availableTracks.find((item) => item._id === this.track);
+    const catId = category?._id;
+    const trackId = selectedTrack?._id;
+
+    if (!catId || !trackId) {
+      this.createError = 'Choose a category and a track that belongs to it before creating the course.';
+      return;
+    }
+
+    const normalizedLevel = this.level.toLowerCase().includes('advanced')
+      ? 'advanced'
+      : this.level.toLowerCase().includes('intermediate')
+        ? 'intermediate'
+        : 'beginner';
+    const slugBase = courseTitle.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 
     const payload = {
       title: courseTitle,
+      slug: `${slugBase || 'course'}-${Date.now()}`,
       description: this.description || 'Course description',
       category: catId,
       track: trackId,
-      price: this.price || 0,
-      level: this.level,
+      image: this.imageUrl || undefined,
+      price: Number(this.price) || 0,
+      level: normalizedLevel,
       language: this.language,
-      duration: this.duration,
-      objectives: this.objectives,
-      prerequisites: this.prerequisites
+      duration: parseInt(this.duration, 10) || 1,
+      objectives: (this.objectives || '').split('\n').filter(Boolean),
+      prerequisites: (this.prerequisites || '').split('\n').filter(Boolean)
     };
 
+    this.isCreating = true;
     this.instructorService.createCourse(payload).subscribe({
       next: (res: any) => {
+        this.isCreating = false;
         const newCourseId = res.data?._id || res.data?.id;
         
         // Add to local mock data so other parts of UI don't crash before they are fully migrated
-        this.data.addCourse({
-          id: newCourseId,
-          title: courseTitle,
-          category: `${this.category} + ${this.track}`,
-          image: this.imageUrl,
-          price: `$${this.price || '0'}`,
-          students: '0',
-          rating: '—',
-          updated: 'Just now',
-          status: 'Draft'
-        } as any);
+        
 
         if (action === 'continue') {
           this.router.navigate(['/instructor-course-curriculum'], {
@@ -190,8 +211,9 @@ export class InstructorCreateCourse implements OnInit {
         }
       },
       error: (err) => {
+        this.isCreating = false;
         console.error('Failed to create course:', err);
-        alert('Failed to create course. Make sure you are logged in as instructor and fill required fields.');
+        this.createError = err.error?.message || 'Could not create the course. Check the required fields and try again.';
       }
     });
   }
@@ -218,3 +240,14 @@ export class InstructorCreateCourse implements OnInit {
     fileInput.value = '';
   }
 }
+
+
+
+
+
+
+
+
+
+
+

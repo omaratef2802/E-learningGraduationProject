@@ -8,10 +8,13 @@ const paymentSchema = new mongoose.Schema(
     paymentMethod: { type: String, required: true, trim: true },
     status: { type: String, enum: ["pending", "processing", "success", "failed", "refunded"], default: "pending" },
     fulfilledAt: { type: Date, default: null },
+    gatewayOrderId: { type: String, default: undefined },
+    gatewayTransactionId: { type: String, default: null },
   },
   { timestamps: true },
 );
 
 paymentSchema.index({ orderId: 1, createdAt: -1 });
+paymentSchema.index({ gatewayOrderId: 1 }, { unique: true, sparse: true });
 
 module.exports = mongoose.model("Payment", paymentSchema);

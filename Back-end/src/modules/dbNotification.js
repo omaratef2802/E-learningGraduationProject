@@ -33,6 +33,7 @@ const notificationSchema = new mongoose.Schema(
         "project",
         "certificate",
         "review",
+        "course",
         "system",
       ],
       default: "system",

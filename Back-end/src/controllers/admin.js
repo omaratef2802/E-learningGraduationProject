@@ -48,4 +48,23 @@ const deleteUser = async (req, res, next) => {
     return res.status(200).json({ message: await userService.deleteUser(userModule, req.params.id) });
   } catch (err) { next(err); }
 };
-module.exports = { getAdminById, getAllAdmin, getAllInstructor, createAdmin, updateAdmin, updatePassword, login, uploadImage, forgetPassword, verifyOtp, changePassword, deleteUser };
+const updateManagedUser = async (req, res, next) => {
+  try {
+    const updates = {};
+    for (const field of ["firstName", "lastName", "email"]) {
+      if (req.body[field] !== undefined) updates[field] = req.body[field];
+    }
+    const user = await userModule.findByIdAndUpdate(req.params.id, updates, { new: true, runValidators: true }).select("-password -googleId -githubId");
+    if (!user) return next(new ApiError(404, "User not found"));
+    return res.status(200).json({ message: "User updated successfully", data: user });
+  } catch (err) { return next(err); }
+};
+const updateManagedUserStatus = async (req, res, next) => {
+  try {
+    if (typeof req.body.isActive !== "boolean") return next(new ApiError(400, "isActive must be a boolean"));
+    const user = await userModule.findByIdAndUpdate(req.params.id, { isActive: req.body.isActive }, { new: true }).select("-password -googleId -githubId");
+    if (!user) return next(new ApiError(404, "User not found"));
+    return res.status(200).json({ message: "User status updated successfully", data: user });
+  } catch (err) { return next(err); }
+};
+module.exports = { getAdminById, getAllAdmin, getAllInstructor, createAdmin, updateAdmin, updatePassword, login, uploadImage, forgetPassword, verifyOtp, changePassword, deleteUser, updateManagedUser, updateManagedUserStatus };

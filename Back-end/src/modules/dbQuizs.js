@@ -5,6 +5,10 @@ const quizSchema = new mongoose.Schema(
     title: { type: String, required: true, trim: true },
     instructorId: { type: mongoose.Schema.Types.ObjectId, ref: "users", required: true },
     courseId: { type: mongoose.Schema.Types.ObjectId, ref: "courses", required: true },
+    // Set when this quiz is the final assessment of a whole section rather
+    // than the quiz of a single lesson. A quiz has either `sectionId` (section
+    // final quiz) or is referenced by `Lesson.quizId` (lesson quiz) — never both.
+    sectionId: { type: mongoose.Schema.Types.ObjectId, ref: "sections", default: null },
     questions: [
       {
         question: { type: String, required: true, trim: true },
@@ -31,5 +35,11 @@ const quizSchema = new mongoose.Schema(
 );
 
 quizSchema.index({ courseId: 1, instructorId: 1 });
+// At most one section final quiz per section (null sectionId = lesson quiz,
+// which must not be covered by the unique constraint).
+quizSchema.index(
+  { sectionId: 1 },
+  { unique: true, partialFilterExpression: { sectionId: { $type: "objectId" } } },
+);
 
 module.exports = mongoose.model("quizzes", quizSchema);

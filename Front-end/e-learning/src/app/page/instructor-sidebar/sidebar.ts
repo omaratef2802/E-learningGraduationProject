@@ -16,11 +16,24 @@ export class InstructorSidebar {
 
   protected readonly config = INSTRUCTOR_SIDEBAR_CONFIG;
 
-  protected readonly firstName =
-    localStorage.getItem('instructorFirstName') || 'Naema';
+  protected firstName = 'Instructor';
+  protected lastName = '';
 
-  protected readonly lastName =
-    localStorage.getItem('instructorLastName') || 'Sayed';
+  constructor() {
+    const token = localStorage.getItem('token');
+    if (token) {
+      try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        if (payload.fullname) {
+          const parts = payload.fullname.split(' ');
+          this.firstName = parts[0] || 'Instructor';
+          this.lastName = parts.slice(1).join(' ') || '';
+        }
+      } catch (e) {
+        console.error('Error decoding token', e);
+      }
+    }
+  }
 
   protected menuOpen = false;
 

@@ -1,7 +1,58 @@
 <main class="all-courses-page">
-  <div class="page-header">
-    <a routerLink="/" class="back-button">← Back to home</a>
-  </div>
-  
-  <app-courses></app-courses>
+  <section class="catalog-hero">
+    <div class="hero-orbit orbit-a" aria-hidden="true"></div>
+    <div class="hero-orbit orbit-b" aria-hidden="true"></div>
+    <div class="page-shell">
+      <nav class="breadcrumbs" aria-label="Breadcrumb">
+        <a routerLink="/">Home</a><span aria-hidden="true">›</span><strong>Courses</strong>
+      </nav>
+      <div class="hero-content">
+        <div class="hero-copy">
+          <span class="hero-kicker"><span aria-hidden="true">✦</span> YOUR NEXT CHAPTER STARTS HERE</span>
+          <h1>{{ searchText ? 'Find the right course for you' : 'Learn something that moves you forward.' }}</h1>
+          <p>Build practical skills with expert-led courses designed to fit your goals, your schedule, and your next big idea.</p>
+          <div class="catalog-search">
+            <span aria-hidden="true">⌕</span>
+            <input [(ngModel)]="searchText" type="search" aria-label="Search courses" placeholder="Search courses, skills, or instructors" />
+            @if (searchText) { <button type="button" (click)="searchText = ''" aria-label="Clear search">×</button> }
+            <a routerLink="/categories">Explore paths</a>
+          </div>
+        </div>
+        <div class="hero-note" aria-hidden="true">
+          <span class="note-icon">✧</span><small>LEARN AT YOUR PACE</small><strong>Skills for the<br />work you want.</strong><span class="note-line"></span>
+        </div>
+      </div>
+      <div class="hero-benefits"><span><i>✓</i> Learn from experienced instructors</span><span><i>✓</i> Practical, career-ready skills</span><span><i>✓</i> Study on your schedule</span></div>
+    </div>
+  </section>
+
+  <section class="catalog-results page-shell">
+    @if (matchedCategory && tracks.length > 0) {
+      <div class="tracks-section">
+        <div class="section-heading">
+          <div><span class="section-kicker">A CLEARER WAY TO LEARN</span><h2>{{ matchedCategory.name }} learning paths</h2><p>Choose a focused track, then explore the courses inside it.</p></div>
+          <a class="all-paths-link" [routerLink]="trackRoute">Browse category <span aria-hidden="true">→</span></a>
+        </div>
+        <div class="tracks-grid">
+          @for (track of tracks; track track._id) {
+            <a class="track-card" [routerLink]="['/track', track._id]">
+              <span class="track-icon" aria-hidden="true">✧</span><span class="track-label">LEARNING PATH</span>
+              <h3>{{ track.title }}</h3><p>{{ track.description }}</p><span class="track-action">Explore this track <b aria-hidden="true">→</b></span>
+            </a>
+          }
+        </div>
+      </div>
+    }
+
+    <div class="results-heading">
+      <div><span class="section-kicker">CURATED FOR YOUR GROWTH</span><h2>{{ searchText ? 'Matching courses' : 'Explore all courses' }}</h2><p>Find your next skill and start making progress today.</p></div>
+      <span class="results-note"><span class="live-dot"></span> Expert-led learning</span>
+    </div>
+
+    @if (loading && matchedCategory) {
+      <div class="loading-note" role="status"><span></span> Finding learning paths…</div>
+    }
+
+    <app-courses [searchQuery]="searchText" [showHeading]="false"></app-courses>
+  </section>
 </main>

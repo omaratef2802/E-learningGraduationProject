@@ -1,10 +1,11 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 
 import { InstructorSidebar } from '../instructor-sidebar/sidebar';
-import { InstructorData } from '../instructor-data';
+import { InstructorDataService } from '../../services/instructor-data.service';
+import { InstructorProfile } from '../../mock-types';
 
 @Component({
   selector: 'app-instructor-profile',
@@ -17,16 +18,23 @@ import { InstructorData } from '../instructor-data';
   templateUrl: './profile.html',
   styleUrl: './profile.css'
 })
-export class InstructorProfile {
+/**
+ * Named `InstructorProfilePage` in code because `InstructorProfile` is already
+ * taken by the database model in mock-types.
+ */
+export class InstructorProfilePage implements OnInit {
 
   private readonly router = inject(Router);
 
-  protected readonly data =
-    inject(InstructorData);
+  private readonly dataService = inject(InstructorDataService);
+
+  /** The instructor record as stored in MongoDB (dbUsers). */
+  protected profile: InstructorProfile | null = null;
+
+  protected loading = false;
 
   protected editing = false;
 
-  
   protected firstName = '';
   protected lastName = '';
   protected bio = '';
@@ -39,6 +47,66 @@ export class InstructorProfile {
 
   protected readonly defaultImage =
     'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=300&q=85';
+
+
+  ngOnInit(): void {
+
+    this.loading = true;
+
+    this.dataService.getProfile().subscribe({
+
+      next: (profile) => {
+
+        this.profile = profile;
+
+        this.loadCurrentProfile();
+
+        this.loading = false;
+
+      },
+
+      error: (err) => {
+
+        console.error('Error fetching profile:', err);
+
+        this.saveMessage =
+          'Unable to load your profile.';
+
+        this.loading = false;
+
+      },
+    });
+  }
+
+
+  /**
+ * The templates were written against the old mock store shape
+ * (`data.instructor.*`). This keeps that contract working while the values
+ * now come from the database.
+ */
+  protected get data(): {
+    instructor: {
+      firstName: string;
+      lastName: string;
+      image: string;
+      role: string;
+      bio: string;
+      skills: string[];
+    };
+  } {
+    const instructor = this.profile;
+
+    return {
+      instructor: {
+        firstName: instructor?.firstName ?? '',
+        lastName: instructor?.lastName ?? '',
+        image: instructor?.img ?? this.defaultImage,
+        role: instructor?.role ?? 'instructor',
+        bio: instructor?.bio ?? '',
+        skills: this.editableSkills,
+      },
+    };
+  }
 
 
   // =========================
@@ -68,21 +136,19 @@ export class InstructorProfile {
 
   private loadCurrentProfile(): void {
 
-    this.firstName =
-      this.data.instructor.firstName;
+    const profile = this.profile;
 
-    this.lastName =
-      this.data.instructor.lastName;
+    if (!profile) return;
 
-    this.bio =
-      this.data.instructor.bio;
+    this.firstName = profile.firstName ?? '';
+    this.lastName = profile.lastName ?? '';
+    this.bio = profile.bio ?? '';
+    this.imagePreview = profile.img || this.defaultImage;
 
-    this.editableSkills = [
-      ...this.data.instructor.skills
-    ];
-
-    this.imagePreview =
-      this.data.instructor.image;
+    // verifiedSkills is a Mixed array, so entries may be strings or objects.
+    this.editableSkills = (profile.verifiedSkills ?? [])
+      .map((skill) => (typeof skill === 'string' ? skill : (skill as any)?.skill))
+      .filter((skill): skill is string => typeof skill === 'string' && skill.length > 0);
   }
 
 
@@ -201,29 +267,30 @@ export class InstructorProfile {
       return;
     }
 
-    this.data.updateInstructor({
-
-      firstName:
-        this.firstName.trim(),
-
-      lastName:
-        this.lastName.trim(),
-
-      bio:
-        this.bio.trim(),
-
-      skills:
-        [...this.editableSkills],
-
-      image:
-        this.imagePreview
-
+    // PATCH /users/profile — the backend owns validation and persistence.
+    this.dataService.updateProfile({
+      firstName: this.firstName.trim(),
+      lastName: this.lastName.trim(),
+      bio: this.bio.trim(),
+      img:
+        this.imagePreview === this.defaultImage
+          ? null
+          : this.imagePreview
+    }).subscribe({
+      next: (profile) => {
+        this.profile = profile;
+        this.loadCurrentProfile();
+        this.editing = false;
+        this.saveMessage =
+          'Profile updated successfully.';
+      },
+      error: (err) => {
+        console.error('Error updating profile:', err);
+        this.saveMessage =
+          err?.error?.message ||
+          'Failed to update profile.';
+      }
     });
-
-    this.editing = false;
-
-    this.saveMessage =
-      'Profile updated successfully.';
   }
 
 
@@ -238,3 +305,8 @@ export class InstructorProfile {
     ]);
   }
 }
+
+
+
+
+

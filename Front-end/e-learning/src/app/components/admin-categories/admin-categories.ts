@@ -1,4 +1,4 @@
-import {
+﻿import {
   Component,
   OnInit,
   inject
@@ -69,16 +69,17 @@ export class AdminCategories implements OnInit {
     this.errorMessage = '';
 
     this.adminService.getCategories().subscribe({
-      next: (res: any) => {
-        const cats = res.data || res || [];
-        this.categories = cats.map((c: any) => ({
-           id: c._id || c.id,
+      next: (cats) => {
+        // The Category schema stores `subcategories` and has no status or
+        // course counters, so those are derived or left at zero.
+        this.categories = cats.map((c) => ({
+           id: c._id,
            name: c.name,
            description: c.description || '',
-           subcategoriesCount: c.subCategories?.length || c.subcategoriesCount || 0,
-           coursesCount: c.courses?.length || c.coursesCount || 0,
-           tracksCount: c.tracksCount || 0,
-           status: c.status || 'Active'
+           subcategoriesCount: c.subcategories?.length ?? 0,
+           coursesCount: 0,
+           tracksCount: 0,
+           status: 'Active'
         }));
         this.applyFilters();
         this.loading = false;
@@ -146,7 +147,7 @@ export class AdminCategories implements OnInit {
     if (subcategories === 0 && courses === 0) {
       return 'Ready to organize';
     }
-    return `${subcategories} ${subcategories === 1 ? 'subcategory' : 'subcategories'} · ${courses} ${courses === 1 ? 'course' : 'courses'}`;
+    return `${subcategories} ${subcategories === 1 ? 'subcategory' : 'subcategories'} Â· ${courses} ${courses === 1 ? 'course' : 'courses'}`;
   }
 
   openAddCategory(): void {
@@ -199,7 +200,11 @@ export class AdminCategories implements OnInit {
     }
 
     this.savingCategory = true;
-    const payload = { name, description, status: this.categoryForm.status };
+    const payload = {
+      name,
+      slug: name.toLowerCase().normalize('NFKD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, ''),
+      description,
+    };
 
     if (this.editingCategoryId) {
       this.adminService.updateCategory(this.editingCategoryId, payload).subscribe({

@@ -8,7 +8,6 @@ function walkDir(dir, callback) {
     isDirectory ? walkDir(dirPath, callback) : callback(path.join(dir, f));
   });
 }
-
 walkDir('src/app', (filePath) => {
   if (filePath.endsWith('.ts') && !filePath.includes('.spec.ts')) {
     let content = fs.readFileSync(filePath, 'utf-8');

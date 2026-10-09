@@ -6,6 +6,8 @@ export interface HeaderLink {
 
 export const HEADER_CONFIG = {
   brandName: 'PathwayEd',
+  // Single catalog entry points. A specific category is reached from
+  // /categories by id, so there is no separate per-slug nav link.
   links: [
     { label: 'Home', route: '/' },
     { label: 'Categories', route: '/categories' },

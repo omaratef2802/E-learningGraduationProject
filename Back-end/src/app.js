@@ -2,12 +2,10 @@ const dotenv = require("dotenv");
 dotenv.config();
 const express = require("express");
 const cors = require("cors");
-const connectDb = require("./configs/db");
 const passport = require("./configs/passport");
 const mountRoutes = require("./Routers");
 
 const app = express();
-connectDb();
 
 const allowedOrigins = process.env.FRONTEND_URL ? process.env.FRONTEND_URL.split(",").map((origin) => origin.trim()).filter(Boolean) : null;
 app.use(cors({

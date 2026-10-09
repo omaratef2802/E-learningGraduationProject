@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+﻿import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import Swal from 'sweetalert2';
@@ -14,7 +14,8 @@ interface UserForm {
   password: string;
   confirmPassword: string;
   role: 'Student' | 'Instructor' | 'Admin';
-  status: 'Active' | 'Pending' | 'Blocked'; joinDate?: string; joinedAt?: string;
+  // Mirrors AdminUser: `isActive` in the schema maps to Active/Inactive.
+  status: 'Active' | 'Inactive' | 'Pending' | 'Blocked'; joinDate?: string; joinedAt?: string;
 }
 
 interface AdminUser {
@@ -22,7 +23,9 @@ interface AdminUser {
   name: string;
   email: string;
   role: 'Student' | 'Instructor' | 'Admin';
-  status: 'Active' | 'Pending' | 'Blocked'; joinDate?: string; joinedAt?: string;
+  // The users schema stores `isActive`, so the meaningful states are
+  // Active/Inactive. Pending and Blocked remain for the template bindings.
+  status: 'Active' | 'Inactive' | 'Pending' | 'Blocked'; joinDate?: string; joinedAt?: string;
 }
 
 @Component({
@@ -84,23 +87,24 @@ export class AdminUsers implements OnInit {
 
     // Fetch users and map them
     this.adminService.getAllUsers().subscribe({
-      next: (res: any) => {
-        const studentUsers = (res.data || res || []).map((u: any) => ({
+      next: (users) => {
+        const studentUsers = users.map((u) => ({
           id: u._id,
           name: u.username || u.name || `${u.firstName} ${u.lastName}`,
           email: u.email,
-          role: 'Student',
-          status: 'Active' // Replace with u.status if your backend supports it
+          role: 'Student' as const,
+          // The users schema has `isActive`, not a status string.
+          status: (u.isActive === false ? 'Blocked' : 'Active') as AdminUser['status']
         }));
 
         this.adminService.getAllInstructors().subscribe({
-          next: (instRes: any) => {
-             const instructors = (instRes.data || instRes || []).map((u: any) => ({
+          next: (instructorList) => {
+             const instructors = instructorList.map((u) => ({
               id: u._id,
               name: u.username || u.name || `${u.firstName} ${u.lastName}`,
               email: u.email,
-              role: 'Instructor',
-              status: 'Active' // Replace with u.status if your backend supports it
+              role: 'Instructor' as const,
+              status: (u.isActive === false ? 'Blocked' : 'Active') as AdminUser['status']
             }));
 
             this.users = [...studentUsers, ...instructors];
@@ -190,7 +194,7 @@ export class AdminUsers implements OnInit {
     this.editingUser = user;
 
     this.form = {
-      firstName: parts[0] || '',
+      firstName: parts[0] || '',  
       lastName: parts.slice(1).join(' ') || '',
       email: user.email,
       password: '',
@@ -261,8 +265,7 @@ export class AdminUsers implements OnInit {
 
     return (
       name.length >= 2 &&
-      name.length <= 30 &&
-      /^[A-Za-zÀ-ÖØ-öø-ÿ\s'-]+$/.test(name)
+      /^[A-Za-z\u00C0-\u00FF\u2018\u2019\s'-]+$/.test(name)
     );
   }
 
@@ -286,7 +289,7 @@ export class AdminUsers implements OnInit {
     }
 
     if (!this.isNameValid(this.form.firstName)) {
-      return 'Use 2–30 letters only.';
+      return 'Use 2â€“30 letters only.';
     }
 
     return '';
@@ -302,7 +305,7 @@ export class AdminUsers implements OnInit {
     }
 
     if (!this.isNameValid(this.form.lastName)) {
-      return 'Use 2–30 letters only.';
+      return 'Use 2â€“30 letters only.';
     }
 
     return '';
@@ -429,18 +432,18 @@ export class AdminUsers implements OnInit {
       }
 
       const payload = {
-        name,
+        firstName: this.form.firstName.trim(),
+        lastName: this.form.lastName.trim(),
         email: this.form.email.trim(),
-        role: this.form.role.toLowerCase(),
-        status: this.form.status
       };
-
-      // Handle updating the user based on role...
-      // For now we'll simulate the update then reload
-      console.log('Update payload', payload);
-      this.showSuccess('User updated successfully.');
-      this.loadUsers();
-      this.closeModal();
+      this.adminService.updateUser(this.editingUser.id, payload).subscribe({
+        next: () => {
+          this.showSuccess('User updated successfully.');
+          this.loadUsers();
+          this.closeModal();
+        },
+        error: (err) => this.errorMessage = err.error?.message || 'Failed to update user.',
+      });
 
     } else {
       const parts = name.split(' ');
@@ -484,11 +487,14 @@ export class AdminUsers implements OnInit {
     user: AdminUser,
     status: AdminUser['status']
   ): void {
-    // API Call to update status
-    user.status = status;
-    this.showSuccess(
-      `${user.name}'s status changed to ${status}.`
-    );
+    this.adminService.setUserActive(user.id, status !== 'Blocked').subscribe({
+      next: () => {
+        user.status = status;
+        this.showSuccess(`${user.name}'s status changed to ${status}.`);
+        this.applyFilters();
+      },
+      error: (err) => this.errorMessage = err.error?.message || 'Failed to update user status.',
+    });
   }
 
   deleteUser(user: AdminUser): void {

@@ -1,4 +1,4 @@
-import {
+﻿import {
   Component,
   OnInit,
   inject
@@ -12,7 +12,19 @@ import { Router } from '@angular/router';
 import { AdminService } from '../../services/admin.service';
 import { AdminSidebar } from '../../page/admin-sidebar/admin-sidebar';
 
-export type CourseStatus = 'Published' | 'Draft' | 'In Review' | 'Assigned' | string;
+/**
+ * Labels shown in the admin UI. The database stores the snake_case values, so
+ * they are mapped here rather than compared against display strings.
+ */
+const STATUS_LABELS: Record<string, string> = {
+  draft: 'Draft',
+  in_review: 'In Review',
+  changes_required: 'Changes Required',
+  published: 'Published',
+  archived: 'Archived',
+};
+
+export type CourseStatus = string;
 
 export interface InstructorCourse {
   id: string;
@@ -22,9 +34,13 @@ export interface InstructorCourse {
   students: string;
   rating: string;
   price: string;
+  /** Display label, e.g. "In Review". */
   status: CourseStatus;
+  /** Raw database status, e.g. "in_review". */
+  rawStatus: string;
   updated: string;
   thumbnail?: string;
+  reviewMessage?: string | null;
 }
 
 @Component({
@@ -70,19 +86,32 @@ export class AdminCourses implements OnInit {
     this.errorMessage = '';
 
     this.adminService.getCourses().subscribe({
-       next: (res: any) => {
-          const fetched = res.data || res || [];
-          this.courses = fetched.map((c: any) => ({
-             id: c._id || c.id,
-             title: c.title || c.name,
-             category: c.category?.name || c.category || 'Uncategorized',
-             instructorName: c.instructor?.name || c.instructor?.username || 'Unknown',
-             students: String(c.enrolledStudents?.length || 0),
-             rating: String(c.rating || '0'),
-             price: String(c.price || '0'),
-             status: c.status || 'Published',
-             updated: c.updatedAt || 'just now'
-          }));
+       next: (fetched) => {
+          this.courses = fetched.map((c) => {
+             const rawStatus = c.status || 'draft';
+             // `category` is an id unless the backend populated it.
+             const category = c.category;
+
+             return {
+                id: c._id,
+                title: c.title,
+                category:
+                  (typeof category === 'object' ? category.name : '') ||
+                  'Uncategorized',
+                instructorName:
+                  typeof c.instructorId === 'object' && c.instructorId
+                    ? `${c.instructorId.firstName ?? ''} ${c.instructorId.lastName ?? ''}`.trim()
+                    : 'Unassigned',
+                // Enrollment counts are not included in the course payload.
+                students: '0',
+                rating: String(c.rating ?? 0),
+                price: String(c.price ?? 0),
+                status: STATUS_LABELS[rawStatus] ?? rawStatus,
+                rawStatus: rawStatus,
+                reviewMessage: c.reviewMessage ?? null,
+                updated: c.updatedAt || 'just now'
+             };
+          });
 
           this.categories = [...new Set(this.courses.map(course => course.category))];
           this.applyFilters();
@@ -149,14 +178,14 @@ export class AdminCourses implements OnInit {
   }
 
   getTotalCourses(): number { return this.courses.length; }
-  getPublishedCourses(): number { return this.courses.filter(c => c.status === 'Published').length; }
-  getDraftCourses(): number { return this.courses.filter(c => c.status === 'Draft').length; }
-  getAssignedCourses(): number { return this.courses.filter(c => c.status === 'Assigned').length; }
-  getInReviewCourses(): number { return this.courses.filter(c => c.status === 'In Review').length; }
+  getPublishedCourses(): number { return this.courses.filter(c => c.rawStatus === 'published').length; }
+  getDraftCourses(): number { return this.courses.filter(c => c.rawStatus === 'draft').length; }
+  getAssignedCourses(): number { return this.courses.filter(c => c.rawStatus === 'changes_required').length; }
+  getInReviewCourses(): number { return this.courses.filter(c => c.rawStatus === 'in_review').length; }
   getTotalStudents(): number { return this.courses.reduce((total, course) => total + this.toNumber(course.students), 0); }
 
   getAverageRating(): string {
-    const ratedCourses = this.courses.filter(c => c.rating !== '—' && this.toNumber(c.rating) > 0);
+    const ratedCourses = this.courses.filter(c => c.rating !== 'â€”' && this.toNumber(c.rating) > 0);
     if (!ratedCourses.length) return '0.0';
     const total = ratedCourses.reduce((sum, course) => sum + this.toNumber(course.rating), 0);
     return (total / ratedCourses.length).toFixed(1);
@@ -189,12 +218,15 @@ export class AdminCourses implements OnInit {
   }
 
   approveCourse(course: InstructorCourse): void {
-    // Requires an endpoint to update course status
-    if (course.status !== 'In Review') return;
-    this.adminService.updateCourseStatus(course.id, 'published').subscribe({
+    // Only courses that are actually in the review queue can be approved.
+    if (course.rawStatus !== 'in_review') return;
+
+    this.adminService.reviewCourse(course.id, 'approve').subscribe({
        next: () => {
          this.successMessage = `"${course.title}" approved and published. Instructor notified.`;
          course.status = 'Published';
+         course.rawStatus = 'published';
+         this.loadCourses();
          setTimeout(() => { this.successMessage = ''; }, 4000);
        },
        error: (err) => console.error(err)
@@ -202,9 +234,9 @@ export class AdminCourses implements OnInit {
   }
 
   openRejectModal(course: InstructorCourse): void {
-    if (course.status !== 'In Review') return;
+    if (course.rawStatus !== 'in_review') return;
     this.rejectTargetCourse = course;
-    this.rejectMessage = '';
+    this.rejectMessage = course.reviewMessage ?? '';
     this.showRejectModal = true;
   }
 
@@ -215,17 +247,26 @@ export class AdminCourses implements OnInit {
   }
 
   confirmRejectCourse(): void {
-    if (!this.rejectTargetCourse) return;
-    // Send feedback via API
-    this.adminService.updateCourseStatus(this.rejectTargetCourse.id, 'draft').subscribe({
-       next: () => {
-         this.successMessage = `"${this.rejectTargetCourse!.title}" sent back for changes. Instructor notified.`;
-         this.closeRejectModal();
-       },
-       error: (err) => console.error(err)
-    });
-    this.loadCourses();
-    setTimeout(() => { this.successMessage = ''; }, 4000);
+    const target = this.rejectTargetCourse;
+    if (!target) return;
+
+    // The backend requires a message so the instructor knows what to fix.
+    if (!this.rejectMessage.trim()) {
+      Swal.fire('Notice', 'Please describe the changes you need.', 'info');
+      return;
+    }
+
+    this.adminService
+      .reviewCourse(target.id, 'request_changes', this.rejectMessage.trim())
+      .subscribe({
+        next: () => {
+          this.successMessage = `"${target.title}" sent back for changes. Instructor notified.`;
+          this.closeRejectModal();
+          this.loadCourses();
+          setTimeout(() => { this.successMessage = ''; }, 4000);
+        },
+        error: (err) => console.error(err)
+      });
   }
 
   deleteCourse(course: InstructorCourse): void {

@@ -229,6 +229,22 @@ input {
   cursor: pointer;
 }
 
+.section-error {
+  padding: 13px 15px;
+  border: 1px solid #fecdd3;
+  border-radius: 12px;
+  background: #fff1f2;
+  color: #be123c;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.primary-action:disabled,
+.mobile-save:disabled {
+  opacity: .65;
+  cursor: wait;
+}
+
 /* ==================================================
    RESPONSIVE
 ================================================== */

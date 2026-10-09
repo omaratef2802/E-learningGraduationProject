@@ -6,10 +6,11 @@ import { Observable } from 'rxjs';
   providedIn: 'root',
 })
 export class PaymentService {
-  private paymentUrl = 'http://localhost:3000/payment';
-  private orderUrl = 'http://localhost:3000/order';
-  private cartUrl = 'http://localhost:3000/cart';
-  private userUrl = 'http://localhost:3000/users';
+  private readonly apiUrl = 'http://localhost:3000/E-learning';
+  private paymentUrl = `${this.apiUrl}/payments`;
+  private orderUrl = `${this.apiUrl}/orders`;
+  private cartUrl = `${this.apiUrl}/cart`;
+  private userUrl = `${this.apiUrl}/users`;
 
   constructor(private http: HttpClient) {}
 
@@ -22,7 +23,7 @@ export class PaymentService {
   }
 
   getProfile(): Observable<any> {
-    return this.http.get(`${this.userUrl}/profile`, {
+    return this.http.get(`${this.userUrl}/myProfile`, {
       headers: this.getHeaders(),
     });
   }
@@ -43,12 +44,20 @@ export class PaymentService {
     );
   }
 
-  createPayment(orderId: string, paymentMethod: string): Observable<any> {
+  buyNow(courseId: string): Observable<any> {
+    return this.http.post(`${this.orderUrl}/buy-now`, { courseId }, { headers: this.getHeaders() });
+  }
+
+  getPaymentStatus(paymentId: string): Observable<any> {
+    return this.http.get(`${this.paymentUrl}/${paymentId}/status`, { headers: this.getHeaders() });
+  }
+
+  createPayment(orderId: string): Observable<any> {
     return this.http.post(
       this.paymentUrl,
       {
         orderId: orderId,
-        paymentMethod: paymentMethod,
+        paymentMethod: 'paymob',
       },
       {
         headers: this.getHeaders(),
@@ -57,7 +66,7 @@ export class PaymentService {
   }
 
   getPaymentHistory(): Observable<any> {
-    return this.http.get(`${this.paymentUrl}/history`, {
+    return this.http.get(this.paymentUrl, {
       headers: this.getHeaders(),
     });
   }

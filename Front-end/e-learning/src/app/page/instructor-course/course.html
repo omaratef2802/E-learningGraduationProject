@@ -8,7 +8,7 @@
 
       <div class="breadcrumb">
         <span>INSTRUCTOR PORTAL</span>
-        <strong>/ MY COURSES</strong>
+        <strong>/ {{ isDashboardRoute ? 'DASHBOARD' : 'MY COURSES' }}</strong>
       </div>
 
       <div class="top-user" routerLink="/instructor-profile" style="cursor: pointer;">
@@ -51,10 +51,10 @@
           </span>
 
           <h1>
-            My Courses
+            {{ isDashboardRoute ? 'Instructor Dashboard' : 'My Courses' }}
 
             <span>
-              {{ data.courses.length }} Active Units
+              {{ loadedCourses.length }} Courses
             </span>
           </h1>
 
@@ -143,11 +143,15 @@
       </div>
 
 
-      @if (!emptyView && pagedCourses.length) {
+      @if (loading) {
+        <div class="empty-course-state" role="status">Loading your courses…</div>
+      } @else if (errorMessage) {
+        <div class="empty-course-state" role="alert">{{ errorMessage }}</div>
+      } @else if (!emptyView && pagedCourses.length) {
 
         <div class="course-grid">
 
-          @for (course of pagedCourses; track course.title) {
+          @for (course of pagedCourses; track course.id) {
 
             <article class="dashboard-course-card">
 

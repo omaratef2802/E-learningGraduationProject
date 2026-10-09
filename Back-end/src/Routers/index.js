@@ -20,9 +20,18 @@ const review = require("./Review");
 const certificate = require("./Certificate");
 const AttemptQuiz = require("./QuizAttempt");
 const Quizs = require("./Quizs");
+const learningRouter = require("./learning");
+const passport = require("../configs/passport");
+const { googleLogin } = require("../controllers/users");
 
 const mountRoutes = (app) => {
   app.use("/E-learning/users", users);
+  // Honor the Google callback URL already registered in this local environment.
+  app.get(
+    "/flight-booking/users/google/callback",
+    passport.authenticate("google", { session: false, failureRedirect: "http://localhost:4200/login?oauthError=google_failed" }),
+    googleLogin,
+  );
   app.use("/E-learning/admins", admin);
 
   app.use("/E-learning/category", categoryRoutes);
@@ -48,6 +57,7 @@ const mountRoutes = (app) => {
   app.use("/E-learning/certificate", certificate);
   app.use("/E-learning/Quiz", Quizs);
   app.use("/E-learning/QuizAttempt", AttemptQuiz);
+  app.use("/E-learning/learning", learningRouter);
 };
 
 module.exports = mountRoutes;

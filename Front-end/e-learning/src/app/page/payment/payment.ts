@@ -1,12 +1,13 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnDestroy, OnInit, inject, signal } from '@angular/core';
 import { PaymentService } from '../../services/payment';
+import { ActivatedRoute } from '@angular/router';
 
 type CheckoutState = 'checkout' | 'success' | 'failed' | 'pending';
 
 type PaymentMethod = 'credit' | 'paypal' | 'fawry';
 
 interface CartCourse {
-  courseId: string;
+  courseId: string | { _id: string; title?: string; image?: string; slug?: string };
   price: number;
 }
 
@@ -24,7 +25,7 @@ interface Cart {
   templateUrl: './payment.html',
   styleUrl: './payment.css',
 })
-export class Payment implements OnInit {
+export class Payment implements OnInit, OnDestroy {
   flowState = signal<CheckoutState>('checkout');
 
   selectedMethod = signal<PaymentMethod>('credit');
@@ -56,11 +57,45 @@ export class Payment implements OnInit {
 
   transactionId = signal('');
 
+  private readonly route = inject(ActivatedRoute);
+  private statusTimer?: ReturnType<typeof setInterval>;
+
   constructor(private paymentService: PaymentService) {}
 
+  ngOnDestroy(): void {
+    if (this.statusTimer) clearInterval(this.statusTimer);
+  }
+
   ngOnInit(): void {
+    const returnedPaymentId = this.route.snapshot.queryParamMap.get('paymentId');
+    if (returnedPaymentId) {
+      this.paymentId.set(returnedPaymentId);
+      this.flowState.set('pending');
+      this.pollPaymentStatus(returnedPaymentId);
+      return;
+    }
     this.getProfile();
     this.getCart();
+  }
+
+  private pollPaymentStatus(paymentId: string): void {
+    const check = () => this.paymentService.getPaymentStatus(paymentId).subscribe({
+      next: (response) => {
+        const status = response?.payment?.status;
+        if (status === 'success') {
+          if (this.statusTimer) clearInterval(this.statusTimer);
+          this.transactionId.set(paymentId);
+          this.flowState.set('success');
+        } else if (status === 'failed') {
+          if (this.statusTimer) clearInterval(this.statusTimer);
+          this.flowState.set('failed');
+          this.errorMessage.set('Payment was not completed. Please try again.');
+        }
+      },
+      error: () => {},
+    });
+    check();
+    this.statusTimer = setInterval(check, 3000);
   }
 
   getProfile(): void {
@@ -93,7 +128,9 @@ export class Payment implements OnInit {
 
     this.paymentService.getCart().subscribe({
       next: (response: Cart) => {
-        this.cart.set(response);
+        const cart = (response as any)?.cart ?? (response as any)?.data ?? response;
+        this.cart.set(cart);
+        if (!cart?.courses?.length) this.errorMessage.set('Your cart is empty. Add a course before checkout.');
         this.loading.set(false);
       },
 
@@ -175,47 +212,8 @@ export class Payment implements OnInit {
       return;
     }
 
-    if (this.selectedMethod() === 'credit') {
-      let cardError = false;
-
-      const cardNumber = this.cardNumber().replace(/\s/g, '');
-
-      if (!cardNumber) {
-        this.cardNumberError.set('Card number is required');
-        cardError = true;
-      } else if (!/^\d{16}$/.test(cardNumber)) {
-        this.cardNumberError.set('Card number must be 16 digits');
-        cardError = true;
-      }
-
-      if (!this.cardName().trim()) {
-        this.cardNameError.set('Name on card is required');
-        cardError = true;
-      }
-
-      if (!this.expiry().trim()) {
-        this.expiryError.set('Expiry date is required');
-        cardError = true;
-      } else if (!/^(0[1-9]|1[0-2])\s?\/\s?\d{2}$/.test(this.expiry())) {
-        this.expiryError.set('Use MM / YY format');
-        cardError = true;
-      }
-
-      if (!this.cvv().trim()) {
-        this.cvvError.set('CVV is required');
-        cardError = true;
-      } else if (!/^\d{3,4}$/.test(this.cvv())) {
-        this.cvvError.set('CVV must be 3 or 4 digits');
-        cardError = true;
-      }
-
-      if (cardError) {
-        return;
-      }
-    }
-
-    if (!this.cart()) {
-      this.errorMessage.set('Cart is empty');
+    if (!this.cart()?.courses?.length) {
+      this.errorMessage.set('Your cart is empty. Add a course before checkout.');
       return;
     }
 
@@ -225,23 +223,15 @@ export class Payment implements OnInit {
       next: (orderResponse: { order: { _id: string } }) => {
         const orderId = orderResponse.order._id;
 
-        this.paymentService.createPayment(orderId, this.selectedMethod()).subscribe({
-          next: (paymentResponse: { payment: any }) => {
+      this.paymentService.createPayment(orderId).subscribe({
+          next: (paymentResponse: { payment: any; checkoutUrl: string }) => {
             this.loading.set(false);
-
-            const payment = paymentResponse.payment;
-
-            this.paymentId.set(payment._id);
-
-            if (payment.status === 'success') {
-              this.transactionId.set(payment._id);
-
-              this.flowState.set('success');
-            } else if (payment.status === 'failed') {
+            if (!paymentResponse.checkoutUrl) {
+              this.errorMessage.set('Could not open the payment gateway.');
               this.flowState.set('failed');
-            } else {
-              this.flowState.set('pending');
+              return;
             }
+            window.location.assign(paymentResponse.checkoutUrl);
           },
 
           error: (error: { error: { message: string } }) => {
@@ -280,6 +270,18 @@ export class Payment implements OnInit {
     }
 
     return this.cart()!.courses.length;
+  }
+
+  getCourseId(course: CartCourse): string {
+    return typeof course.courseId === 'string' ? course.courseId : course.courseId?._id || '';
+  }
+
+  getCourseTitle(course: CartCourse): string {
+    return typeof course.courseId === 'string' ? 'Course' : course.courseId?.title || 'Course';
+  }
+
+  getCourseImage(course: CartCourse): string {
+    return typeof course.courseId === 'string' ? '' : course.courseId?.image || '';
   }
 
   backToCheckout(): void {

@@ -19,6 +19,50 @@ const getMyEnrollements = async (req, res, next) => {
   }
 };
 
+// Return only learners enrolled in courses owned by the authenticated instructor.
+const getInstructorStudents = async (req, res, next) => {
+  try {
+    const courses = await Course.find({ instructorId: req.id }).select("_id title");
+    const courseById = new Map(courses.map((course) => [course._id.toString(), course]));
+    if (!courses.length) return res.status(200).json({ message: "success", count: 0, data: [] });
+
+    const enrollments = await Enrollment.find({ courseId: { $in: courses.map((course) => course._id) } })
+      .populate("studentId", "firstName lastName email img")
+      .sort({ updatedAt: -1 });
+
+    const studentsById = new Map();
+    for (const enrollment of enrollments) {
+      const student = enrollment.studentId;
+      if (!student) continue;
+      const studentId = student._id.toString();
+      if (!studentsById.has(studentId)) {
+        studentsById.set(studentId, {
+          _id: studentId,
+          firstName: student.firstName,
+          lastName: student.lastName,
+          email: student.email,
+          img: student.img,
+          courses: [],
+        });
+      }
+      const course = courseById.get(enrollment.courseId.toString());
+      studentsById.get(studentId).courses.push({
+        courseId: course?._id,
+        courseTitle: course?.title || "Course",
+        progress: enrollment.progress || 0,
+        status: enrollment.status,
+        enrolledAt: enrollment.createdAt,
+        lastAccessedAt: enrollment.lastAccessedAt,
+      });
+    }
+
+    const data = [...studentsById.values()];
+    return res.status(200).json({ message: "success", count: data.length, data });
+  } catch (error) {
+    return next(new ApiError(500, error.message));
+  }
+};
+
 const getEnrollementById = async (req, res, next) => {
   try {
     const enrollment = await Enrollment.findOne({ _id: req.params.id, studentId: req.id })
@@ -79,4 +123,4 @@ const updateProgress = async (req, res, next) => {
   }
 };
 
-module.exports = { getMyEnrollements, getEnrollementById, updateProgress };
+module.exports = { getMyEnrollements, getInstructorStudents, getEnrollementById, updateProgress };

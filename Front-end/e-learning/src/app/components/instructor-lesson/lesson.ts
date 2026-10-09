@@ -1,7 +1,8 @@
 import Swal from 'sweetalert2';
 import {
   Component,
-  inject
+  inject,
+  OnInit
 } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
@@ -12,14 +13,13 @@ import {
   RouterLink
 } from '@angular/router';
 
-import {
-  InstructorData,
-  CurriculumLesson
-} from '../../page/instructor-data';
 
 import {
   InstructorSidebar
 } from '../../page/instructor-sidebar/sidebar';
+
+import { InstructorDataService } from '../../services/instructor-data.service';
+import { CurriculumLesson, LessonType } from '../../mock-types';
 
 @Component({
   selector: 'app-instructor-lesson',
@@ -32,7 +32,7 @@ import {
   templateUrl: './lesson.html',
   styleUrl: './lesson.css'
 })
-export class InstructorLesson {
+export class InstructorLesson implements OnInit {
 
   private readonly route =
     inject(ActivatedRoute);
@@ -40,15 +40,13 @@ export class InstructorLesson {
   private readonly router =
     inject(Router);
 
-  private readonly data =
-    inject(InstructorData);
+  private readonly dataService =
+    inject(InstructorDataService);
 
   protected sectionId =
     this.route.snapshot.queryParamMap.get(
       'section'
-    ) ||
-    this.data.sections[0]?.id ||
-    '';
+    ) || '';
 
   protected lessonId =
     this.route.snapshot.queryParamMap.get(
@@ -91,56 +89,43 @@ export class InstructorLesson {
   protected existingQuizId:
     string | undefined;
 
-  constructor() {
+  ngOnInit(): void {
 
-    const existing =
-      this.data.sections
-        .find(
-          section =>
-            section.id ===
-            this.sectionId
-        )
-        ?.lessons.find(
-          lesson =>
-            lesson.id ===
-            this.lessonId
-        );
+    if (!this.courseId) return;
 
-    if (existing) {
+    this.dataService.getCurriculum(this.courseId).subscribe({
+      next: (sections) => {
+        const existing = sections
+          .find((section) => section.id === this.sectionId)
+          ?.lessons.find((lesson) => lesson.id === this.lessonId);
 
-      this.title =
-        existing.title;
+        if (existing) {
+          this.hydrate(existing);
+        }
+      },
+      error: (err) => console.error('Error fetching lessons:', err),
+    });
+  }
 
-      this.description =
-        existing.description;
 
-      this.type =
-        existing.type;
+  private hydrate(existing: CurriculumLesson): void {
 
-      this.content =
-        existing.content;
+    this.title = existing.title;
+    this.description = this.description ?? '';
+    this.type = existing.type === 'video' ? 'Video' : 'Document';
+    this.content =
+      existing.type === 'video'
+        ? existing.videoUrl ?? ''
+        : existing.textContent ?? '';
+    this.duration = existing.duration != null ? String(existing.duration) : '';
+    this.order = Number(existing.order ?? 1);
+    this.preview = Boolean(existing.isPreview);
+    this.existingQuizId = existing.quizId ?? '';
 
-      this.duration =
-        existing.duration;
-
-      this.order =
-        existing.order;
-
-      this.preview =
-        existing.preview;
-
-      this.existingQuizId =
-        existing.quizId;
-
-      if (
-        existing.type === 'Video'
-      ) {
-        this.videoName =
-          existing.content;
-      } else {
-        this.documentName =
-          existing.content;
-      }
+    if (existing.type === 'video') {
+      this.videoName = existing.videoUrl ?? '';
+    } else {
+      this.documentName = existing.textContent ?? '';
     }
   }
 
@@ -236,54 +221,40 @@ export class InstructorLesson {
       return;
     }
 
-    const payload:
-      Omit<CurriculumLesson, 'id'> = {
-
-      title:
-        this.title.trim(),
-
-      description:
-        this.description.trim(),
-
-      type:
-        this.type,
-
-      content:
-        this.content.trim(),
-
-      duration:
-        this.duration.trim() ||
-        'Self-paced',
-
-      order:
-        Number(this.order) || 1,
-
-      preview:
-        this.preview,
-
-      quizId:
-        this.existingQuizId
+    // The backend stores `type` as 'video' | 'text' (see dbLesson.js) and has no
+// `description` field, so the description stays client-side only.
+    const payload = {
+      title: this.title.trim(),
+      type: (this.type === 'Video' ? 'video' : 'text') as LessonType,
+      duration: Number(this.duration) || 0,
+      order: Number(this.order) || 1,
+      isPreview: this.preview,
+      sectionId: this.sectionId,
+      courseId: this.courseId,
+      ...(this.type === 'Video'
+        ? { videoUrl: this.content.trim() }
+        : { textContent: this.content.trim() }),
+      ...(this.existingQuizId ? { quizId: this.existingQuizId } : {}),
     };
 
-    if (
-      this.lessonId
-    ) {
+    // Lessons are created/updated through
+    // POST|PATCH /lesson/course/:courseId. The create route accepts a video
+    // upload, so a text-only lesson is the only case that works without one.
+    const request$ = this.lessonId
+      ? this.dataService.updateLesson(this.lessonId, payload)
+      : this.dataService.createLesson(this.courseId, payload);
 
-      this.data.updateLesson(
-        this.sectionId,
-        this.lessonId,
-        payload
-      );
-
-    } else {
-
-      this.data.addLesson(
-        this.sectionId,
-        payload
-      );
-    }
-
-    this.backToCurriculum();
+    request$.subscribe({
+      next: () => this.backToCurriculum(),
+      error: (err) => {
+        console.error('Failed to save lesson:', err);
+        Swal.fire(
+          'Error',
+          err?.error?.message || 'Failed to save lesson.',
+          'error'
+        );
+      },
+    });
   }
 
   backToCurriculum(): void {
@@ -302,3 +273,7 @@ export class InstructorLesson {
     );
   }
 }
+
+
+
+

@@ -1,0 +1,61 @@
+<div class="profile-shell">
+  <app-student-sidebar></app-student-sidebar>
+
+  <main class="profile-main">
+    <header class="profile-topbar">
+      <div class="breadcrumb"><span>STUDENT SPACE</span><b>/</b><strong>MY PROFILE</strong></div>
+      <a routerLink="/student-dashboard">← Back to dashboard</a>
+    </header>
+
+    <div class="profile-content">
+      <section class="page-heading">
+        <div><span class="page-kicker">YOUR ACCOUNT</span><h1>My profile</h1><p>Manage your personal details and how you show up on PathwayEd.</p></div>
+        @if (profile && !editing) { <button class="edit-button" type="button" (click)="beginEdit()"><span aria-hidden="true">✎</span> Edit profile</button> }
+      </section>
+
+      @if (loading) {
+        <div class="profile-state" role="status"><span class="spinner"></span>Loading your profile…</div>
+      } @else if (errorMessage && !profile) {
+        <div class="profile-state error-state" role="alert"><span>!</span><div><strong>Profile unavailable</strong><p>{{ errorMessage }}</p></div><a routerLink="/login">Sign in</a></div>
+      } @else if (profile) {
+        @if (successMessage) { <div class="notice success-notice" role="status">✓ {{ successMessage }}</div> }
+        @if (errorMessage) { <div class="notice error-notice" role="alert">! {{ errorMessage }}</div> }
+
+        <section class="profile-hero">
+          <div class="profile-avatar">{{ initials }}</div>
+          <div class="profile-identity"><span class="student-pill"><span></span> STUDENT ACCOUNT</span><h2>{{ profile.firstName }} {{ profile.lastName }}</h2><p>{{ profile.email }}</p></div>
+          <div class="member-since"><span>MEMBER SINCE</span><strong>{{ profile.createdAt ? (profile.createdAt | date:'MMM yyyy') : 'PathwayEd learner' }}</strong></div>
+        </section>
+
+        <section class="details-card">
+          <div class="card-heading"><div><span class="card-kicker">PERSONAL INFORMATION</span><h2>About you</h2></div><span class="card-symbol" aria-hidden="true">◉</span></div>
+
+          @if (!editing) {
+            <div class="details-grid">
+              <div class="detail-item"><span>FIRST NAME</span><strong>{{ profile.firstName || 'Not added yet' }}</strong></div>
+              <div class="detail-item"><span>LAST NAME</span><strong>{{ profile.lastName || 'Not added yet' }}</strong></div>
+              <div class="detail-item"><span>EMAIL ADDRESS</span><strong>{{ profile.email }}</strong><small>Your sign-in email</small></div>
+              <div class="detail-item"><span>PHONE NUMBER</span><strong>{{ profile.phone || 'Not added yet' }}</strong></div>
+              <div class="detail-item"><span>DATE OF BIRTH</span><strong>{{ profile.dateBirth ? (profile.dateBirth | date:'longDate') : 'Not added yet' }}</strong></div>
+              <div class="detail-item bio-item"><span>ABOUT ME</span><p>{{ profile.bio || 'Tell other learners a little about yourself and what you hope to learn.' }}</p></div>
+            </div>
+          } @else {
+            <form class="profile-form" (ngSubmit)="saveProfile()">
+              <div class="form-grid">
+                <label><span>FIRST NAME</span><input name="firstName" [(ngModel)]="firstName" autocomplete="given-name" required /></label>
+                <label><span>LAST NAME</span><input name="lastName" [(ngModel)]="lastName" autocomplete="family-name" required /></label>
+                <label class="disabled-field"><span>EMAIL ADDRESS</span><input [value]="profile.email" type="email" disabled /><small>Email is used to sign in and can't be changed here.</small></label>
+                <label><span>PHONE NUMBER</span><input name="phone" [(ngModel)]="phone" type="tel" autocomplete="tel" placeholder="Add your phone number" /></label>
+                <label><span>DATE OF BIRTH</span><input name="dateBirth" [(ngModel)]="dateBirth" type="date" /></label>
+                <label class="full-field"><span>ABOUT ME</span><textarea name="bio" [(ngModel)]="bio" rows="4" maxlength="500" placeholder="Share a little about yourself..."></textarea></label>
+              </div>
+              <div class="form-actions"><button class="cancel-button" type="button" (click)="cancelEdit()" [disabled]="saving">Cancel</button><button class="save-button" type="submit" [disabled]="saving">{{ saving ? 'Saving…' : 'Save changes' }}</button></div>
+            </form>
+          }
+        </section>
+
+        <section class="profile-tip"><span aria-hidden="true">✦</span><div><strong>Your learning journey is yours</strong><p>Your profile details help personalize your learning experience.</p></div><a routerLink="/student-dashboard">Go to dashboard →</a></section>
+      }
+    </div>
+  </main>
+</div>

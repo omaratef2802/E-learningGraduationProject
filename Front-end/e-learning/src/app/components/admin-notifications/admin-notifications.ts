@@ -1,4 +1,4 @@
-import {
+﻿import {
   Component,
   OnInit,
   inject
@@ -7,6 +7,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
 import { AdminService } from '../../services/admin.service';
+import { forkJoin } from 'rxjs';
 
 import { AdminSidebar } from '../../page/admin-sidebar/admin-sidebar';
 
@@ -62,13 +63,12 @@ export class AdminNotifications implements OnInit {
     this.errorMessage = '';
 
     this.adminService.getNotifications().subscribe({
-       next: (res: any) => {
-         const notifs = res.data || res || [];
-         this.notifications = notifs.map((n: any) => ({
+       next: (notifs) => {
+         this.notifications = notifs.map((n) => ({
             id: n._id || n.id,
-            title: n.title,
+            title: n.subject || n.title,
             message: n.message,
-            type: n.type || 'System',
+            type: n.type === 'course' ? 'Course' : 'System',
             isRead: n.isRead || false,
             createdAt: n.createdAt || new Date().toISOString()
          }));
@@ -85,8 +85,8 @@ export class AdminNotifications implements OnInit {
 
   loadInstructors(): void {
     this.adminService.getAllInstructors().subscribe({
-       next: (res: any) => {
-         this.instructors = (res.data || res || []).map((i: any) => ({ id: i._id || i.id, name: i.username || i.name || `${i.firstName} ${i.lastName}` }));
+       next: (list) => {
+         this.instructors = list.map((i) => ({ id: i._id || i.id, name: i.username || i.name || `${i.firstName} ${i.lastName}` }));
          if (this.instructors.length > 0 && !this.selectedInstructorId) {
             this.selectedInstructorId = this.instructors[0].id;
          }
@@ -142,7 +142,7 @@ export class AdminNotifications implements OnInit {
     const payload = {
        title,
        message,
-       type: this.newNotificationType,
+       type: this.newNotificationType.toLowerCase(),
        recipientType: this.notificationRecipient,
        recipientId: this.notificationRecipient === 'Instructor' ? this.selectedInstructorId : null
     };
@@ -162,16 +162,25 @@ export class AdminNotifications implements OnInit {
 
   markAsRead(notification: AdminNotification): void {
     if (notification.isRead) return;
-    // Assuming you add an update/mark-read endpoint in AdminService if needed:
-    // this.adminService.markNotificationAsRead(notification.id).subscribe(...)
-    notification.isRead = true;
-    this.applyFilter();
+    this.adminService.markNotificationAsRead(notification.id).subscribe({
+      next: () => {
+        notification.isRead = true;
+        this.applyFilter();
+      },
+      error: (error) => this.errorMessage = error.error?.message || 'Could not mark this notification as read.',
+    });
   }
 
   markAllAsRead(): void {
-    if (this.getUnreadCount() === 0) return;
-    this.notifications.forEach(n => n.isRead = true);
-    this.applyFilter();
+    const unread = this.notifications.filter((item) => !item.isRead);
+    if (!unread.length) return;
+    forkJoin(unread.map((item) => this.adminService.markNotificationAsRead(item.id))).subscribe({
+      next: () => {
+        unread.forEach((item) => item.isRead = true);
+        this.applyFilter();
+      },
+      error: (error) => this.errorMessage = error?.error?.message || 'Could not update all notifications.',
+    });
   }
 
   removeNotification(id: string): void {
@@ -186,11 +195,11 @@ export class AdminNotifications implements OnInit {
 
   getNotificationIcon(type: AdminNotification['type']): string {
     switch (type) {
-      case 'User': return '♙';
-      case 'Course': return '▣';
-      case 'Report': return '◒';
-      case 'System': return '⚙';
-      default: return '•';
+      case 'User': return 'â™™';
+      case 'Course': return 'â–£';
+      case 'Report': return 'â—’';
+      case 'System': return 'âš™';
+      default: return 'â€¢';
     }
   }
 }

@@ -1,4 +1,4 @@
-import {
+﻿import {
   Component,
   OnInit,
   inject
@@ -8,9 +8,12 @@ import { Router } from '@angular/router';
 
 import { AdminService } from '../../services/admin.service';
 import { AdminSidebar } from '../../page/admin-sidebar/admin-sidebar';
+import { forkJoin, of } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 
 // Define our own local interfaces to replace the mock ones
 export interface AdminStats {
+  totalUsers: number;
   totalStudents: number;
   totalInstructors: number;
   totalCourses: number;
@@ -57,6 +60,7 @@ export class AdminDashboard implements OnInit {
   private adminService = inject(AdminService);
 
   stats: AdminStats = {
+     totalUsers: 0,
      totalStudents: 0,
      totalInstructors: 0,
      totalCourses: 0,
@@ -65,7 +69,7 @@ export class AdminDashboard implements OnInit {
   recentUsers: AdminUser[] = [];
   recentCourses: AdminCourse[] = [];
   recentActivities: AdminActivity[] = [];
-  loading = false;
+  loading = true;
   errorMessage = '';
 
   adminProfileName = 'Admin User';
@@ -79,56 +83,42 @@ export class AdminDashboard implements OnInit {
     this.loading = true;
     this.errorMessage = '';
 
-    // Wipe out any mock data
     this.recentActivities = [];
     this.recentUsers = [];
     this.recentCourses = [];
-    
-    // Real API Data
-    this.adminService.getAllUsers().subscribe({
-       next: (res: any) => {
-          const users = res.data || res || [];
-          this.stats.totalStudents = users.length;
-          this.recentUsers = users.slice(0, 5).map((u: any) => ({
-             id: u._id || u.id,
-             name: u.username || u.name || `${u.firstName} ${u.lastName}`,
-             email: u.email,
-             role: 'Student',
-             status: 'Active',
-             joinDate: u.createdAt || new Date().toISOString()
-          }));
-       },
-       error: (err) => console.error(err)
+    let failedRequests = 0;
+    forkJoin({
+      users: this.adminService.getAllUsers().pipe(catchError((error) => { console.error(error); failedRequests++; return of([]); })),
+      courses: this.adminService.getCourses().pipe(catchError((error) => { console.error(error); failedRequests++; return of([]); })),
+      instructors: this.adminService.getAllInstructors().pipe(catchError((error) => { console.error(error); failedRequests++; return of([]); })),
+      admins: this.adminService.getAllAdmins().pipe(catchError((error) => { console.error(error); failedRequests++; return of([]); })),
+    }).subscribe(({ users, courses, instructors, admins }) => {
+      this.stats.totalStudents = users.length;
+      this.stats.totalInstructors = instructors.length;
+      this.stats.totalUsers = users.length + instructors.length + admins.length;
+      this.stats.totalCourses = courses.length;
+      this.recentUsers = users.slice(0, 5).map((user: any) => ({
+        id: user._id || user.id,
+        name: user.username || user.name || `${user.firstName || ''} ${user.lastName || ''}`.trim() || user.email,
+        email: user.email || '',
+        role: 'Student',
+        status: 'Active',
+        joinDate: user.createdAt || new Date().toISOString(),
+      }));
+      this.recentCourses = courses.slice(0, 5).map((course: any) => ({
+        id: course._id || course.id,
+        title: course.title || course.name || 'Untitled course',
+        instructor: typeof course.instructorId === 'object' && course.instructorId
+          ? `${course.instructorId.firstName || ''} ${course.instructorId.lastName || ''}`.trim() || 'Unknown'
+          : 'Unknown',
+        status: course.status || 'Draft',
+        studentsCount: course.enrolledStudents?.length || 0,
+        rating: course.rating || 0,
+        date: course.createdAt || '',
+      }));
+      if (failedRequests) this.errorMessage = 'Some dashboard data could not be loaded. Check your admin access and try refreshing.';
+      this.loading = false;
     });
-
-    this.adminService.getCourses().subscribe({
-       next: (res: any) => {
-          const courses = res.data || res || [];
-          this.stats.totalCourses = courses.length;
-          this.recentCourses = courses.slice(0, 5).map((c: any) => ({
-             id: c._id || c.id,
-             title: c.title || c.name,
-             instructor: c.instructor?.name || 'Unknown',
-             status: c.status || 'Published',
-             studentsCount: c.enrolledStudents?.length || 0,
-             rating: c.rating || 0
-          }));
-       },
-       error: (err) => console.error(err)
-    });
-
-    this.adminService.getAllInstructors().subscribe({
-       next: (res: any) => {
-          const insts = res.data || res || [];
-          this.stats.totalInstructors = insts.length;
-       },
-       error: (err) => console.error(err)
-    });
-
-    // You can fetch Admin Profile or Activities if your API supports it
-    // For now we will just hide activities since there is no backend route for it.
-
-    this.loading = false;
   }
 
   openUsers(): void { this.router.navigate(['/admin-users']); }
@@ -159,11 +149,11 @@ export class AdminDashboard implements OnInit {
 
   getActivityIcon(type: AdminActivity['type']): string {
     switch (type) {
-      case 'User': return '♙';
-      case 'Course': return '▣';
-      case 'Enrollment': return '↗';
-      case 'Certificate': return '✪';
-      default: return '•';
+      case 'User': return 'â™™';
+      case 'Course': return 'â–£';
+      case 'Enrollment': return 'â†—';
+      case 'Certificate': return 'âœª';
+      default: return 'â€¢';
     }
   }
 

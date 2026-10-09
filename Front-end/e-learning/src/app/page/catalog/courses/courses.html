@@ -1,10 +1,10 @@
 <main class="react-page">
 <div class="page-shell">
 <nav class="breadcrumbs" aria-label="Breadcrumb">
-<a routerLink="/catalog">⌂ Home</a><span>›</span>
-<a routerLink="/catalog/web-development">Categories</a><span>›</span>
-<a routerLink="/catalog/web-development">Web Development</a><span>›</span>
-<a routerLink="/catalog/web-development/front-end/tracks">Front-End Development</a>
+<a routerLink="/categories">⌂ Home</a><span>›</span>
+<a routerLink="/categories">Categories</a><span>›</span>
+<a routerLink="/categories">Web Development</a><span>›</span>
+<a routerLink="/courses">Front-End Development</a>
 <span>›</span> <strong>React</strong><span>›</span><strong>Courses</strong>
 </nav>
 
@@ -138,69 +138,7 @@ Next.js &amp; Full-Stack
 </div>
 </section>
 
-@if (filteredCourses.length > 0) {
-<section id="courses" class="course-grid">
-@for (course of paginatedCourses; track course.title) {
-<article class="course-card">
-<a
-class="course-image"
-[routerLink]="[
-'/catalog/web-development/front-end/react/course',
-courseSlug(course.title),
-]"
-><img [src]="course.image" [alt]="course.title" /><span class="course-badge">{{
-course.badge
-}}</span
-><span class="course-level">{{ course.level }}</span></a>
-<div class="course-body">
-<div class="course-meta">
-<span class="course-meta-item">
-<i class="meta-icon duration-icon">◷</i> {{ course.lessons }} Hours</span>
-<span class="course-meta-item">
-<i class="meta-icon lesson-icon">▷</i> {{ course.students }}</span>
-<span class="course-meta-item rating-meta">
-<i class="meta-icon rating-icon">★</i> {{ course.rating }} ({{
-formatReviews(course.reviews)
-}})</span>
-</div>
-<h3>
-<a
-[routerLink]="[
-'/catalog/web-development/front-end/react/course',
-courseSlug(course.title),
-]"
->{{ course.title }}</a>
-</h3>
-<p>{{ course.description }}</p>
-<div class="instructor">
-<img class="avatar" [src]="course.instructorImage" [alt]="course.instructor" /><span>
-<strong>{{ course.instructor }}</strong>
-<small>{{ course.role }}</small></span>
-</div>
-<div class="course-footer">
-<div class="price-block">
-<strong>${{ course.price.toFixed(2) }}</strong
-><del>${{ course.originalPrice.toFixed(2) }}</del
-><small>{{ course.discount }}% OFF</small>
-</div>
-<a
-[routerLink]="[
-'/catalog/web-development/front-end/react/course',
-courseSlug(course.title),
-]"
->View Course <span>→</span></a>
-</div>
-</div>
-</article>
-}
-</section>
-} @else {
-<section class="empty-state">
-<h2>No courses found</h2>
-<p>Try another search or reset the filters.</p>
-<button type="button" (click)="clearFilters()">Show all courses</button>
-</section>
-}
+<app-courses [searchQuery]="searchText"></app-courses>
 <div class="pagination">
 <button type="button" [disabled]="currentPage === 1" (click)="setPage(currentPage - 1)">
 ‹ Previous

@@ -1,5 +1,6 @@
 const Quiz = require("../modules/dbQuizs");
 const Lesson = require("../modules/dbLesson");
+const Section = require("../modules/dbSection");
 const Enrollment = require("../modules/dbEnrollement");
 const Course = require("../modules/dbCourse");
 const ApiError = require("../utils/ApiError");
@@ -12,8 +13,24 @@ const safeQuiz = (quiz) => {
 
 const createQuiz = async (req, res, next) => {
   try {
-    const { title, questions, passingScore, lessonId } = req.body;
-    if (!title || !Array.isArray(questions) || questions.length === 0 || !lessonId) return next(new ApiError(400, "Title, questions and lessonId are required"));
+    const { title, questions, passingScore, lessonId, sectionId } = req.body;
+    if (!title || !Array.isArray(questions) || questions.length === 0) return next(new ApiError(400, "Title and questions are required"));
+    if (!lessonId && !sectionId) return next(new ApiError(400, "lessonId or sectionId is required"));
+    if (lessonId && sectionId) return next(new ApiError(400, "A quiz can target either a lesson or a section, not both"));
+
+    if (sectionId) {
+      // Section final quiz: the backend derives the course from the section
+      // and guarantees at most one final quiz per section.
+      const section = await Section.findById(sectionId).select("courseId");
+      if (!section) return next(new ApiError(404, "Section not found"));
+      const course = await Course.findOne({ _id: section.courseId, instructorId: req.id });
+      if (!course) return next(new ApiError(403, "You are not allowed to create a quiz for this section"));
+      const existing = await Quiz.findOne({ sectionId: section._id });
+      if (existing) return next(new ApiError(400, "This section already has a final quiz"));
+
+      const quiz = await Quiz.create({ title, questions, passingScore, sectionId: section._id, courseId: course._id, instructorId: req.id });
+      return res.status(201).json({ message: "Quiz created successfully", data: quiz });
+    }
 
     const lesson = await Lesson.findById(lessonId);
     if (!lesson) return next(new ApiError(404, "Lesson not found"));

@@ -1,4 +1,4 @@
-<div class="curriculum-shell">
+﻿<div class="curriculum-shell">
   <app-instructor-sidebar></app-instructor-sidebar>
 
   <main class="curriculum-main">
@@ -40,6 +40,10 @@
     <!-- CONTENT -->
     <section class="curriculum-content">
 
+      @if (loadError) {
+        <div class="curriculum-error" role="alert">{{ loadError }}</div>
+      }
+
       <!-- PAGE HEADING -->
       <div class="curriculum-heading">
 
@@ -48,18 +52,18 @@
           <div class="heading-meta">
 
             <span class="status-pill">
-              {{ course.status }}
+              {{ statusLabel }}
             </span>
 
             <span class="course-category">
-              {{ course.category }}
+              {{ categoryName }}
             </span>
 
           </div>
 
 
           <h1>
-            {{ course.title }}
+            {{ courseTitle }}
           </h1>
 
 
@@ -73,65 +77,32 @@
           <button
             type="button"
             class="review-button"
-            [class.draft-review]="
-              course.status === 'Draft' ||
-              course.status === 'Assigned'
-            "
-            [class.changes-required]="
-              course.status === 'Changes Required'
-            "
-            [class.pending-review]="
-              course.status === 'In Review'
-            "
-            [class.published-review]="
-              course.status === 'Published'
-            "
-            [disabled]="
-              course.status === 'In Review' ||
-              course.status === 'Published'
-            "
+            [class.draft-review]="canEdit"
+            [class.changes-required]="isChangesRequired"
+            [class.pending-review]="isInReview"
+            [class.published-review]="isPublished"
+            [disabled]="!canSubmit"
             (click)="submitForReview()"
           >
 
-            <!-- DRAFT / ASSIGNED -->
-            <ng-container
-              *ngIf="
-                course.status === 'Draft' ||
-                course.status === 'Assigned'
-              "
-            >
+            <!-- DRAFT / CHANGES REQUIRED -->
+            @if (canSubmit) {
               <span>
-                Submit for Review
+                {{
+                  isChangesRequired
+                    ? 'Resubmit for Review'
+                    : 'Submit for Review'
+                }}
               </span>
 
               <span class="review-arrow">
                 →
               </span>
-            </ng-container>
-
-
-            <!-- CHANGES REQUIRED -->
-            <ng-container
-              *ngIf="
-                course.status === 'Changes Required'
-              "
-            >
-              <span>
-                Resubmit for Review
-              </span>
-
-              <span class="review-arrow">
-                →
-              </span>
-            </ng-container>
+            }
 
 
             <!-- IN REVIEW -->
-            <ng-container
-              *ngIf="
-                course.status === 'In Review'
-              "
-            >
+            @if (isInReview) {
               <span class="review-check">
                 ✓
               </span>
@@ -139,15 +110,11 @@
               <span>
                 Pending Review
               </span>
-            </ng-container>
+            }
 
 
             <!-- PUBLISHED -->
-            <ng-container
-              *ngIf="
-                course.status === 'Published'
-              "
-            >
+            @if (isPublished) {
               <span class="review-check">
                 ✓
               </span>
@@ -155,9 +122,27 @@
               <span>
                 Published
               </span>
-            </ng-container>
+            }
+
+
+            <!-- ARCHIVED -->
+            @if (course?.status === 'archived') {
+              <span>
+                Archived
+              </span>
+            }
 
           </button>
+
+          <!-- ADMIN FEEDBACK WHEN CHANGES ARE REQUESTED -->
+          @if (isChangesRequired && reviewMessage) {
+
+            <div class="review-feedback">
+              <strong>Admin feedback</strong>
+              <p>{{ reviewMessage }}</p>
+            </div>
+
+          }
 
         </div>
 
@@ -170,8 +155,9 @@
         <div class="overview-image-wrapper">
 
           <img
-            [src]="course.image"
-            [alt]="course.title"
+            [src]="course?.image || fallbackCourseImage"
+            [alt]="courseTitle"
+            (error)="useFallbackCourseImage($event)"
           />
 
         </div>
@@ -184,12 +170,12 @@
           </span>
 
           <h2>
-            {{ course.title }}
+            {{ courseTitle }}
           </h2>
 
           <p>
             {{
-              course.description ||
+              course?.description ||
               'Manage your course content and prepare it for review.'
             }}
           </p>
@@ -205,7 +191,7 @@
 
               <div>
                 <b>
-                  {{ course.duration || '—' }}
+                  {{ course?.duration ? course.duration + ' hours' : 'Not set' }}
                 </b>
 
                 <small>
@@ -285,7 +271,7 @@
         <div class="curriculum-title">
 
           <div class="title-icon">
-            ≡
+            ☷
           </div>
 
           <div>
@@ -364,7 +350,7 @@
                 title="Delete Section"
                 (click)="deleteSection(section.id)"
               >
-                🗑
+                ×
               </button>
 
 
@@ -380,8 +366,8 @@
               >
                 {{
                   collapsedSections[section.id]
-                    ? '⌄'
-                    : '⌃'
+                    ? '−'
+                    : '+'
                 }}
               </button>
 
@@ -407,21 +393,21 @@
             >
 
               <span class="drag">
-                ⋮⋮
+                ⋯
               </span>
 
 
               <span
                 class="lesson-icon"
                 [class.video-icon]="
-                  lesson.type === 'Video'
+                  lesson.type === 'video'
                 "
                 [class.document-icon]="
-                  lesson.type !== 'Video'
+                  lesson.type !== 'video'
                 "
               >
                 {{
-                  lesson.type === 'Video'
+                  lesson.type === 'video'
                     ? '▶'
                     : '▤'
                 }}
@@ -526,7 +512,7 @@
                     )
                   "
                 >
-                  🗑
+                  ×
                 </button>
 
               </div>
@@ -544,7 +530,7 @@
             >
 
               <span class="drag final-drag">
-                ⋮⋮
+                ⋯
               </span>
 
 
@@ -600,7 +586,7 @@
                     )
                   "
                 >
-                  🗑
+                  ×
                 </button>
 
               </div>

@@ -4,12 +4,14 @@ const { auth, relasedTo } = require("../middlewares/auth");
 const {
   createSection,
   getCourseSections,
+  getCourseOutline,
   getSectionById,
   updateSection,
   deleteSection,
 } = require("../controllers/section");
 
 router.post("/course/:courseId", auth, relasedTo("instructor"), createSection);
+router.get("/course/:courseId/outline", getCourseOutline);
 router.get(
   "/course/:courseId",
   auth,

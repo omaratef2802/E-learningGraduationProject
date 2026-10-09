@@ -1,7 +1,8 @@
-import { Component, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, inject, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { INSTRUCTORS_CONFIG, InstructorItem } from './instructors.config';
-import { InstructorData } from '../../page/instructor-data';
+import { InstructorDataService } from '../../services/instructor-data.service';
+import { PublicInstructor } from '../../mock-types';
 
 @Component({
   selector: 'app-instructors',
@@ -9,54 +10,50 @@ import { InstructorData } from '../../page/instructor-data';
   templateUrl: './instructors.html',
   styleUrl: './instructors.css',
 })
-export class Instructors {
+export class Instructors implements OnInit {
   private readonly router = inject(Router);
-  protected readonly data = inject(InstructorData);
+  private readonly data = inject(InstructorDataService);
+  // Zoneless app: async callbacks must schedule change detection themselves.
+  private readonly changeDetector = inject(ChangeDetectorRef);
+
   protected readonly config = INSTRUCTORS_CONFIG;
+
+  /** Active instructor profiles are public on the landing page. */
+  protected instructors: PublicInstructor[] = [];
+
+  ngOnInit(): void {
+    this.data.getPublicInstructors().subscribe({
+      next: (instructors) => {
+        this.instructors = instructors;
+        this.changeDetector.detectChanges();
+      },
+      error: (err) => {
+        console.error('Error fetching instructors:', err);
+        this.changeDetector.detectChanges();
+      },
+    });
+  }
 
   get instructorsList(): InstructorItem[] {
     const tones = ['violet', 'cyan', 'coral', 'gold'];
-    const lead = this.data.instructor;
-    const items: InstructorItem[] = [];
-
-    if (lead) {
-      items.push({
-        name: `${lead.firstName} ${lead.lastName}`.trim(),
-        role: lead.role || 'Lead Instructor',
-        bio: lead.bio || 'Senior software engineer and lead instructor specializing in modern full-stack development.',
-        image: lead.image || 'https://images.unsplash.com/photo-1551836022-d5d88e9218df?auto=format&fit=crop&w=400&q=85',
-        rating: '4.95',
-        learners: '12,400+',
-        tone: 'violet'
-      });
-    }
-
-    // Add other registered teaching accounts from data file
-    const otherInstructors = this.data.adminUsers
-      ? this.data.adminUsers.filter(u => u.role === 'Instructor' && u.name !== items[0]?.name)
-      : [];
-
-    otherInstructors.forEach((inst, idx) => {
-      items.push({
-        name: inst.name,
-        role: 'Senior Instructor',
-        bio: 'Industry expert delivering practical, hands-on masterclasses and real-world project guidance.',
-        image: this.config.items[idx + 1]?.image || 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=400&q=85',
-        rating: '4.90',
-        learners: '9,800+',
-        tone: tones[(items.length) % tones.length]
-      });
-    });
-
-    // Complete up to 4 items using default config if needed
-    for (let i = items.length; i < this.config.items.length; i++) {
-      items.push(this.config.items[i]);
-    }
-
-    return items;
+    return this.instructors.map((instructor, index) => ({
+      id: instructor._id,
+      name: `${instructor.firstName} ${instructor.lastName}`.trim(),
+      role: 'Instructor',
+      bio: instructor.bio || 'Explore this instructor’s courses and learning resources.',
+      image: instructor.img || '',
+      rating: '—',
+      learners: '—',
+      tone: tones[index % tones.length],
+    }));
   }
 
-  viewInstructor(name: string): void {
-    this.router.navigate(['/search'], { queryParams: { instructor: name } });
+  viewInstructor(instructor: InstructorItem): void {
+    this.router.navigate(['/instructor', instructor.id], {
+      queryParams: { name: instructor.name },
+    });
   }
 }
+
+
+

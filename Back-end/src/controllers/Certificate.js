@@ -116,8 +116,21 @@ const getMyCertificates = async (req, res, next) => {
   }
 };
 
+const getInstructorCertificates = async (req, res, next) => {
+  try {
+    const courses = await Course.find({ instructorId: req.id }).select("_id");
+    const certificates = courses.length
+      ? await Certificate.find({ course: { $in: courses.map((course) => course._id) } }).sort({ issueDate: -1 })
+      : [];
+    return res.status(200).json({ success: true, count: certificates.length, data: certificates });
+  } catch (error) {
+    return next(new ApiError(500, error.message));
+  }
+};
+
 module.exports = {
   generateCertificateForStudent,
   verifyCertificate,
   getMyCertificates,
+  getInstructorCertificates,
 };

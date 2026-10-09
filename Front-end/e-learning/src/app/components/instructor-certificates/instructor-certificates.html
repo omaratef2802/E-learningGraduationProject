@@ -1,4 +1,4 @@
-<div class="certificates-shell">
+﻿<div class="certificates-shell">
 
   <!-- =========================
        SIDEBAR
@@ -107,7 +107,7 @@
           [disabled]="!filteredCertificates.length"
         >
 
-          ↓ Export Records
+          â†“ Export Records
 
         </button>
 
@@ -126,7 +126,7 @@
         <div class="search-box">
 
           <span>
-            ⌕
+            âŒ•
           </span>
 
           <input
@@ -163,32 +163,6 @@
             </option>
 
           }
-
-        </select>
-
-
-        <!-- STATUS FILTER -->
-
-        <select
-          [(ngModel)]="selectedStatus"
-          (change)="applyFilters()"
-        >
-
-          <option value="all">
-            All Status
-          </option>
-
-          <option value="Issued">
-            Issued
-          </option>
-
-          <option value="Pending">
-            Pending
-          </option>
-
-          <option value="Revoked">
-            Revoked
-          </option>
 
         </select>
 
@@ -293,15 +267,11 @@
                 </th>
 
                 <th>
-                  COMPLETION
+                  INSTRUCTOR
                 </th>
 
                 <th>
                   ISSUED DATE
-                </th>
-
-                <th>
-                  STATUS
                 </th>
 
                 <th>
@@ -335,7 +305,7 @@
 
                       <div class="student-avatar">
 
-                        {{ certificate.studentInitials }}
+                        {{ getStudentInitials(certificate) }}
 
                       </div>
 
@@ -350,7 +320,7 @@
 
                         <small>
 
-                          {{ certificate.studentEmail }}
+                          {{ certificate.studentName }}
 
                         </small>
 
@@ -367,7 +337,7 @@
 
                   <td>
 
-                    {{ certificate.courseTitle }}
+                    {{ certificate.courseName }}
 
                   </td>
 
@@ -380,7 +350,7 @@
 
                     <span class="certificate-id">
 
-                      {{ certificate.certId }}
+                      {{ certificate.certificateId }}
 
                     </span>
 
@@ -388,31 +358,12 @@
 
 
                   <!-- =========================
-                       COMPLETION
+                       INSTRUCTOR
                   ========================== -->
 
                   <td>
 
-                    <div class="completion">
-
-                      <div class="progress">
-
-                        <span
-                          [style.width.%]="
-                            certificate.completionRate
-                          "
-                        ></span>
-
-                      </div>
-
-
-                      <strong>
-
-                        {{ certificate.completionRate }}%
-
-                      </strong>
-
-                    </div>
+                    {{ certificate.instructorName }}
 
                   </td>
 
@@ -423,38 +374,7 @@
 
                   <td>
 
-                    {{ certificate.issuedDate }}
-
-                  </td>
-
-
-                  <!-- =========================
-                       STATUS
-                  ========================== -->
-
-                  <td>
-
-                    <span
-                      class="status"
-
-                      [class.issued]="
-                        certificate.status === 'Issued'
-                      "
-
-                      [class.pending]="
-                        certificate.status === 'Pending'
-                      "
-
-                      [class.revoked]="
-                        certificate.status === 'Revoked'
-                      "
-                    >
-
-                      ●
-
-                      {{ certificate.status }}
-
-                    </span>
+                    {{ certificate.issueDate }}
 
                   </td>
 
@@ -476,7 +396,7 @@
                       "
                     >
 
-                      👁
+                      ðŸ‘
 
                     </button>
 

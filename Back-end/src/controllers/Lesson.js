@@ -11,6 +11,7 @@ const validateQuiz = async (quizId, courseId, instructorId) => {
   if (!quizId) return null;
   const quiz = await Quiz.findById(quizId);
   if (!quiz) throw new ApiError(404, "Quiz not found");
+  if (quiz.sectionId) throw new ApiError(400, "This quiz is a section final quiz and cannot be assigned to a lesson");
   if (quiz.courseId && quiz.courseId.toString() !== courseId.toString()) throw new ApiError(400, "Quiz does not belong to this course");
   if (quiz.instructorId && quiz.instructorId.toString() !== instructorId.toString()) throw new ApiError(403, "You are not the owner of this quiz");
   const lesson = await Lesson.findOne({ quizId });

@@ -1,253 +1,36 @@
 <div class="notifications-shell">
-
   <app-instructor-sidebar></app-instructor-sidebar>
-
   <main class="notifications-main">
-
-    <!-- =========================
-         TOP BAR
-    ========================== -->
-
     <header class="profile-topbar">
-
-      <div class="breadcrumb">
-
-        <span>
-          INSTRUCTOR PORTAL
-        </span>
-
-        <strong>
-          / NOTIFICATIONS
-        </strong>
-
-      </div>
-
-      <div
-        class="top-user"
-        (click)="openProfile()"
-      >
-
-        <div class="mini-avatar">
-
-          <img
-            [src]="data.instructor.image"
-            [alt]="
-              data.instructor.firstName +
-              ' ' +
-              data.instructor.lastName
-            "
-          />
-
-        </div>
-
-        <div>
-
-          <strong>
-            {{ data.instructor.firstName }}
-            {{ data.instructor.lastName }}
-          </strong>
-
-          <small>
-            {{ data.instructor.role }}
-          </small>
-
-        </div>
-
-      </div>
-
+      <div class="breadcrumb"><span>INSTRUCTOR PORTAL</span><strong>/ NOTIFICATIONS</strong></div>
+      <button type="button" class="top-user" (click)="openProfile()">
+        <div class="mini-avatar"><img [src]="data.instructor.image" [alt]="data.instructor.firstName + ' ' + data.instructor.lastName" /></div>
+        <div><strong>{{ data.instructor.firstName }} {{ data.instructor.lastName }}</strong><small>{{ data.instructor.role }}</small></div>
+      </button>
     </header>
 
-
-    <!-- =========================
-         CONTENT
-    ========================== -->
-
     <section class="notifications-content">
+      <div class="notifications-heading"><div><span>INSTRUCTOR COMMUNICATION</span><h1>Notifications</h1><p>Updates sent to your instructor account.</p></div></div>
 
-      <!-- Heading -->
-
-      <div class="notifications-heading">
-
-        <div>
-
-          <span>
-            INSTRUCTOR COMMUNICATION
-          </span>
-
-          <h1>
-            Notifications
-          </h1>
-
-          <p>
-            Stay updated with important platform and course activity.
-          </p>
-
+      @if (errorMessage) { <div class="notification-error" role="alert">{{ errorMessage }}</div> }
+      @if (loading) {
+        <div class="empty-notifications" role="status">Loading your notifications…</div>
+      } @else if (notifications.length) {
+        <div class="notification-list">
+          @for (notification of notifications; track notification.id) {
+            <article class="notification-item" [class.unread]="!notification.isRead">
+              <div class="notification-icon"><span>{{ notification.type === 'course' ? '◇' : notification.type === 'certificate' ? '✦' : notification.type === 'review' ? '✓' : '•' }}</span></div>
+              <div class="notification-content"><small>{{ notification.type | titlecase }} · {{ notification.createdAt | date:'MMM d, y, h:mm a' }}</small><h2>{{ notification.title }}</h2><p>{{ notification.message }}</p></div>
+              <div class="notification-actions">
+                @if (!notification.isRead) { <button type="button" (click)="markAsRead(notification)">Mark as read</button> }
+                <button type="button" (click)="removeNotification(notification.id)">Delete</button>
+              </div>
+            </article>
+          }
         </div>
-
-        <button
-          type="button"
-          class="create-notification"
-          (click)="toggleForm()"
-        >
-          {{ showForm ? 'Close Form' : '+ New Notification' }}
-        </button>
-
-      </div>
-
-
-      <!-- =========================
-           CREATE NOTIFICATION
-      ========================== -->
-
-      <form
-        *ngIf="showForm"
-        class="notification-form"
-        (ngSubmit)="createNotification()"
-      >
-
-        <input
-          type="text"
-          name="title"
-          [(ngModel)]="title"
-          placeholder="Notification title"
-          required
-        />
-
-        <select
-          name="type"
-          [(ngModel)]="type"
-        >
-
-          <option
-            *ngFor="let item of notificationTypes"
-            [value]="item"
-          >
-            {{ item }}
-          </option>
-
-        </select>
-
-        <textarea
-          name="message"
-          [(ngModel)]="message"
-          rows="4"
-          placeholder="Write your notification message..."
-          required
-        ></textarea>
-
-        <div>
-
-          <button
-            type="submit"
-          >
-            Create Notification
-          </button>
-
-          <button
-            type="button"
-            (click)="cancelForm()"
-          >
-            Cancel
-          </button>
-
-        </div>
-
-      </form>
-
-
-      <!-- =========================
-           NOTIFICATION LIST
-      ========================== -->
-
-      <div class="notification-list">
-
-        <article
-          class="notification-item"
-          *ngFor="let notification of notifications"
-          [class.unread]="!notification.isRead"
-        >
-
-          <div class="notification-icon">
-
-            <ng-container
-              [ngSwitch]="notification.type"
-            >
-
-              <span *ngSwitchCase="'Course'">
-                ◈
-              </span>
-
-              <span *ngSwitchCase="'Student'">
-                ♙
-              </span>
-
-              <span *ngSwitchCase="'System'">
-                ⚙
-              </span>
-
-              <span *ngSwitchDefault>
-                !
-              </span>
-
-            </ng-container>
-
-          </div>
-
-
-          <div class="notification-content">
-
-            <small>
-              {{ notification.type }}
-              ·
-              {{ notification.createdAt | date:'MMM d, y, h:mm a' }}
-            </small>
-
-            <h2>
-              {{ notification.title }}
-            </h2>
-
-            <p>
-              {{ notification.message }}
-            </p>
-
-          </div>
-
-
-          <div class="notification-actions">
-
-            <button
-              *ngIf="!notification.isRead"
-              type="button"
-              (click)="markAsRead(notification)"
-            >
-              Mark as read
-            </button>
-
-            <button
-              type="button"
-              (click)="removeNotification(notification.id)"
-            >
-              Delete
-            </button>
-
-          </div>
-
-        </article>
-
-
-        <!-- Empty State -->
-
-        <div
-          class="empty-notifications"
-          *ngIf="!notifications.length"
-        >
-          No notifications available yet.
-        </div>
-
-      </div>
-
+      } @else {
+        <div class="empty-notifications">No notifications have been sent to your account yet.</div>
+      }
     </section>
-
   </main>
-
 </div>

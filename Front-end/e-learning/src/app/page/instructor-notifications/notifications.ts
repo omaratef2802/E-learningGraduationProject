@@ -1,130 +1,66 @@
-import { Component, inject } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 
 import { InstructorSidebar } from '../instructor-sidebar/sidebar';
-import {
-  InstructorData,
-  InstructorNotification
-} from '../instructor-data';
+import { InstructorDataService } from '../../services/instructor-data.service';
 
 @Component({
   selector: 'app-instructor-notifications',
-
   standalone: true,
-
-  imports: [
-    CommonModule,
-    FormsModule,
-    InstructorSidebar
-  ],
-
+  imports: [CommonModule, InstructorSidebar],
   templateUrl: './notifications.html',
-
-  styleUrl: './notifications.css'
+  styleUrl: './notifications.css',
 })
-export class InstructorNotifications {
+export class InstructorNotifications implements OnInit {
+  private readonly router = inject(Router);
+  private readonly dataService = inject(InstructorDataService);
 
-  private readonly router =
-    inject(Router);
+  public data: any = { instructor: { firstName: '', lastName: '', image: '', role: 'Instructor' } };
+  notifications: any[] = [];
+  loading = true;
+  errorMessage = '';
 
-  protected readonly data =
-    inject(InstructorData);
-
-  protected showForm = false;
-
-  protected title = '';
-
-  protected message = '';
-
-  protected type:
-    InstructorNotification['type'] =
-    'General';
-
-  get notifications(): InstructorNotification[] {
-
-    return this.data.notifications;
-  }
-
-  get notificationTypes() {
-
-    return this.data.notificationTypes;
-  }
-
-  toggleForm(): void {
-
-    this.showForm =
-      !this.showForm;
-
-    if (!this.showForm) {
-
-      this.resetForm();
-    }
-  }
-
-  createNotification(): void {
-
-    if (
-      !this.title.trim() ||
-      !this.message.trim()
-    ) {
-      return;
-    }
-
-    this.data.addNotification({
-
-      title: this.title.trim(),
-
-      message: this.message.trim(),
-
-      type: this.type,
-
-      isRead: false
-
+  ngOnInit(): void {
+    this.dataService.getNotifications().subscribe({
+      next: (notifications) => {
+        this.notifications = notifications;
+        this.loading = false;
+      },
+      error: (error) => {
+        this.errorMessage = error.error?.message || 'Unable to load notifications right now.';
+        this.loading = false;
+      },
     });
-
-    this.resetForm();
-
-    this.showForm = false;
+    this.dataService.getProfile().subscribe({
+      next: (profile) => {
+        this.data.instructor = {
+          firstName: profile.firstName || '',
+          lastName: profile.lastName || '',
+          image: profile.img || 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=100&q=80',
+          role: profile.role || 'Instructor',
+        };
+      },
+      error: () => {},
+    });
   }
 
-  cancelForm(): void {
-
-    this.resetForm();
-
-    this.showForm = false;
+  markAsRead(notification: any): void {
+    if (notification.isRead) return;
+    this.dataService.updateNotification(notification.id, { isRead: true }).subscribe({
+      next: () => notification.isRead = true,
+      error: (error) => this.errorMessage = error.error?.message || 'Could not update this notification.',
+    });
   }
 
-  markAsRead(
-    notification: InstructorNotification
-  ): void {
-
-    this.data.markNotificationRead(
-      notification.id
-    );
-  }
-
-  removeNotification(
-    id: string
-  ): void {
-
-    this.data.removeNotification(id);
+  removeNotification(id: string): void {
+    this.dataService.deleteNotification(id).subscribe({
+      next: () => this.notifications = this.notifications.filter((item) => item.id !== id),
+      error: (error) => this.errorMessage = error.error?.message || 'Could not delete this notification.',
+    });
   }
 
   openProfile(): void {
-
-    this.router.navigate([
-      '/instructor-profile'
-    ]);
-  }
-
-  private resetForm(): void {
-
-    this.title = '';
-
-    this.message = '';
-
-    this.type = 'General';
+    this.router.navigate(['/instructor-profile']);
   }
 }

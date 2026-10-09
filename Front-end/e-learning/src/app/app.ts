@@ -1,15 +1,8 @@
 import { Component, OnDestroy, signal } from '@angular/core';
 
-import {
-  NavigationEnd,
-  Router,
-  RouterOutlet
-} from '@angular/router';
+import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
 
-import {
-  Subscription,
-  filter
-} from 'rxjs';
+import { Subscription, filter } from 'rxjs';
 
 import { Header } from './components/header/header';
 import { Hero } from './components/hero/hero';
@@ -34,7 +27,7 @@ import { Footer } from './components/footer/footer';
     Career,
     Instructors,
     Cta,
-    Footer
+    Footer,
   ],
 
   selector: 'app-root',
@@ -44,65 +37,40 @@ import { Footer } from './components/footer/footer';
   templateUrl: './app.html',
 })
 export class App implements OnDestroy {
-
   protected readonly isHome = signal(true);
-
   protected readonly isDashboard = signal(false);
-
   protected readonly isAdmin = signal(false);
-
   private readonly navigationSubscription: Subscription;
 
-
-  constructor(
-    private readonly router: Router
-  ) {
-
-    const currentUrl =
-      this.router.url.split('#')[0];
+  constructor(private readonly router: Router) {
+    const currentUrl = this.router.url.split('#')[0];
 
     this.updatePageState(currentUrl);
+    this.navigationSubscription = this.router.events
+      .pipe(filter((event): event is NavigationEnd => event instanceof NavigationEnd))
+      .subscribe((event) => {
+        const url = event.urlAfterRedirects.split('#')[0];
 
-
-    this.navigationSubscription =
-      this.router.events
-        .pipe(
-          filter(
-            (event): event is NavigationEnd =>
-              event instanceof NavigationEnd
-          )
-        )
-        .subscribe((event) => {
-
-          const url =
-            event.urlAfterRedirects.split('#')[0];
-
-          this.updatePageState(url);
-
-        });
+        this.updatePageState(url);
+      });
   }
 
   private updatePageState(url: string): void {
     const cleanUrl = url.split('?')[0].split('#')[0];
 
-    this.isHome.set(
-      cleanUrl === '/' || cleanUrl === '' || cleanUrl === '/index.html'
-    );
+    this.isHome.set(cleanUrl === '/' || cleanUrl === '' || cleanUrl === '/index.html');
 
     this.isDashboard.set(
-      cleanUrl.startsWith('/instructor-')
+      cleanUrl.startsWith('/instructor-') ||
+        cleanUrl.startsWith('/student-dashboard') ||
+        cleanUrl === '/learning' ||
+        cleanUrl === '/profile',
     );
 
-    this.isAdmin.set(
-      cleanUrl.startsWith('/admin-')
-    );
+    this.isAdmin.set(cleanUrl.startsWith('/admin-'));
   }
-
 
   ngOnDestroy(): void {
-
     this.navigationSubscription.unsubscribe();
-
   }
-
 }

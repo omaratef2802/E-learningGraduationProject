@@ -1,4 +1,4 @@
-<div class="preview-page">
+﻿<div class="preview-page">
 
   <header class="preview-header">
 
@@ -7,7 +7,7 @@
         COURSE PREVIEW
       </span>
 
-      <h1>{{ course.title }}</h1>
+      <h1>{{ course?.title }}</h1>
 
       <p>
         This is the student preview of your course.
@@ -19,7 +19,7 @@
       class="back-button"
       (click)="backToCurriculum()"
     >
-      ← Back to Curriculum
+      â† Back to Curriculum
     </button>
 
   </header>
@@ -30,22 +30,22 @@
     <section class="course-hero">
 
       <img
-        [src]="course.image"
-        [alt]="course.title"
+        [src]="course?.image"
+        [alt]="course?.title"
       >
 
       <div class="hero-content">
 
         <span class="status">
-          {{ course.status }}
+          {{ statusLabel }}
         </span>
 
         <h2>
-          {{ course.title }}
+          {{ course?.title }}
         </h2>
 
         <p>
-          {{ course.category }}
+          {{ categoryName }}
         </p>
 
         <div class="course-stats">
@@ -73,7 +73,7 @@
 
           <div>
             <strong>
-              {{ course.price }}
+              {{ course?.price }}
             </strong>
             <span>Price</span>
           </div>
@@ -141,7 +141,7 @@
               <div class="preview-item">
 
                 <div class="item-icon">
-                  ▶
+                  â–¶
                 </div>
 
                 <div>
@@ -152,11 +152,11 @@
 
                   <small>
                     {{ lesson.type }}
-                    ·
+                    Â·
                     {{ lesson.duration }}
 
-                    @if (lesson.preview) {
-                      · Preview
+                    @if (lesson.isPreview) {
+                      Â· Preview
                     }
                   </small>
 
@@ -187,11 +187,11 @@
                   <small>
                     {{ quiz.questions.length }}
                     questions
-                    ·
+                    Â·
                     {{ quiz.passingScore }}%
                     passing
-                    ·
-                    {{ quiz.duration }}
+                    Â·
+                    
                   </small>
 
                 </div>

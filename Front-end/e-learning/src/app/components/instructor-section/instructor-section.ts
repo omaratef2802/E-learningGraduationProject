@@ -1,10 +1,10 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 
-import { InstructorData } from '../../page/instructor-data';
 import { InstructorSidebar } from '../../page/instructor-sidebar/sidebar';
-import { InstructorService } from '../../services/instructor.service';
+import { InstructorDataService } from '../../services/instructor-data.service';
+import { CurriculumSection } from '../../mock-types';
 
 @Component({
   selector: 'app-instructor-section',
@@ -17,13 +17,12 @@ import { InstructorService } from '../../services/instructor.service';
   templateUrl: './instructor-section.html',
   styleUrl: './instructor-section.css'
 })
-export class InstructorSection {
+export class InstructorSection implements OnInit {
 
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
 
-  protected readonly data = inject(InstructorData);
-  private readonly instructorService = inject(InstructorService);
+  private readonly dataService = inject(InstructorDataService);
 
   protected sectionId =
     this.route.snapshot.queryParamMap.get('section') || '';
@@ -33,10 +32,42 @@ export class InstructorSection {
 
   protected title = '';
 
-  constructor() {
+  /** Sections of this course, loaded from the database. */
+  protected sections: CurriculumSection[] = [];
 
-    const existing = this.data.sections.find(
-      section => section.id === this.sectionId
+  protected loading = false;
+  protected saving = false;
+  protected sectionsLoaded = false;
+  protected errorMessage = '';
+
+  ngOnInit(): void {
+    if (!this.courseId) {
+      this.errorMessage = 'Course information is missing. Return to My Courses and open the course again.';
+      return;
+    }
+
+    this.loading = true;
+
+    this.dataService.getCurriculum(this.courseId).subscribe({
+      next: (sections) => {
+        this.sections = sections;
+        this.prefillTitle();
+        this.sectionsLoaded = true;
+        this.loading = false;
+      },
+      error: (err) => {
+        console.error('Error fetching sections:', err);
+        this.errorMessage = err?.error?.message || 'Could not load the course sections. Reload this page before adding a section.';
+        this.loading = false;
+      },
+    });
+  }
+
+  private prefillTitle(): void {
+    if (!this.sectionId) return;
+
+    const existing = this.sections.find(
+      (section) => section.id === this.sectionId
     );
 
     if (existing) {
@@ -45,37 +76,44 @@ export class InstructorSection {
   }
 
   saveSection(): void {
-    const title = this.title.trim() || 'Untitled Section';
+    const title = this.title.trim();
+    this.errorMessage = '';
+
+    if (!this.courseId) {
+      this.errorMessage = 'Course information is missing. Return to My Courses and open the course again.';
+      return;
+    }
+    if (!this.sectionsLoaded) {
+      this.errorMessage = 'The current section list has not loaded. Reload the page before saving to avoid duplicate section order.';
+      return;
+    }
+    if (!title) {
+      this.errorMessage = 'Enter a title for this section.';
+      return;
+    }
+    this.saving = true;
 
     if (this.sectionId) {
-      // Editing not fully implemented via API yet in this snippet, falling back to mock logic temporarily
-      // Ideally you'd call this.instructorService.updateSection(...)
-      const existing = this.data.sections.find(section => section.id === this.sectionId);
-      if (!existing) return;
-
-      this.data.updateSection(this.courseId, this.sectionId, {
-        title: title,
-        lessons: existing.lessons,
-        quizzes: existing.quizzes
-      });
-      this.backToCurriculum();
-    } else {
-      // Create new section via API
-      this.instructorService.createSection(this.courseId, { title, order: this.data.sections.length + 1 }).subscribe({
-        next: (res: any) => {
-          // Add to mock data so UI updates
-          this.data.addSection(this.courseId, {
-            id: res.data?._id || res.data?.id,
-            title: title,
-            lessons: [],
-            quizzes: []
-          } as any);
-          this.backToCurriculum();
+      // PATCH /section/:id
+      this.dataService.updateSection(this.sectionId, { title }).subscribe({
+        next: () => { this.saving = false; this.backToCurriculum(); },
+        error: (err) => {
+          console.error('Failed to update section:', err);
+          this.saving = false;
+          this.errorMessage = err?.error?.message || 'Failed to update section.';
         },
+      });
+    } else {
+      // POST /section/course/:courseId — order is required by the backend.
+      const order = this.sections.reduce((highest, section) => Math.max(highest, Number(section.order) || 0), 0) + 1;
+
+      this.dataService.createSection(this.courseId, { title, order }).subscribe({
+        next: () => { this.saving = false; this.backToCurriculum(); },
         error: (err) => {
           console.error('Failed to create section:', err);
-          alert('Failed to add section. Make sure Course ID is valid.');
-        }
+          this.saving = false;
+          this.errorMessage = err?.error?.message || 'Failed to add section. Check your connection and try again.';
+        },
       });
     }
   }
@@ -92,3 +130,5 @@ export class InstructorSection {
     );
   }
 }
+
+

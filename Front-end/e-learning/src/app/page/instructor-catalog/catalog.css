@@ -196,6 +196,31 @@
 }
 
 .catalog-card {
+  cursor: pointer;
+  transition: transform .2s ease, box-shadow .2s ease;
+}
+
+.catalog-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 16px 36px rgba(30, 41, 59, .12);
+}
+
+.catalog-state {
+  grid-column: 1 / -1;
+  padding: 36px 24px;
+  border: 1px solid #e2e8f0;
+  border-radius: 18px;
+  background: #fff;
+  color: #64748b;
+  text-align: center;
+}
+
+.catalog-state strong { display: block; color: #172033; font-size: 18px; }
+.catalog-state p { margin: 8px 0 16px; }
+.catalog-state a { color: #4f46e5; font-weight: 700; text-decoration: none; }
+.catalog-state.error-state { color: #be123c; background: #fff1f2; }
+
+.catalog-card {
   display: flex;
   flex-direction: column;
   background: #ffffff;
