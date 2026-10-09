@@ -1,0 +1,316 @@
+<main class="player-page">
+  <div *ngIf="loading" class="player-state">
+    <div class="spinner"></div>
+    <h2>Preparing your classroom...</h2>
+  </div>
+
+  <div *ngIf="!loading && errorMessage" class="player-state error">
+    <div class="state-icon">!</div>
+    <h2>Content unavailable</h2>
+    <p>{{ errorMessage }}</p>
+    <a class="primary-button" [routerLink]="['/course', courseId]">Back to course <span>→</span></a>
+  </div>
+
+  <ng-container *ngIf="!loading && state">
+    <header class="player-topbar">
+      <div class="topbar-left">
+        <a class="back-link" [routerLink]="['/course', courseId]">‹ Course</a>
+        <div class="topbar-titles">
+          <strong>{{ courseTitle }}</strong>
+          <small>Overall progress {{ overallProgress }}%</small>
+        </div>
+      </div>
+      <div
+        class="topbar-progress"
+        [attr.aria-valuenow]="overallProgress"
+        role="progressbar"
+        aria-valuemin="0"
+        aria-valuemax="100"
+      >
+        <span [style.width.%]="overallProgress"></span>
+      </div>
+    </header>
+
+    <div class="player-layout">
+      <!-- CURRICULUM SIDEBAR (ROADMAP) -->
+      <aside class="curriculum-pane">
+        <div class="curriculum-heading">
+          <span class="section-kicker">YOUR ROADMAP</span>
+          <h2>Course journey</h2>
+          <p class="roadmap-sub">Follow the path — finish each step to unlock the next.</p>
+        </div>
+
+        <ol class="roadmap">
+          <li
+            *ngFor="let section of state.sections; let s = index"
+            class="roadmap-step"
+            [class.locked]="!section.unlocked"
+            [class.done]="section.completed"
+            [class.current]="section.unlocked && !section.completed"
+          >
+            <div class="roadmap-node">
+              <span class="node-dot">
+                <ng-container *ngIf="section.completed">✓</ng-container>
+                <ng-container *ngIf="!section.completed && section.unlocked">{{ section.order }}</ng-container>
+                <ng-container *ngIf="!section.completed && !section.unlocked">🔒</ng-container>
+              </span>
+              <span class="node-line"></span>
+            </div>
+
+            <div class="roadmap-step-body">
+              <div class="roadmap-step-head">
+                <h3>{{ section.title }}</h3>
+                <span class="step-count">{{ sectionProgress(section) }}%</span>
+              </div>
+              <p class="step-status">
+                <ng-container *ngIf="section.completed">Section complete 🎉</ng-container>
+                <ng-container *ngIf="!section.completed && section.unlocked"
+                  >In progress — keep going</ng-container
+                >
+                <ng-container *ngIf="!section.unlocked"
+                  >Finish the previous section to unlock</ng-container
+                >
+              </p>
+              <div class="step-track" role="progressbar" [attr.aria-valuenow]="sectionProgress(section)" aria-valuemin="0" aria-valuemax="100">
+                <span [style.width.%]="sectionProgress(section)"></span>
+              </div>
+
+          <ul class="lesson-list">
+            <li
+              *ngFor="let lesson of section.lessons"
+              class="lesson-row"
+              [class.active]="activeLessonId === lesson.id"
+              [class.locked]="!lesson.unlocked"
+              (click)="openLesson(lesson.id)"
+            >
+              <span class="lesson-icon">
+                <ng-container *ngIf="lesson.completed">✓</ng-container>
+                <ng-container *ngIf="!lesson.completed && lesson.unlocked">▶</ng-container>
+                <ng-container *ngIf="!lesson.completed && !lesson.unlocked">🔒</ng-container>
+              </span>
+              <span class="lesson-copy">
+                <strong>{{ lesson.title }}</strong>
+                <small>
+                  {{ lesson.type === 'video' ? 'Video' : 'Reading' }}
+                  <ng-container *ngIf="lesson.duration"> · {{ lesson.duration }} min</ng-container>
+                </small>
+              </span>
+              <span
+                *ngIf="lesson.score !== null"
+                class="score-chip"
+                [class.pass]="lesson.quizPassed"
+                [class.fail]="!lesson.quizPassed"
+              >
+                {{ lesson.score }}%
+              </span>
+            </li>
+
+            <li
+              *ngIf="section.finalQuiz"
+              class="lesson-row quiz-row"
+              [class.active]="activeQuizId === section.finalQuiz.id"
+              [class.locked]="!section.finalQuiz.unlocked"
+              (click)="openQuiz(section.finalQuiz.id)"
+            >
+              <span class="lesson-icon">
+                <ng-container *ngIf="section.finalQuiz.passed">✓</ng-container>
+                <ng-container *ngIf="!section.finalQuiz.passed && section.finalQuiz.unlocked"
+                  >✎</ng-container
+                >
+                <ng-container *ngIf="!section.finalQuiz.passed && !section.finalQuiz.unlocked"
+                  >🔒</ng-container
+                >
+              </span>
+              <span class="lesson-copy">
+                <strong>{{ section.finalQuiz.title }}</strong>
+                <small>Section final quiz</small>
+              </span>
+              <span
+                *ngIf="section.finalQuiz.score !== null"
+                class="score-chip"
+                [class.pass]="section.finalQuiz.passed"
+                [class.fail]="!section.finalQuiz.passed"
+              >
+                {{ section.finalQuiz.score }}%
+              </span>
+            </li>
+          </ul>
+            </div>
+          </li>
+        </ol>
+      </aside>
+
+      <!-- CONTENT PANE -->
+      <section class="content-pane">
+        <div *ngIf="contentLoading" class="content-state">
+          <div class="spinner"></div>
+          <p>Loading content...</p>
+        </div>
+
+        <div *ngIf="!contentLoading && view === 'overview'" class="content-empty">
+          <div class="empty-icon">◈</div>
+          <h2>Your learning path</h2>
+          <p>
+            Pick any unlocked lesson from the curriculum. Lessons unlock in order, and each section
+            unlocks once the previous one is fully complete.
+          </p>
+          <button class="primary-button" type="button" (click)="loadState(true)">
+            Start learning <span>→</span>
+          </button>
+        </div>
+
+        <!-- LESSON VIEW -->
+        <article *ngIf="!contentLoading && view === 'lesson' && activeLesson" class="lesson-view">
+          <div class="lesson-header">
+            <span class="section-kicker">LESSON</span>
+            <h1>{{ activeLesson.title }}</h1>
+            <div class="lesson-meta">
+              <span>{{ activeLesson.type === 'video' ? 'Video lesson' : 'Reading lesson' }}</span>
+              <span *ngIf="activeLesson.duration">· {{ activeLesson.duration }} min</span>
+            </div>
+          </div>
+
+          <div class="lesson-body">
+            <div *ngIf="activeLesson.type === 'video' && activeLesson.videoUrl" class="video-frame">
+              <video [src]="activeLesson.videoUrl" controls playsinline></video>
+            </div>
+            <div
+              *ngIf="activeLesson.type === 'video' && !activeLesson.videoUrl"
+              class="content-note"
+            >
+              This video is being processed and is not available yet.
+            </div>
+            <div *ngIf="activeLesson.type === 'text'" class="text-content">
+              <p>{{ activeLesson.textContent }}</p>
+            </div>
+          </div>
+
+          <div class="lesson-actions">
+            <button
+              class="primary-button"
+              type="button"
+              *ngIf="!findLesson(activeLessonId)?.completed"
+              [disabled]="completeBusy"
+              (click)="markLessonComplete()"
+            >
+              {{ completeBusy ? 'Saving...' : 'Mark as complete' }} <span>→</span>
+            </button>
+            <span *ngIf="findLesson(activeLessonId)?.completed" class="done-chip">✓ Completed</span>
+            <button
+              class="secondary-button"
+              type="button"
+              *ngIf="activeLesson.quizId"
+              (click)="openQuiz(activeLesson.quizId._id)"
+            >
+              Take lesson quiz ({{ activeLesson.quizId.title }}) <span>→</span>
+            </button>
+          </div>
+        </article>
+
+        <!-- QUIZ VIEW -->
+        <article *ngIf="!contentLoading && view === 'quiz' && activeQuiz" class="quiz-view">
+          <div class="lesson-header">
+            <span class="section-kicker">QUIZ</span>
+            <h1>{{ activeQuiz.title }}</h1>
+            <div class="lesson-meta">
+              <span>{{ activeQuiz.questions.length }} questions</span>
+              <span>· Pass mark {{ activeQuiz.passingScore }}%</span>
+              <span>· Total {{ activeQuizTotalPoints }} points</span>
+            </div>
+          </div>
+
+          <div
+            *ngIf="quizResult"
+            class="result-banner"
+            [class.pass]="quizResult.passed"
+            [class.fail]="!quizResult.passed"
+          >
+            <div class="result-score">{{ quizResult.percentage }}<i>%</i></div>
+            <div class="result-copy">
+              <strong>{{
+                quizResult.passed ? 'Congratulations — you passed!' : 'Not passed yet'
+              }}</strong>
+              <small>You scored {{ quizResult.score }} / {{ quizResult.totalScore }} points.</small>
+            </div>
+            <button class="secondary-button" type="button" (click)="retakeQuiz()">
+              Retake quiz
+            </button>
+          </div>
+
+          <form class="quiz-form" (ngSubmit)="submitQuiz()">
+            <fieldset
+              *ngFor="let question of activeQuiz.questions; let i = index"
+              class="question-block"
+              [disabled]="!!quizResult"
+            >
+              <legend>
+                <span class="q-index">Q{{ i + 1 }}</span> {{ question.question }}
+                <span class="q-points">{{ question.points }} {{ question.points === 1 ? 'point' : 'points' }}</span>
+              </legend>
+              <label
+                *ngFor="let option of question.options"
+                class="option-row"
+                [class.selected]="isAnswered(i, option)"
+              >
+                <input
+                  type="radio"
+                  [name]="'q' + i"
+                  [value]="option"
+                  [checked]="isAnswered(i, option)"
+                  (change)="selectAnswer(i, option)"
+                />
+                <span>{{ option }}</span>
+              </label>
+            </fieldset>
+
+            <button
+              class="primary-button submit-quiz"
+              type="submit"
+              *ngIf="!quizResult"
+              [disabled]="submitting"
+            >
+              {{ submitting ? 'Submitting...' : 'Submit answers' }} <span>→</span>
+            </button>
+          </form>
+        </article>
+
+        <!-- CERTIFICATE OF COMPLETION (auto-generated after the final quiz) -->
+        <article *ngIf="!contentLoading && certificate" class="certificate-view">
+          <div class="certificate-paper">
+            <span class="certificate-seal" aria-hidden="true">✦</span>
+            <span class="certificate-issuer">PATHWAYED · CERTIFICATE OF COMPLETION</span>
+            <p class="certificate-line">This is to certify that</p>
+            <h2 class="certificate-learner">{{ certificate.studentName }}</h2>
+            <p class="certificate-line">has successfully completed the course</p>
+            <h3 class="certificate-course">{{ certificate.courseName }}</h3>
+
+            <div class="certificate-meta">
+              <div><small>LEARNER</small><strong>{{ certificate.studentName }}</strong></div>
+              <div><small>INSTRUCTOR</small><strong>{{ certificate.instructorName }}</strong></div>
+              <div><small>ISSUED ON</small><strong>{{ certificate.issueDate | date: 'longDate' }}</strong></div>
+            </div>
+
+            <div class="certificate-footer">
+              <span class="certificate-id">ID · {{ certificate.certificateId }}</span>
+              <div class="certificate-actions">
+                <a class="secondary-button" [routerLink]="['/learn', courseId]">Back to roadmap</a>
+                <a
+                  class="primary-button"
+                  [href]="verificationLink(certificate)"
+                  target="_blank"
+                  rel="noopener"
+                  >Verify certificate ↗</a
+                >
+              </div>
+            </div>
+          </div>
+        </article>
+      </section>
+    </div>
+  </ng-container>
+
+  <div *ngIf="toastMessage" class="toast" [class.toast-error]="toastType === 'error'">
+    <span>{{ toastType === 'error' ? '!' : '✓' }}</span>
+    {{ toastMessage }}
+  </div>
+</main>

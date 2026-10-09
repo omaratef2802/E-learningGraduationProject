@@ -140,6 +140,17 @@ export class AdminTracks implements OnInit {
   // LOAD DATA
   // =========================================================
 
+  /**
+   * `categoryId` is an ObjectId unless the backend populated it, so the display
+   * name comes either from the populated document or from the loaded list.
+   */
+  private trackCategoryName(track: any): string {
+    if (track.categoryId && typeof track.categoryId === 'object') {
+      return track.categoryId.title ?? track.categoryId.name ?? '';
+    }
+    return this.allCategories.find((c) => c.id === track.categoryId)?.name ?? '';
+  }
+
   loadTracks(): void {
 
     this.loading = true;
@@ -147,47 +158,45 @@ export class AdminTracks implements OnInit {
     this.successMessage = '';
 
     this.adminService.getCategories().subscribe({
-      next: (catRes: any) => {
-        const cats = catRes.data || catRes || [];
-        this.allCategories = cats.map((c: any) => ({
-          id: c._id || c.id,
+      next: (cats) => {
+        // The Category schema stores `subcategories` and has no status field
+        // or course counters, so those are derived or left at zero.
+        this.allCategories = cats.map((c) => ({
+          id: c._id,
           name: c.name,
           description: c.description || '',
-          subcategoriesCount: c.subCategories?.length || 0,
-          coursesCount: c.courses?.length || 0,
-          tracksCount: c.tracksCount || 0,
-          status: c.status || 'Active'
+          subcategoriesCount: c.subcategories?.length ?? 0,
+          coursesCount: 0,
+          tracksCount: 0,
+          status: 'Active'
         }));
-        // Note: backend structure for subcategories is nested inside category.subCategories
         this.allSubcategories = [];
-        cats.forEach((c: any) => {
-          if (c.subCategories) {
-            c.subCategories.forEach((sub: any) => {
-              this.allSubcategories.push({
-                id: sub._id || sub.id,
-                name: sub.name,
-                categoryId: c._id || c.id,
-                categoryName: c.name,
-                status: 'Active'
-              } as any);
-            });
-          }
+        cats.forEach((c) => {
+          c.subcategories?.forEach((sub) => {
+            this.allSubcategories.push({
+              id: sub._id,
+              name: sub.name,
+              categoryId: c._id,
+              categoryName: c.name,
+              status: 'Active'
+            } as any);
+          });
         });
 
         this.adminService.getTracks().subscribe({
-          next: (trackRes: any) => {
-            const tracksData = trackRes.data || trackRes || [];
-            this.tracks = tracksData.map((t: any) => ({
-               id: t._id || t.id,
-               name: t.name,
+          next: (tracksData) => {
+            // Tracks have no status or counters in the schema.
+            this.tracks = tracksData.map((t) => ({
+               id: t._id,
+               name: t.title,
                description: t.description || '',
                categoryId: typeof t.categoryId === 'object' ? t.categoryId?._id : t.categoryId,
-               categoryName: typeof t.categoryId === 'object' ? t.categoryId?.name : (this.allCategories.find(c => c.id === t.categoryId)?.name || ''),
-               category: typeof t.categoryId === 'object' ? t.categoryId?.name : (this.allCategories.find(c => c.id === t.categoryId)?.name || ''),
-               subcategoryId: '', // tracks might not have subcategoryId based on backend map
+               categoryName: this.trackCategoryName(t),
+               category: this.trackCategoryName(t),
+               subcategoryId: '',
                subcategoryName: '', 
-               status: t.status || 'Active',
-               coursesCount: t.coursesCount || 0,
+               status: 'Active',
+               coursesCount: 0,
                studentsCount: 0
             }));
 
@@ -419,10 +428,10 @@ export class AdminTracks implements OnInit {
     // Removing subcategory strict checks since it might not be strictly required by backend or data structure might have changed
     
     const payload = {
-       name,
+       title: name,
+       slug: name.toLowerCase().normalize('NFKD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, ''),
        description,
        categoryId: this.trackForm.categoryId,
-       status: this.trackForm.status
     };
 
     if (this.isEditMode) {

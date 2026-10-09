@@ -1,3 +1,4 @@
+const mongoose = require("mongoose");
 const Review = require("../modules/dbReview");
 const Enrollment = require("../modules/dbEnrollement");
 const Course = require("../modules/dbCourse");
@@ -5,8 +6,9 @@ const { updateUserActivity } = require("../services/activity");
 const ApiError = require("../utils/ApiError");
 
 const refreshCourseRating = async (courseId) => {
+  const objectId = new mongoose.Types.ObjectId(courseId);
   const stats = await Review.aggregate([
-    { $match: { courseId } },
+    { $match: { courseId: objectId } },
     { $group: { _id: "$courseId", average: { $avg: "$rating" } } },
   ]);
   const rating = stats.length ? Math.round(stats[0].average * 10) / 10 : 0;

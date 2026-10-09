@@ -1,22 +1,165 @@
 <main class="course-details-page">
-<div class="details-shell">
-<nav class="breadcrumbs">
-<a routerLink="/catalog">⌂ Home</a><span>›</span
-><a routerLink="/catalog/web-development">Categories</a><span>›</span
-><a routerLink="/catalog/web-development/front-end/tracks">Front-End Development</a
-><span>›</span><strong>{{ courseTitle }}</strong>
-</nav>
-<section class="details-hero">
-<span class="eyebrow">Career Ready Track • React Development</span>
-<h1>{{ courseTitle }}</h1>
-<p>
-Build practical skills through guided lessons, real projects, and a focused React
-development path.
-</p>
-<div class="details-actions">
-<a routerLink="/catalog/web-development/front-end/react">Back to React Courses</a
-><a routerLink="/catalog/web-development/front-end/react">Start Learning →</a>
-</div>
-</section>
-</div>
+  <div class="details-shell">
+    <nav class="breadcrumbs" aria-label="Breadcrumb">
+      <a routerLink="/categories">⌂ Home</a>
+      <span>›</span>
+      <a routerLink="/courses">Courses</a>
+      <span>›</span>
+      <strong>{{ courseTitle }}</strong>
+    </nav>
+
+    <section *ngIf="loading" class="state-card">
+      <div class="spinner"></div>
+      <h2>Loading course...</h2>
+      <p>Getting the latest course information.</p>
+    </section>
+
+    <section *ngIf="!loading && errorMessage" class="state-card">
+      <div class="empty-icon">!</div>
+      <h2>Course not found</h2>
+      <p>{{ errorMessage }}</p>
+      <a class="primary-button" routerLink="/courses">Back to Courses <span>→</span></a>
+    </section>
+
+    <ng-container *ngIf="!loading && courseData">
+      <section class="course-hero">
+        <div class="hero-copy">
+          <div class="hero-topline">
+            <span class="eyebrow">{{ categoryName }}</span>
+            <span class="track-pill">{{ trackName }}</span>
+          </div>
+
+          <h1>{{ courseTitle }}</h1>
+          <p class="hero-description">{{ courseData.description }}</p>
+
+          <div class="instructor-row">
+            <img *ngIf="courseData.instructorId?.img" [src]="courseData.instructorId.img" [alt]="instructorName" />
+            <span *ngIf="!courseData.instructorId?.img" class="instructor-avatar">{{ getInstructorInitial() }}</span>
+            <div>
+              <small>Created by</small>
+              <strong>{{ instructorName }}</strong>
+            </div>
+          </div>
+
+          <div class="hero-stats">
+            <div><span>★</span><small>Rating</small><strong>{{ rating }}</strong></div>
+            <div><span>◷</span><small>Duration</small><strong>{{ duration }}</strong></div>
+            <div><span>◈</span><small>Level</small><strong>{{ level }}</strong></div>
+          </div>
+        </div>
+
+        <aside class="purchase-card">
+          <div class="course-image">
+            <img [src]="courseData.image || 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=1000&q=85'" [alt]="courseTitle" />
+          </div>
+          <div class="purchase-body">
+            <div class="price-row">
+              <strong>{{ courseData.price | number:'1.0-2' }} EGP</strong>
+              <span>One-time purchase</span>
+            </div>
+
+            <button class="enroll-button" type="button" (click)="enrollNow()" [disabled]="cartBusy">
+              {{ cartBusy ? 'Opening checkout...' : (enrolled ? 'Go to My Learning' : 'Enroll & Pay') }}
+              <span>→</span>
+            </button>
+
+            <button class="wishlist-button" type="button" (click)="toggleWishlist()" [disabled]="wishlistBusy">
+              <span>{{ isWishlist ? '♥' : '♡' }}</span>
+              {{ wishlistBusy ? 'Saving...' : (isWishlist ? 'Saved to Wishlist' : 'Add to Wishlist') }}
+            </button>
+
+            <div class="included">
+              <strong>This course includes</strong>
+              <span>✓ Guided lessons</span>
+              <span>✓ Practical learning path</span>
+              <span>✓ Lifetime access</span>
+            </div>
+          </div>
+        </aside>
+      </section>
+
+      <section class="content-grid">
+        <div class="content-main">
+          <article class="content-card">
+            <span class="section-kicker">WHAT YOU WILL LEARN</span>
+            <h2>Build skills you can actually use</h2>
+            <div *ngIf="objectives.length > 0" class="objective-grid">
+              <div *ngFor="let objective of objectives"><span>✓</span>{{ objective }}</div>
+            </div>
+            <p *ngIf="objectives.length === 0" class="muted-copy">This course is designed to take you from the fundamentals to practical, project-focused knowledge.</p>
+          </article>
+
+          <article class="content-card" *ngIf="prerequisites.length > 0">
+            <span class="section-kicker">PREREQUISITES</span>
+            <h2>Before you start</h2>
+            <ul class="prerequisites">
+              <li *ngFor="let item of prerequisites">{{ item }}</li>
+            </ul>
+          </article>
+        </div>
+
+        <aside class="info-card">
+          <span class="section-kicker">COURSE INFORMATION</span>
+          <h2>At a glance</h2>
+          <div class="info-row"><span>Category</span><strong>{{ categoryName }}</strong></div>
+          <div class="info-row"><span>Track</span><strong>{{ trackName }}</strong></div>
+          <div class="info-row"><span>Level</span><strong>{{ level }}</strong></div>
+          <div class="info-row"><span>Duration</span><strong>{{ duration }}</strong></div>
+          <div class="info-row"><span>Rating</span><strong>★ {{ rating }}</strong></div>
+        </aside>
+      </section>
+
+      <section class="curriculum-card">
+        <div class="curriculum-heading">
+          <div>
+            <span class="section-kicker">COURSE CURRICULUM</span>
+            <h2>Sections, lessons & quizzes</h2>
+            <p>Preview the course structure before enrolling.</p>
+          </div>
+          <span *ngIf="enrolled" class="unlocked-badge">Course unlocked</span>
+        </div>
+
+        <div *ngIf="outlineLoading" class="curriculum-empty">Loading course content...</div>
+        <div *ngIf="!outlineLoading && courseSections.length === 0" class="curriculum-empty">
+          No sections or lessons have been added to this course yet.
+        </div>
+
+        <div *ngIf="!outlineLoading && courseSections.length > 0 && enrolled" class="curriculum-cta">
+          <button class="primary-button" type="button" (click)="goToPlayer()">Start learning now <span>→</span></button>
+        </div>
+
+        <article *ngFor="let section of courseSections" class="curriculum-section">
+          <div class="curriculum-section-heading">
+            <span class="section-order">{{ section.order }}</span>
+            <div>
+              <h3>{{ section.title }}</h3>
+              <p *ngIf="section.description">{{ section.description }}</p>
+            </div>
+          </div>
+          <div *ngFor="let lesson of section.lessons" class="curriculum-item">
+            <span class="curriculum-item-icon">{{ enrolled || lesson.isPreview ? '▶' : '🔒' }}</span>
+            <div class="curriculum-item-copy">
+              <strong>{{ lesson.title }}</strong>
+              <small>{{ lesson.type === 'video' ? 'Video lesson' : 'Reading lesson' }}<span *ngIf="lesson.duration"> · {{ lesson.duration }} min</span></small>
+            </div>
+            <span *ngIf="lesson.quizTitle" class="quiz-pill">Quiz: {{ lesson.quizTitle }}</span>
+            <span *ngIf="!enrolled && lesson.isPreview" class="preview-pill">Preview</span>
+          </div>
+          <div *ngIf="section.finalQuizTitle" class="curriculum-item quiz-item">
+            <span class="curriculum-item-icon">{{ enrolled ? '✓' : '🔒' }}</span>
+            <div class="curriculum-item-copy">
+              <strong>{{ section.finalQuizTitle }}</strong>
+              <small>Section quiz</small>
+            </div>
+            <span *ngIf="enrolled" class="quiz-pill">Unlocked</span>
+          </div>
+        </article>
+      </section>
+    </ng-container>
+  </div>
+
+  <div *ngIf="toastMessage" class="toast" [class.toast-error]="toastType === 'error'">
+    <span>{{ toastType === 'error' ? '!' : '✓' }}</span>
+    {{ toastMessage }}
+  </div>
 </main>

@@ -5,11 +5,13 @@ const OTP = require("../modules/OTP");
 const sendEmail = require("../utils/sendEmail");
 const cloudinary = require("../configs/cloudinary");
 const Track = require("../modules/dbTrack");
+const User = require("../modules/dbUsers");
 
 const sanitizeUser = (user) => {
   const object = user.toObject ? user.toObject() : { ...user };
   delete object.password;
   delete object.googleId;
+  delete object.githubId;
   return object;
 };
 
@@ -93,7 +95,7 @@ const updatePassword = async (dbModule, id, currentPassword, confirmPassword, ne
   if (newPassword !== confirmPassword) throw new ApiError(400, "Passwords do not match");
   const user = await dbModule.findById(id);
   if (!user) throw new ApiError(404, "User not found");
-  if (user.authProvider === "google") throw new ApiError(400, "Google accounts cannot change password here");
+  if (["google", "github"].includes(user.authProvider)) throw new ApiError(400, "Social login accounts cannot change password here");
   if (!(await bcrypt.compare(currentPassword, user.password))) throw new ApiError(401, "Current password is incorrect");
   user.password = newPassword;
   await user.save();
@@ -103,9 +105,28 @@ const updatePassword = async (dbModule, id, currentPassword, confirmPassword, ne
 const login = async (dbModule, email, password) => {
   if (!email || !password) throw new ApiError(400, "Please provide email and password");
   const user = await dbModule.findOne({ email: email.toLowerCase().trim() });
-  if (!user || !user.password || !(await bcrypt.compare(password, user.password))) throw new ApiError(401, "Invalid email or password");
+  if (!user) throw new ApiError(404, "User not found");
+  if (!user.password || !(await bcrypt.compare(password, user.password))) throw new ApiError(401, "Incorrect password");
   if (user.isActive === false) throw new ApiError(403, "Your account is inactive");
   return signToken(user);
+};
+
+/** Authenticate a regular account or admin with a single client request. */
+const loginUserOrAdmin = async (userModule, adminModule, email, password) => {
+  if (!email || !password) throw new ApiError(400, "Please provide email and password");
+
+  const normalizedEmail = email.toLowerCase().trim();
+  const [user, admin] = await Promise.all([
+    userModule.findOne({ email: normalizedEmail }),
+    adminModule.findOne({ email: normalizedEmail }),
+  ]);
+  const account = user || admin;
+
+  if (!account || !account.password || !(await bcrypt.compare(password, account.password))) {
+    throw new ApiError(401, "Invalid email or password");
+  }
+  if (account.isActive === false) throw new ApiError(403, "Your account is inactive");
+  return signToken(account);
 };
 
 const uploadImage = async (dbModule, id, file) => {
@@ -125,6 +146,51 @@ const uploadImage = async (dbModule, id, file) => {
 
 const googleLogin = async (user) => {
   if (!user) throw new ApiError(401, "Google authentication failed");
+  if (user.isActive === false) throw new ApiError(403, "Your account is inactive");
+  return signToken(user);
+};
+
+const githubLogin = async ({ id, email, name, avatar }) => {
+  if (!id || !email) throw new ApiError(401, "GitHub did not provide a verified email address");
+  const normalizedEmail = email.toLowerCase().trim();
+  let user = await User.findOne({
+    $or: [{ githubId: String(id) }, { email: normalizedEmail }],
+  });
+
+  if (!user) {
+    const nameParts = String(name || "GitHub Learner").trim().split(/\s+/);
+    const fitName = (value, fallback) => {
+      const clean = String(value || fallback).trim().slice(0, 20);
+      return clean.length >= 3 ? clean : fallback;
+    };
+    user = new User({
+      firstName: fitName(nameParts[0], "GitHub"),
+      lastName: fitName(nameParts.slice(1).join(" "), "Learner"),
+      email: normalizedEmail,
+      githubId: String(id),
+      authProvider: "github",
+      img: avatar || null,
+      role: "student",
+    });
+    try {
+      await user.save();
+    } catch (error) {
+      // Concurrent first-time callbacks for one provider account may race.
+      if (error.code !== 11000) throw error;
+      user = await User.findOne({
+        $or: [{ githubId: String(id) }, { email: normalizedEmail }],
+      });
+      if (!user) throw error;
+    }
+  } else {
+    if (user.isActive === false) throw new ApiError(403, "Your account is inactive");
+    if (!user.githubId) {
+      user.githubId = String(id);
+      if (!user.img && avatar) user.img = avatar;
+      await user.save();
+    }
+  }
+
   if (user.isActive === false) throw new ApiError(403, "Your account is inactive");
   return signToken(user);
 };
@@ -163,4 +229,4 @@ const changePassword = async (dbModule, newPassword, confirmPassword, id) => {
   return "Password updated successfully";
 };
 
-module.exports = { getAllUser, getAllAdmin, getUserById, creatUser, deleteUser, updateUser, updateAdmin, updatePassword, login, uploadImage, googleLogin, forgetPassword, verifyOtp, changePassword, sanitizeUser };
+module.exports = { getAllUser, getAllAdmin, getUserById, creatUser, deleteUser, updateUser, updateAdmin, updatePassword, login, loginUserOrAdmin, uploadImage, googleLogin, githubLogin, forgetPassword, verifyOtp, changePassword, sanitizeUser };

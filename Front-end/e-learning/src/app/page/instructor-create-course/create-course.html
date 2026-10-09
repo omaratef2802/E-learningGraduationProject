@@ -82,6 +82,10 @@
         (ngSubmit)="createCourse()"
       >
 
+        <div class="create-error" *ngIf="createError" role="alert">
+          {{ createError }}
+        </div>
+
         <div class="create-layout">
 
           <div class="main-form-column">
@@ -146,7 +150,7 @@
                   CATEGORY
                   <select name="category" [(ngModel)]="category" (ngModelChange)="onCategoryChange()">
                     @for (item of allCategories; track item._id) {
-                      <option [value]="item.name">{{ item.name }}</option>
+                      <option [value]="item.name || item.title">{{ item.name || item.title }}</option>
                     }
                   </select>
                 </label>
@@ -154,7 +158,7 @@
                 <label>
                   SUBCATEGORY
                   <select name="subcategory" [(ngModel)]="subcategory" (ngModelChange)="onSubcategoryChange()">
-                    @for (item of availableSubcategories; track item.name) {
+                    @for (item of availableSubcategories; track item._id || item.name) {
                       <option [value]="item.name">{{ item.name }}</option>
                     }
                   </select>
@@ -164,7 +168,7 @@
                   TRACK
                   <select name="track" [(ngModel)]="track" (ngModelChange)="onTrackChange()">
                     @for (item of availableTracks; track item._id) {
-                      <option [value]="item.name || item.title">{{ item.name || item.title }}</option>
+                      <option [value]="item._id">{{ item.title || item.name }}</option>
                     }
                   </select>
                 </label>
@@ -425,8 +429,8 @@
 
               <label>
                 SUBCATEGORY
-                <select name="subcategory" [(ngModel)]="subcategory" (ngModelChange)="onSubcategoryChange()">
-                  @for (item of availableSubcategories; track item.name) {
+                <select name="pricingSubcategory" [(ngModel)]="subcategory" (ngModelChange)="onSubcategoryChange()">
+                  @for (item of availableSubcategories; track item._id || item.name) {
                     <option [value]="item.name">{{ item.name }}</option>
                   }
                 </select>
@@ -454,6 +458,7 @@
             class="draft-button"
             type="button"
             (click)="saveDraft()"
+            [disabled]="isCreating"
           >
             Save as Draft
           </button>
@@ -461,8 +466,9 @@
           <button
             class="create-button"
             type="submit"
+            [disabled]="isCreating"
           >
-            Create Course &amp; Continue
+            {{ isCreating ? 'Creating course…' : 'Create Course & Continue' }}
 
             <strong>
               →

@@ -61,9 +61,21 @@
 
       <div class="catalog-grid">
 
-        @for (course of data.courses; track course.title) {
+        @if (loading) {
+          <div class="catalog-state" role="status">Loading your courses…</div>
+        } @else if (errorMessage) {
+          <div class="catalog-state error-state" role="alert">{{ errorMessage }}</div>
+        } @else if (!data.courses.length) {
+          <div class="catalog-state">
+            <strong>No courses yet</strong>
+            <p>Create your first course and it will appear here.</p>
+            <a routerLink="/instructor-create-course">Create a course →</a>
+          </div>
+        }
 
-          <article class="catalog-card">
+        @for (course of data.courses; track course.id) {
+
+          <article class="catalog-card" (click)="openCourse(course.id, course.title)" role="link" tabindex="0">
 
             <img
               [src]="course.image"

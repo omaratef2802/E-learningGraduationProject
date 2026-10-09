@@ -1,7 +1,9 @@
-import Swal from 'sweetalert2';
+﻿import Swal from 'sweetalert2';
 import {
   Component,
-  inject
+  ChangeDetectorRef,
+  inject,
+  OnInit
 } from '@angular/core';
 
 import { CommonModule } from '@angular/common';
@@ -12,18 +14,17 @@ import {
   RouterLink
 } from '@angular/router';
 
+
+import { InstructorSidebar } from '../../page/instructor-sidebar/sidebar';
+
+import { InstructorDataService } from '../../services/instructor-data.service';
 import {
-  InstructorData,
-  InstructorCourse,
-  CurriculumSection,
   CurriculumLesson,
-  CurriculumQuiz
-} from '../../page/instructor-data';
-
-import {
-  InstructorSidebar
-} from '../../page/instructor-sidebar/sidebar';
-
+  CurriculumQuiz,
+  CurriculumSection,
+  InstructorCourse,
+  InstructorProfile,
+} from '../../mock-types';
 
 @Component({
   selector: 'app-instructor-curriculum',
@@ -36,7 +37,8 @@ import {
   templateUrl: './curriculum.html',
   styleUrl: './curriculum.css'
 })
-export class InstructorCurriculum {
+export class InstructorCurriculum implements OnInit {
+  protected readonly fallbackCourseImage = 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=900&q=80';
 
   private readonly route =
     inject(ActivatedRoute);
@@ -44,11 +46,28 @@ export class InstructorCurriculum {
   private readonly router =
     inject(Router);
 
-  protected readonly data =
-    inject(InstructorData);
+  private readonly dataService =
+    inject(InstructorDataService);
 
-  // مش readonly عشان نقدر نحدّث status محلياً
-  protected course: InstructorCourse;
+  private readonly changeDetector = inject(ChangeDetectorRef);
+
+  private readonly courseIdParam =
+    this.route.snapshot.queryParamMap.get('courseId') || '';
+
+  private readonly courseTitleParam =
+    this.route.snapshot.queryParamMap.get('course') || '';
+
+  /** The instructor record, used to attribute a submitted course. */
+  protected instructor: InstructorProfile | null = null;
+
+  /** Sections with nested lessons and quizzes, loaded from the database. */
+  protected sections: CurriculumSection[] = [];
+
+  /** The instructor's own courses, loaded from the database. */
+  protected courses: InstructorCourse[] = [];
+
+  protected course: InstructorCourse | null = null;
+  protected loadError = '';
 
   protected showDeleteModal = false;
 
@@ -67,29 +86,173 @@ export class InstructorCurriculum {
     Record<string, boolean> = {};
 
 
-  constructor() {
+  ngOnInit(): void {
 
-    const courseId =
-      this.route.snapshot.queryParamMap.get(
-        'courseId'
-      );
+    // The instructor's own courses (GET /course is instructor-aware).
+    this.dataService.getMyCourses().subscribe({
+      next: (courses) => {
+        this.courses = courses as InstructorCourse[];
+        this.resolveCourse();
+        this.changeDetector.detectChanges();
+      },
+      error: (err) => {
+        console.error('Error fetching courses:', err);
+        this.loadError = err?.error?.message || 'Could not load your course. Check your instructor session and try again.';
+        this.changeDetector.detectChanges();
+      },
+    });
 
-    const courseTitle =
-      this.route.snapshot.queryParamMap.get(
-        'course'
-      );
+    // The signed-in instructor, for the review notification text.
+    this.dataService.getProfile().subscribe({
+      next: (profile) => {
+        this.instructor = profile;
+        this.changeDetector.detectChanges();
+      },
+      error: () => {},
+    });
 
-    const foundCourse =
-      courseId
-        ? this.data.getCourseById(courseId)
-        : this.data.courses.find(
-            item =>
-              item.title === courseTitle
-          );
+    if (this.courseIdParam) {
+      this.dataService.getCurriculum(this.courseIdParam).subscribe({
+        next: (sections) => {
+          this.sections = sections;
+          this.loadError = '';
+          this.changeDetector.detectChanges();
+        },
+        error: (err) => {
+          console.error('Error fetching curriculum:', err);
+          this.loadError = err?.error?.message || 'Could not load the course curriculum.';
+          this.changeDetector.detectChanges();
+        },
+      });
+    }
+  }
+
+
+  private resolveCourse(): void {
 
     this.course =
-      foundCourse ||
-      this.data.courses[0];
+      this.courses.find(
+        (course) => course._id === this.courseIdParam
+      ) ||
+      this.courses.find(
+        (course) => course.title === this.courseTitleParam
+      ) ||
+      this.courses[0] ||
+      null;
+
+    // When the URL carried no courseId, load the resolved course's curriculum.
+    if (!this.courseIdParam && this.course) {
+      this.dataService.getCurriculum(this.courseId).subscribe({
+        next: (sections) => {
+          this.sections = sections;
+          this.loadError = '';
+          this.changeDetector.detectChanges();
+        },
+        error: (err) => {
+          console.error('Error fetching curriculum:', err);
+          this.loadError = err?.error?.message || 'Could not load the course curriculum.';
+          this.changeDetector.detectChanges();
+        },
+      });
+    }
+  }
+
+
+  /** The category is stored as an id unless the backend populated it. */
+  protected get categoryName(): string {
+    const category = this.course?.category;
+    return category && typeof category === 'object' ? category.name : '';
+  }
+
+
+  /**
+   * Navigation helpers below read the course title frequently; this keeps the
+   * null check in one place while the course is still loading.
+   */
+  protected get courseTitle(): string {
+    return this.course?.title ?? '';
+  }
+
+  useFallbackCourseImage(event: Event): void {
+    const image = event.target as HTMLImageElement;
+    if (image.getAttribute('src') === this.fallbackCourseImage) {
+      image.style.display = 'none';
+      return;
+    }
+    image.src = this.fallbackCourseImage;
+  }
+
+
+  /** Empty while the course is still loading, which router params accept. */
+  protected get courseId(): string {
+    return this.course?._id ?? '';
+  }
+
+
+  /**
+ * The templates still use the old capitalised status labels and the mock
+ * store's `data.*` shape. These helpers map the database values onto both.
+ */
+  protected get statusLabel(): string {
+    const status = this.course?.status;
+    switch (status) {
+      case 'in_review':
+        return 'In Review';
+      case 'changes_required':
+        return 'Changes Required';
+      case 'published':
+        return 'Published';
+      case 'archived':
+        return 'Archived';
+      case 'draft':
+        return 'Draft';
+      default:
+        return '';
+    }
+  }
+
+
+  protected get isDraft(): boolean {
+    return this.course?.status === 'draft';
+  }
+
+
+  protected get isInReview(): boolean {
+    return this.course?.status === 'in_review';
+  }
+
+
+  protected get isChangesRequired(): boolean {
+    return this.course?.status === 'changes_required';
+  }
+
+
+  protected get isPublished(): boolean {
+    return this.course?.status === 'published';
+  }
+
+
+  /** True while the course is still editable by the instructor. */
+  protected get canEdit(): boolean {
+    return this.isDraft || this.isChangesRequired;
+  }
+
+
+  /** True when the course can be sent to the admin for review. */
+  protected get canSubmit(): boolean {
+    return this.canEdit;
+  }
+
+
+  /** The admin's feedback when the course was sent back. */
+  protected get reviewMessage(): string {
+    return this.course?.reviewMessage ?? '';
+  }
+
+
+  /** Backwards-compatible view used by the template (`data.sections`). */
+  protected get data(): { sections: CurriculumSection[] } {
+    return { sections: this.sections };
   }
 
 
@@ -99,21 +262,21 @@ export class InstructorCurriculum {
 
   saveChanges(): void {
 
-    const newStatus =
-      this.course.status === 'Assigned'
-        ? 'Draft'
-        : this.course.status;
+    const course = this.course;
 
-    this.data.updateCourse(
-      this.course.id,
-      {
-        status: newStatus,
-        updated: 'Just now'
-      }
-    );
+    if (!course) return;
 
-    this.course.status = newStatus;
-    this.course.updated = 'Just now';
+    // The backend exposes course state through PATCH /course/status/:id with
+    // draft | published | archived. Draft is the only state an instructor can
+    // move back to from here.
+    if (course.status !== 'draft') {
+      Swal.fire(
+        'Notice',
+        'Only draft courses can be edited. Use the status controls to change it.',
+        'info'
+      );
+      return;
+    }
 
     Swal.fire('Notice', 'Changes saved successfully.', 'info');
   }
@@ -121,92 +284,87 @@ export class InstructorCurriculum {
 
   submitForReview(): void {
 
-    if (this.course.status === 'Published') {
+    const course = this.course;
+
+    if (!course) return;
+
+    if (course.status === 'published') {
       Swal.fire('Notice', 'This course is already published.', 'info');
       return;
     }
 
-    if (this.course.status === 'In Review') {
+    if (course.status === 'archived') {
+      Swal.fire('Notice', 'An archived course cannot be submitted.', 'info');
+      return;
+    }
+
+    if (!this.canSubmit) {
       Swal.fire('Notice', 'This course is already under review.', 'info');
       return;
     }
 
-    if (
-      this.course.status !== 'Draft' &&
-      this.course.status !== 'Changes Required' &&
-      this.course.status !== 'Assigned'
-    ) {
-      Swal.fire('Notice', 'This course cannot be submitted at the moment.', 'info');
-      return;
-    }
-
-    if (this.data.sections.length === 0) {
+    if (this.sections.length === 0) {
       Swal.fire('Notice', 'Please add at least one section before submitting the course.', 'info');
       return;
     }
 
-    for (const section of this.data.sections) {
+    // The backend refuses to send a course to review without sections and
+    // lessons (see updateCourseStatus), so the client check mirrors that rule.
+    for (const section of this.sections) {
 
       if (section.lessons.length === 0) {
         Swal.fire('Notice', `Section "${section.title}" must contain at least one lesson.`
         , 'info');
         return;
       }
+    }
 
-      for (const lesson of section.lessons) {
-        const lessonQuiz =
-          this.getLessonQuiz(section, lesson.id);
+    // PATCH /course/status/:id moves the course into the admin review queue;
+    // the admin then approves it through PATCH /course/review/:id.
+    this.dataService.updateCourseStatus(course._id, 'in_review').subscribe({
+      next: () => {
+        course.status = 'in_review';
+        course.reviewMessage = undefined;
 
-        if (!lessonQuiz) {
-          Swal.fire('Notice', `Lesson "${lesson.title}" must have a quiz before submitting the course.`
-          , 'info');
-          return;
-        }
-      }
-
-      const finalQuiz =
-        this.getSectionFinalQuiz(section);
-
-      if (!finalQuiz) {
-        Swal.fire('Notice', `Section "${section.title}" must have a final quiz before submitting the course.`
+        Swal.fire('Notice', 'Course submitted for review successfully.'
         , 'info');
-        return;
-      }
-    }
+      },
+      error: (err) => {
+        console.error('Failed to submit course:', err);
+        Swal.fire(
+          'Error',
+          err?.error?.message || 'Failed to submit this course.',
+          'error'
+        );
+      },
+    });
+  }
 
-    const submitted =
-      this.data.submitCourseForReview(
-        this.course.id
-      );
 
-    if (!submitted) {
+  /**
+   * Pulls a course back out of the review queue. The backend only allows this
+   * from in_review back to draft.
+   */
+  withdrawFromReview(): void {
 
-      this.data.updateCourse(this.course.id, {
-        status: 'In Review',
-        updated: 'Just now',
-        reviewMessage: ''
-      });
+    const course = this.course;
 
-      const instructorName =
-        this.course.instructorName ||
-        `${this.data.instructor.firstName} ${this.data.instructor.lastName}`.trim() ||
-        'Instructor';
+    if (!course || !this.isInReview) return;
 
-      this.data.addAdminNotification({
-        title: 'New course under review',
-        message:
-          `${instructorName} submitted "${this.course.title}" for review. Please review and approve it.`,
-        type: 'Course',
-        isRead: false
-      });
-    }
-
-    this.course.status = 'In Review';
-    this.course.reviewMessage = '';
-    this.course.updated = 'Just now';
-
-    Swal.fire('Notice', 'Course submitted for review successfully. Admin has been notified.'
-    , 'info');
+    this.dataService.updateCourseStatus(course._id, 'draft').subscribe({
+      next: () => {
+        course.status = 'draft';
+        Swal.fire('Notice', 'Course withdrawn from review.', 'info');
+      },
+      error: (err) => {
+        console.error('Failed to withdraw course:', err);
+        Swal.fire(
+          'Error',
+          err?.error?.message || 'Failed to withdraw this course.',
+          'error'
+        );
+      },
+    });
   }
 
 
@@ -216,8 +374,8 @@ export class InstructorCurriculum {
       ['/instructor-course-preview'],
       {
         queryParams: {
-          course: this.course.title,
-          courseId: this.course.id
+          course: this.courseTitle,
+          courseId: this.courseId
         }
       }
     );
@@ -234,8 +392,8 @@ export class InstructorCurriculum {
       ['/instructor-section'],
       {
         queryParams: {
-          course: this.course.title,
-          courseId: this.course.id
+          course: this.courseTitle,
+          courseId: this.courseId
         }
       }
     );
@@ -249,8 +407,8 @@ export class InstructorCurriculum {
       {
         queryParams: {
           section: sectionId,
-          course: this.course.title,
-          courseId: this.course.id
+          course: this.courseTitle,
+          courseId: this.courseId
         }
       }
     );
@@ -260,8 +418,8 @@ export class InstructorCurriculum {
   deleteSection(sectionId: string): void {
 
     const section =
-      this.data.sections.find(
-        item => item.id === sectionId
+      this.sections.find(
+        (item: any) => item.id === sectionId
       );
 
     if (!section) {
@@ -293,8 +451,8 @@ export class InstructorCurriculum {
       {
         queryParams: {
           section: sectionId,
-          course: this.course.title,
-          courseId: this.course.id
+          course: this.courseTitle,
+          courseId: this.courseId
         }
       }
     );
@@ -312,8 +470,8 @@ export class InstructorCurriculum {
         queryParams: {
           section: sectionId,
           lesson: lessonId,
-          course: this.course.title,
-          courseId: this.course.id
+          course: this.courseTitle,
+          courseId: this.courseId
         }
       }
     );
@@ -326,13 +484,13 @@ export class InstructorCurriculum {
   ): void {
 
     const section =
-      this.data.sections.find(
-        item => item.id === sectionId
+      this.sections.find(
+        (item: any) => item.id === sectionId
       );
 
     const lesson =
       section?.lessons.find(
-        item => item.id === lessonId
+        (item: any) => item.id === lessonId
       );
 
     if (!lesson) {
@@ -350,8 +508,8 @@ export class InstructorCurriculum {
           lesson: lessonId,
           quiz: existingQuiz?.id || '',
           type: 'Lesson',
-          course: this.course.title,
-          courseId: this.course.id
+          course: this.courseTitle,
+          courseId: this.courseId
         }
       }
     );
@@ -364,13 +522,13 @@ export class InstructorCurriculum {
   ): void {
 
     const section =
-      this.data.sections.find(
-        item => item.id === sectionId
+      this.sections.find(
+        (item: any) => item.id === sectionId
       );
 
     const lesson =
       section?.lessons.find(
-        item => item.id === lessonId
+        (item: any) => item.id === lessonId
       );
 
     if (!lesson) {
@@ -393,8 +551,8 @@ export class InstructorCurriculum {
   openFinalQuiz(sectionId: string): void {
 
     const section =
-      this.data.sections.find(
-        item => item.id === sectionId
+      this.sections.find(
+        (item: any) => item.id === sectionId
       );
 
     if (!section) {
@@ -411,8 +569,8 @@ export class InstructorCurriculum {
           section: sectionId,
           quiz: finalQuiz?.id || '',
           type: 'Section',
-          course: this.course.title,
-          courseId: this.course.id
+          course: this.courseTitle,
+          courseId: this.courseId
         }
       }
     );
@@ -425,13 +583,13 @@ export class InstructorCurriculum {
   ): void {
 
     const section =
-      this.data.sections.find(
-        item => item.id === sectionId
+      this.sections.find(
+        (item: any) => item.id === sectionId
       );
 
     const quiz =
       section?.quizzes.find(
-        item => item.id === quizId
+        (item: any) => item.id === quizId
       );
 
     if (!quiz) {
@@ -488,25 +646,61 @@ export class InstructorCurriculum {
 
   confirmDelete(): void {
 
+    if (!this.course) return;
+
+    const reload = () => {
+      this.dataService.getCurriculum(this.course!._id).subscribe({
+        next: (sections) => {
+          this.sections = sections;
+          this.changeDetector.detectChanges();
+        },
+      });
+    };
+
     if (this.deleteType === 'section') {
-      this.data.removeSection(this.course.id, this.deleteSectionId);
+      // DELETE /section/:id
+      this.dataService.deleteSection(this.deleteSectionId).subscribe({
+        next: () => {
+          reload();
+          this.closeDeleteModal();
+        },
+        error: (err) => this.reportDeleteError(err),
+      });
     }
 
     if (this.deleteType === 'lesson') {
-      this.data.removeLesson(
-        this.deleteSectionId,
-        this.deleteLessonId
-      );
+      // DELETE /lesson/:id
+      this.dataService.deleteLesson(this.deleteLessonId).subscribe({
+        next: () => {
+          reload();
+          this.closeDeleteModal();
+        },
+        error: (err) => this.reportDeleteError(err),
+      });
     }
 
     if (this.deleteType === 'quiz') {
-      this.data.removeQuiz(
-        this.deleteSectionId,
-        this.deleteQuizId
-      );
+      // DELETE /Quiz/deleteQuiz/:id
+      this.dataService.deleteQuiz(this.deleteQuizId).subscribe({
+        next: () => {
+          reload();
+          this.closeDeleteModal();
+        },
+        error: (err) => this.reportDeleteError(err),
+      });
     }
+  }
 
-    this.closeDeleteModal();
+
+  private reportDeleteError(err: any): void {
+
+    console.error('Delete failed:', err);
+
+    Swal.fire(
+      'Error',
+      err?.error?.message || 'Failed to delete this item.',
+      'error'
+    );
   }
 
 
@@ -520,7 +714,7 @@ export class InstructorCurriculum {
   ): CurriculumQuiz | undefined {
 
     return section.quizzes.find(
-      quiz =>
+      (quiz) =>
         quiz.type === 'Lesson' &&
         quiz.lessonId === lessonId
     );
@@ -532,7 +726,7 @@ export class InstructorCurriculum {
   ): CurriculumQuiz | undefined {
 
     return section.quizzes.find(
-      quiz => quiz.type === 'Section'
+      (quiz) => quiz.type === 'Section'
     );
   }
 
@@ -542,7 +736,7 @@ export class InstructorCurriculum {
   // =========================================================
 
   get totalLessons(): number {
-    return this.data.sections.reduce(
+    return this.sections.reduce(
       (total, section) =>
         total + section.lessons.length,
       0
@@ -551,7 +745,7 @@ export class InstructorCurriculum {
 
 
   get totalQuizzes(): number {
-    return this.data.sections.reduce(
+    return this.sections.reduce(
       (total, section) =>
         total + section.quizzes.length,
       0
@@ -577,8 +771,8 @@ export class InstructorCurriculum {
 
   lessonMeta(lesson: CurriculumLesson): string {
 
-    return `${lesson.type} · ${lesson.duration}${
-      lesson.preview ? ' · Preview' : ''
+    return `${lesson.type} - ${lesson.duration} min${
+      lesson.isPreview ? ' - Preview' : ''
     }`;
   }
 
@@ -590,7 +784,10 @@ export class InstructorCurriculum {
         ? 'Lesson Quiz'
         : 'Section Final Quiz';
 
-    return `${type} · ${quiz.questions.length} questions · ${quiz.passingScore}% passing · ${quiz.duration}`;
+    return `${type} - ${quiz.questions.length} questions - ${quiz.passingScore}% passing`;
   }
 
 }
+
+
+

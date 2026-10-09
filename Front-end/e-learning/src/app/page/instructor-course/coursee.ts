@@ -1,10 +1,11 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 
 import { DASHBOARD_CONFIG } from './course.config';
 import { InstructorSidebar } from '../instructor-sidebar/sidebar';
-import { InstructorData } from '../instructor-data';
+import { InstructorService } from '../../services/instructor.service';
+import { InstructorDataService } from '../../services/instructor-data.service';
 
 @Component({
   selector: 'app-instructor-courses',
@@ -17,12 +18,14 @@ import { InstructorData } from '../instructor-data';
   templateUrl: './course.html',
   styleUrl: './course.css'
 })
-export class InstructorCourses {
+export class InstructorCourses implements OnInit {
+  public data: any = { instructor: {}, courses: [] };
 
   private readonly router = inject(Router);
 
-  protected readonly data = inject(InstructorData);
-  protected readonly config = DASHBOARD_CONFIG;
+    protected readonly config = DASHBOARD_CONFIG;
+  private readonly instructorService = inject(InstructorService);
+  private readonly instructorData = inject(InstructorDataService);
 
   protected query = '';
   protected status = 'All Status';
@@ -32,6 +35,54 @@ export class InstructorCourses {
   protected readonly pageSize = 4;
 
   protected emptyView = false;
+  protected loadedCourses: any[] = [];
+  protected loading = true;
+  protected errorMessage = '';
+
+  get isDashboardRoute(): boolean {
+    return this.router.url.split('?')[0] === '/instructor-dashboard';
+  }
+
+  ngOnInit() {
+    this.instructorData.getProfile().subscribe({
+      next: (profile) => this.data.instructor = {
+        firstName: profile.firstName || '',
+        lastName: profile.lastName || '',
+        image: profile.img || 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=100&q=80',
+        role: profile.role || 'Instructor',
+      },
+      error: () => {},
+    });
+    this.instructorService.getMyCourses().subscribe({
+      next: (res: any) => {
+        const courses = Array.isArray(res) ? res : Array.isArray(res?.data) ? res.data : [];
+        if (courses.length > 0) {
+          this.loadedCourses = courses.map((c: any) => ({
+            id: c._id,
+            title: c.title,
+            category: c.category?.name || 'Uncategorized',
+            status: c.status === 'published' ? 'Published' : c.status === 'in_review' ? 'In Review' : c.status === 'changes_required' ? 'Changes Required' : 'Draft',
+            image: c.image || 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=300&q=80',
+            price: `$${c.price || 0}`,
+            students: c.enrolledStudents?.length || 0,
+            rating: c.rating || '—',
+            updated: new Date(c.updatedAt).toLocaleDateString()
+          }));
+          this.data.courses = this.loadedCourses;
+          this.loading = false;
+        } else {
+          this.emptyView = true;
+          this.data.courses = [];
+          this.loading = false;
+        }
+      },
+      error: (error) => {
+        console.error('Unable to load instructor courses:', error);
+        this.errorMessage = error.error?.message || 'Unable to load your courses right now.';
+        this.loading = false;
+      }
+    });
+  }
 
 
   /* =========================
@@ -82,11 +133,22 @@ export class InstructorCourses {
       return;
     }
 
-    this.data.removeCourse(courseId);
+    this.instructorService.deleteCourse(courseId).subscribe({
+      next: () => {
+        this.loadedCourses = this.loadedCourses.filter(c => c.id !== courseId);
+        
+        if (this.loadedCourses.length === 0) {
+          this.emptyView = true;
+        }
 
-    if (this.currentPage > this.totalPages) {
-      this.currentPage = this.totalPages;
-    }
+        if (this.currentPage > this.totalPages) {
+          this.currentPage = this.totalPages || 1;
+        }
+      },
+      error: (err) => {
+        alert(err.error?.message || 'Failed to delete course. It may have purchase history.');
+      }
+    });
   }
 
 
@@ -110,7 +172,7 @@ export class InstructorCourses {
       .trim()
       .toLowerCase();
 
-    return this.data.courses.filter((course) => {
+    return this.loadedCourses.filter((course) => {
 
       const matchesQuery =
         !value ||
@@ -204,3 +266,6 @@ export class InstructorCourses {
   }
 
 }
+
+
+

@@ -45,6 +45,19 @@ export class AuthComponent implements OnInit {
     } else {
       this.mode = 'login';
     }
+
+    const oauthError = this.route.snapshot.queryParamMap.get('oauthError');
+    if (oauthError) {
+      const messages: Record<string, string> = {
+        google_failed: 'Google sign-in could not be completed. Please try again.',
+        github_failed: 'GitHub sign-in could not be completed. Please try again.',
+        github_not_configured: 'GitHub sign-in needs OAuth app credentials in the backend configuration.',
+        github_email_required: 'Verify an email address in GitHub, then try again.',
+        github_cancelled: 'GitHub sign-in was cancelled.',
+        github_state: 'The sign-in session expired. Please try again.',
+      };
+      this.errorMessage = messages[oauthError] || 'Social sign-in could not be completed. Please try again.';
+    }
   }
 
   setMode(newMode: AuthMode): void {
@@ -99,21 +112,7 @@ export class AuthComponent implements OnInit {
       email: this.email,
       password: this.password,
     }).subscribe({
-      next: (res: any) => {
-        this.isLoading = false;
-        const token = res.token || res.data?.token || res.data;
-        if (token) {
-          localStorage.setItem('token', token);
-        }
-        this.successMessage = 'Successfully logged in! Redirecting...';
-        setTimeout(() => {
-          if (res.user?.role === 'instructor' || this.email.includes('instructor')) {
-            this.router.navigate(['/instructor-dashboard']);
-          } else {
-            this.router.navigate(['/']);
-          }
-        }, 800);
-      },
+      next: (res: any) => this.processLoginSuccess(res),
       error: (err) => {
         this.isLoading = false;
         this.errorMessage = err.error?.message || err.error?.msg || 'Invalid email or password.';
@@ -121,10 +120,45 @@ export class AuthComponent implements OnInit {
     });
   }
 
+  private processLoginSuccess(res: any): void {
+    this.isLoading = false;
+    const token = res.token || res.data?.token || res.data;
+    if (token) {
+      localStorage.setItem('token', token);
+    }
+    this.successMessage = 'Successfully logged in! Redirecting...';
+    
+    let role = 'student';
+    if (token) {
+      try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        if (payload.role) {
+          role = payload.role;
+        }
+      } catch (e) {
+        console.error('Error decoding token', e);
+      }
+    }
+
+    if (role === 'instructor') {
+      this.router.navigate(['/instructor-dashboard']);
+    } else if (role === 'admin') {
+      this.router.navigate(['/admin-dashboard']);
+    } else {
+      this.router.navigate(['/student-dashboard']);
+    }
+  }
+
   private handleRegister(): void {
     this.isLoading = true;
+    
+    const nameParts = this.fullName.trim().split(' ');
+    const firstName = nameParts[0];
+    const lastName = nameParts.slice(1).join(' ') || firstName;
+
     this.http.post('http://localhost:3000/E-learning/users/signup', {
-      name: this.fullName,
+      firstName: firstName,
+      lastName: lastName,
       email: this.email,
       password: this.password,
       role: this.role,
@@ -132,9 +166,7 @@ export class AuthComponent implements OnInit {
       next: (res: any) => {
         this.isLoading = false;
         this.successMessage = 'Account created successfully! Switching to login...';
-        setTimeout(() => {
-          this.setMode('login');
-        }, 1200);
+        this.setMode('login');
       },
       error: (err) => {
         this.isLoading = false;
@@ -144,6 +176,8 @@ export class AuthComponent implements OnInit {
   }
 
   socialAuth(provider: string): void {
-    alert(`Connecting with ${provider}...`);
+    const normalizedProvider = provider.toLowerCase();
+    if (normalizedProvider !== 'google' && normalizedProvider !== 'github') return;
+    window.location.assign(`http://localhost:3000/E-learning/users/login/${normalizedProvider}`);
   }
 }

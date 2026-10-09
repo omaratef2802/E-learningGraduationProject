@@ -92,6 +92,45 @@ const getCourseSections = async (req, res, next) => {
   }
 };
 
+const getCourseOutline = async (req, res, next) => {
+  try {
+    const { courseId } = req.params;
+    const course = await courseModule.findOne({ _id: courseId, status: "published" }).select("_id");
+    if (!course) return next(new ApiError(404, "Course not found"));
+    const sections = await sectionModule.find({ courseId }).sort({ order: 1 }).lean();
+    const sectionIds = sections.map((section) => section._id);
+    const [lessons, finalQuizzes] = await Promise.all([
+      Lesson.find({ courseId }).select("title duration type order sectionId isPreview quizId").populate("quizId", "title").sort({ order: 1 }).lean(),
+      Quiz.find({ sectionId: { $in: sectionIds } }).select("title sectionId").lean(),
+    ]);
+    const lessonGroups = new Map();
+    for (const lesson of lessons) {
+      const key = lesson.sectionId.toString();
+      if (!lessonGroups.has(key)) lessonGroups.set(key, []);
+      lessonGroups.get(key).push({
+        id: lesson._id,
+        title: lesson.title,
+        duration: lesson.duration,
+        type: lesson.type,
+        order: lesson.order,
+        isPreview: lesson.isPreview,
+        quizTitle: lesson.quizId?.title || null,
+      });
+    }
+    const quizBySection = new Map(finalQuizzes.map((quiz) => [quiz.sectionId.toString(), quiz.title]));
+    return res.status(200).json({ data: sections.map((section) => ({
+      id: section._id,
+      title: section.title,
+      description: section.description,
+      order: section.order,
+      lessons: lessonGroups.get(section._id.toString()) || [],
+      finalQuizTitle: quizBySection.get(section._id.toString()) || null,
+    })) });
+  } catch (error) {
+    return next(new ApiError(500, error.message));
+  }
+};
+
 const getSectionById = async (req, res, next) => {
   try {
     const section = await sectionModule.findById(req.params.id);
@@ -222,6 +261,9 @@ const deleteSection = async (req, res, next) => {
       if (lesson.quizId) await Quiz.findByIdAndDelete(lesson.quizId);
     }
     await Lesson.deleteMany({ sectionId: section._id });
+    // Section final quiz (Quiz.sectionId) lives outside the lessons, so it
+    // must be cleaned up explicitly as well.
+    await Quiz.deleteMany({ sectionId: section._id });
     await Enrollment.updateMany({ courseId: section.courseId }, { $pull: { completedLessons: { $in: lessons.map((lesson) => lesson._id) } } });
     await sectionModule.findByIdAndDelete(section._id);
 
@@ -236,6 +278,7 @@ const deleteSection = async (req, res, next) => {
 module.exports = {
   createSection,
   getCourseSections,
+  getCourseOutline,
   getSectionById,
   updateSection,
   deleteSection,

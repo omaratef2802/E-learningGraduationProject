@@ -1,11 +1,11 @@
 <section class="breadcrumb-section">
 <div class="container">
 <div class="breadcrumb-text">
-<a routerLink="/catalog"> Home </a>
+<a routerLink="/categories"> Home </a>
 
 <span>›</span>
 
-<a routerLink="/catalog"> Categories </a>
+<a routerLink="/categories"> Categories </a>
 
 <span>›</span>
 
@@ -27,13 +27,13 @@ digital products.
 <div class="related-links">
 <span> RELATED FIELDS: </span>
 
-<a routerLink="/catalog/web-development"> Web Development </a>
+<a routerLink="/categories"> Web Development </a>
 
-<a routerLink="/catalog/languages"> Languages </a>
+<a routerLink="/categories"> Languages </a>
 
-<a routerLink="/catalog/ui-ux-design"> UI/UX Design </a>
+<a routerLink="/categories"> UI/UX Design </a>
 
-<a routerLink="/catalog/business"> Business </a>
+<a routerLink="/categories"> Business </a>
 </div>
 </div>
 
@@ -81,7 +81,7 @@ digital products.
 </div>
 </div>
 <div class="track-box">
-<a class="track-name active" routerLink="/catalog/web-development"> All </a>
+<a class="track-name active" routerLink="/categories"> All </a>
 
 @for (item of subcategories; track item.name) {
 <a class="track-name" [routerLink]="item.route">

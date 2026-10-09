@@ -16,11 +16,22 @@ export class AdminSidebar {
 
   protected readonly config = ADMIN_SIDEBAR_CONFIG;
 
-  protected readonly firstName =
-    localStorage.getItem('adminFirstName') || 'Naema';
+  protected firstName = 'Admin';
+  protected lastName = '';
 
-  protected readonly lastName =
-    localStorage.getItem('adminLastName') || 'Sayed';
+  constructor() {
+    const token = localStorage.getItem('token');
+    if (token) {
+      try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        if (payload.fullname) {
+          const parts = payload.fullname.split(' ');
+          this.firstName = parts[0] || 'Admin';
+          this.lastName = parts.slice(1).join(' ') || '';
+        }
+      } catch (e) {}
+    }
+  }
 
   protected menuOpen = false;
 

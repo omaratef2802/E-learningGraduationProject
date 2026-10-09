@@ -1,30 +1,73 @@
-<section class="courses-section" aria-labelledby="courses-title">
-  <div class="courses-heading">
+<section class="courses-section" [class.no-heading]="!showHeading"
+  [attr.aria-labelledby]="showHeading ? 'courses-title' : null"
+  [attr.aria-label]="showHeading ? null : 'Course catalog'">
+  <div class="courses-heading" *ngIf="showHeading">
     <span class="section-kicker">CURATED FOR YOUR GROWTH</span>
     <h2 id="courses-title">{{ config.title }}</h2>
     <p>{{ config.description }}</p>
   </div>
 
   <div class="courses-grid">
-    @for (course of coursesList; track course.title) {
-      <article class="course-card" tabindex="0" (click)="openCourse(course.query)" (keydown.enter)="openCourse(course.query)">
-        <div class="course-cover">
-          <img [src]="course.image" [alt]="course.title" />
-          <span class="course-tag">{{ course.tag }}</span>
-          <button class="save-button" type="button" aria-label="Save course" (click)="$event.stopPropagation()">♡</button>
+    <article class="course-card" tabindex="0" *ngFor="let course of coursesList"
+      (click)="openCourse(course)" (keydown.enter)="openCourse(course)">
+      <div class="course-cover">
+        <img [src]="course.image" [alt]="course.title" />
+        <span class="course-tag">{{ course.tag }}</span>
+        <button class="save-button" [class.in-wishlist]="course.inWishlist" type="button"
+          [class.is-busy]="course.wishlistBusy" [disabled]="course.wishlistBusy"
+          [attr.aria-label]="course.inWishlist ? 'Remove from wishlist' : 'Add to wishlist'"
+          [attr.aria-pressed]="course.inWishlist" (click)="toggleWishlist(course, $event)">
+          <svg aria-hidden="true" viewBox="0 0 24 24" wid th="20" height="20"
+            [attr.fill]="course.inWishlist ? 'currentColor' : 'none'">
+            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78Z" />
+          </svg>
+        </button>
+      </div>
+      <div class="course-body">
+        <div class="course-rating"><span aria-hidden="true">&#9733;</span> {{ course.rating }} <small>({{ course.reviews }})</small></div>
+        <h3>{{ course.title }}</h3>
+        <p class="instructor">{{ course.instructor }}</p>
+        <div class="course-meta"><span>{{ course.level }}</span><span>&#9719; {{ course.duration }}</span></div>
+        <div class="course-footer">
+          <strong>{{ course.price }}</strong>
+          <button type="button" [class.added-to-cart]="course.inCart" [disabled]="course.inCart || course.cartBusy"
+            [attr.aria-label]="course.inCart ? 'Course is in your cart' : 'Add course to cart'" (click)="addToCart(course, $event)">
+            <span aria-hidden="true">{{ course.cartBusy ? '…' : course.inCart ? '✓' : '🛒' }}</span>
+            <span>{{ course.cartBusy ? 'Adding…' : course.inCart ? 'Added' : 'Add to cart' }}</span>
+          </button>
         </div>
-        <div class="course-body">
-          <div class="course-rating"><span>★</span> {{ course.rating }} <small>({{ course.reviews }})</small></div>
-          <h3>{{ course.title }}</h3>
-          <p class="instructor">{{ course.instructor }}</p>
-          <div class="course-meta"><span>{{ course.level }}</span><span>◷ {{ course.duration }}</span></div>
-          <div class="course-footer"><strong>{{ course.price }}</strong><button type="button" aria-label="Add course to bag" (click)="$event.stopPropagation()">♧</button></div>
-        </div>
-      </article>
-    }
+      </div>
+    </article>
+
+    <div class="courses-empty" role="status" *ngIf="coursesList.length === 0">
+      <h3 *ngIf="searchQuery; else noSearchResults">No courses match &ldquo;{{ searchQuery }}&rdquo;</h3>
+      <ng-template #noSearchResults><h3>No courses available yet</h3></ng-template>
+      <p *ngIf="searchQuery">Try a different course title, skill, or instructor name.</p>
+      <p *ngIf="!searchQuery">Check back soon while instructors add courses to this learning path.</p>
+    </div>
   </div>
 
-  @if (limit && limit > 0) {
-    <button class="view-all-button" type="button" routerLink="/courses">{{ config.viewAllLabel }} <span>→</span></button>
-  }
+  <button class="view-all-button" type="button" routerLink="/courses" *ngIf="limit && limit > 0">
+    {{ config.viewAllLabel }} <span aria-hidden="true">&#8594;</span>
+  </button>
+
+  <div class="wishlist-toast" [class.toast-error]="wishlistToastType === 'error'"
+    [class.toast-pending]="wishlistToastType === 'pending'" role="status" aria-live="polite" *ngIf="wishlistToast">
+    <span class="toast-spinner" aria-hidden="true" *ngIf="wishlistToastType === 'pending'; else toastResult"></span>
+    <ng-template #toastResult>
+      <span class="toast-check" aria-hidden="true" *ngIf="wishlistToastType === 'success'; else toastError">&#10003;</span>
+      <ng-template #toastError><span class="toast-check" aria-hidden="true">!</span></ng-template>
+    </ng-template>
+    <span>{{ wishlistToast }}</span>
+  </div>
+
+  <div class="wishlist-toast cart-toast" [class.toast-error]="cartToastType === 'error'"
+    [class.toast-pending]="cartToastType === 'pending'" role="status" aria-live="polite" *ngIf="cartToast">
+    <span class="toast-spinner" aria-hidden="true" *ngIf="cartToastType === 'pending'; else cartToastResult"></span>
+    <ng-template #cartToastResult>
+      <span class="toast-check" aria-hidden="true" *ngIf="cartToastType === 'success'; else cartToastError">&#10003;</span>
+      <ng-template #cartToastError><span class="toast-check" aria-hidden="true">!</span></ng-template>
+    </ng-template>
+    <span>{{ cartToast }}</span>
+  </div>
 </section>

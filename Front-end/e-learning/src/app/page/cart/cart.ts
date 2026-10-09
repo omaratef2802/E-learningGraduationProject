@@ -86,15 +86,8 @@ export class Cart implements OnInit {
     this.errorMessage.set('');
 
     this.cartService.removeFromCart(courseId).subscribe({
-      next: (response: { cart: { courses: any; totalPrice: any } }) => {
-        if (this.cart()) {
-          this.cart.set({
-            ...this.cart()!,
-            courses: response.cart.courses,
-            totalPrice: response.cart.totalPrice,
-          });
-        }
-
+      next: () => {
+        this.getCart();
         this.successMessage.set('Course removed from cart');
 
         setTimeout(() => {

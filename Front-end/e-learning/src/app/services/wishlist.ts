@@ -6,7 +6,7 @@ import { Observable } from 'rxjs';
   providedIn: 'root',
 })
 export class WishlistService {
-  private apiUrl = 'http://localhost:3000/wishlist';
+  private apiUrl = 'http://localhost:3000/E-learning/wishlist';
 
   constructor(private http: HttpClient) {}
 
@@ -26,7 +26,7 @@ export class WishlistService {
 
   addToWishlist(courseId: string): Observable<any> {
     return this.http.post(
-      this.apiUrl,
+      `${this.apiUrl}/courses`,
       { courseId: courseId },
       {
         headers: this.getHeaders(),
@@ -35,7 +35,7 @@ export class WishlistService {
   }
 
   removeFromWishlist(courseId: string): Observable<any> {
-    return this.http.delete(`${this.apiUrl}/${courseId}`, {
+    return this.http.delete(`${this.apiUrl}/courses/${courseId}`, {
       headers: this.getHeaders(),
     });
   }

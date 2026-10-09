@@ -80,11 +80,23 @@ const courseSchema = new mongoose.Schema(
     status: {
       type: String,
       enum: {
-        values: ["draft", "published", "archived"],
+        values: [
+          "draft",
+          "in_review",
+          "changes_required",
+          "published",
+          "archived",
+        ],
         message: "Invalid course status",
       },
       default: "draft",
     },
+
+    // Review workflow: set by the admin when a course needs changes, shown to
+    // the instructor so they know what to fix before resubmitting.
+    reviewMessage: { type: String, trim: true, default: null },
+
+    submittedForReviewAt: { type: Date, default: null },
 
     objectives: [
       {

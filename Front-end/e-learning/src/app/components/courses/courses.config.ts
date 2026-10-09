@@ -1,4 +1,5 @@
 export interface CourseItem {
+  id?: string;
   image: string;
   tag: string;
   rating: string;
@@ -9,6 +10,10 @@ export interface CourseItem {
   duration: string;
   price: string;
   query: string;
+  inWishlist?: boolean;
+  wishlistBusy?: boolean;
+  inCart?: boolean;
+  cartBusy?: boolean;
 }
 
 export const COURSES_CONFIG = {

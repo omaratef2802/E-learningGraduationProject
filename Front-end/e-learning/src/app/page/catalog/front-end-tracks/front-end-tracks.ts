@@ -1,192 +1,110 @@
-import { Component } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 
-type TrackLevel = 'Beginner' | 'Intermediate' | 'Advanced';
-
-type TrackSortOption =
-| 'Most Popular'
-| 'A-Z'
-| 'Most Courses';
-
-type TrackItem = {
-title: string;
-level: TrackLevel;
-levelRange: string;
-rating: number;
-courses: number;
-weeks: number;
-learners: string;
-image: string;
-description: string;
-route: string;
-};
+import { InstructorService } from '../../../services/instructor.service';
+import { Category, Track } from '../../../mock-types';
 
 @Component({
-selector: 'app-front-end-tracks',
-standalone: true,
-imports: [FormsModule, RouterLink],
-templateUrl: './front-end-tracks.html',
-styleUrl: './front-end-tracks.css',
+  selector: 'app-front-end-tracks',
+  standalone: true,
+  imports: [FormsModule, RouterLink],
+  templateUrl: './front-end-tracks.html',
+  styleUrl: './front-end-tracks.css',
 })
-export class FrontEndTracks {
-searchText = '';
-selectedLevel = 'All';
-selectedDuration = 'Any Duration';
-selectedRating = 'Any Rating';
-selectedSort: TrackSortOption = 'Most Popular';
+export class FrontEndTracks implements OnInit {
+  private readonly backend = inject(InstructorService);
+  private readonly route = inject(ActivatedRoute);
+  // No zone.js in this app: async callbacks must schedule change detection
+  // themselves, otherwise the tracks and courses never reach the screen.
+  private readonly changeDetector = inject(ChangeDetectorRef);
 
-readonly tracks: TrackItem[] = [
-{
-title: 'HTML5 & Modern CSS3',
-level: 'Beginner',
-levelRange: 'Beginner',
-rating: 4.8,
-courses: 7,
-weeks: 6,
-learners: '14,200 Learners',
-image:
-'https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=900&h=560&q=90',
-description:
-'Master semantic markup, responsive flexbox and grid layouts, modern CSS architecture, cross-browser accessibility.',
-route: '/catalog/web-development/front-end/html-css',
-},
-{
-title: 'JavaScript Mastery',
-level: 'Beginner',
-levelRange: 'Beginner -> Intermediate',
-rating: 4.9,
-courses: 10,
-weeks: 8,
-learners: '16,800 Learners',
-image:
-'https://images.unsplash.com/photo-1461749280684-dccba630e2f6?auto=format&fit=crop&w=900&h=560&q=90',
-description:
-'Deep dive into modern ES6+, asynchronous JavaScript, DOM manipulation, closures, event-driven architecture, and APIs.',
-route: '/catalog/web-development/front-end/javascript',
-},
-{
-title: 'TypeScript for Enterprise',
-level: 'Intermediate',
-levelRange: 'Intermediate -> Advanced',
-rating: 4.9,
-courses: 6,
-weeks: 6,
-learners: '9,700 Learners',
-image:
-'https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=900&h=560&q=90',
-description:
-'Write scalable, type-safe frontend code using interfaces, generics, type narrowing, and advanced compiler configurations.',
-route: '/catalog/web-development/front-end/typescript',
-},
-{
-title: 'React Development',
-level: 'Beginner',
-levelRange: 'Beginner -> Advanced',
-rating: 4.9,
-courses: 12,
-weeks: 8,
-learners: '18,500 Learners',
-image:
-'https://images.unsplash.com/photo-1633356122544-f134324a6cee?auto=format&fit=crop&w=900&h=560&q=90',
-description:
-'Master React, modern hooks, component architecture, state management, and performance patterns for production apps.',
-route: '/catalog/web-development/front-end/react',
-},
-{
-title: 'Vue.js 3 Ecosystem',
-level: 'Intermediate',
-levelRange: 'Intermediate',
-rating: 4.8,
-courses: 8,
-weeks: 7,
-learners: '9,700 Learners',
-image:
-'https://images.unsplash.com/photo-1558655146-d09347e92766?auto=format&fit=crop&w=900&h=560&q=90',
-description:
-'Build fast, reactive web applications with Vue 3, Composition API, Pinia state store, Vue Router, and Vue tooling.',
-route: '/catalog/web-development/front-end/vue',
-},
-{
-title: 'Angular Enterprise Architecture',
-level: 'Advanced',
-levelRange: 'Advanced',
-rating: 4.7,
-courses: 9,
-weeks: 10,
-learners: '6,400 Learners',
-image:
-'https://images.unsplash.com/photo-1551650975-87deedd944c3?auto=format&fit=crop&w=900&h=560&q=90',
-description:
-'Architect robust enterprise applications with Angular components, dependency injection, RxJS reactive streams, and NgRx.',
-route: '/catalog/web-development/front-end/angular',
-},
-];
+  /** The category the URL points at, resolved from its id. */
+  public categoryId = '';
+  public category: Category | null = null;
 
-get filteredTracks(): TrackItem[] {
-const search = this.searchText.toLowerCase().trim();
+  /** Tracks belonging to this category. */
+  public loadedTracks: Track[] = [];
 
-const result = this.tracks.filter((track) => {
-const matchesSearch =
-!search ||
-`${track.title} ${track.description} ${track.level}`
-.toLowerCase()
-.includes(search);
+  public searchText = '';
+  public loading = true;
+  public errorMessage = '';
 
-const matchesLevel =
-this.selectedLevel === 'All' ||
-track.level === this.selectedLevel;
+  ngOnInit(): void {
+    this.categoryId = this.route.snapshot.paramMap.get('categoryId') || '';
 
-const matchesRating =
-this.selectedRating === 'Any Rating' ||
-(this.selectedRating === '4.5+' && track.rating >= 4.5) ||
-(this.selectedRating === '4.8+' && track.rating >= 4.8);
+    if (!this.categoryId) {
+      this.loading = false;
+      this.errorMessage = 'No category was selected.';
+      return;
+    }
 
-const matchesDuration =
-this.selectedDuration === 'Any Duration' ||
-(this.selectedDuration === 'Under 7 Weeks' &&
-track.weeks < 7) ||
-(this.selectedDuration === '7+ Weeks' &&
-track.weeks >= 7);
+    this.loadCategory();
+  }
 
-return (
-matchesSearch &&
-matchesLevel &&
-matchesRating &&
-matchesDuration
-);
-});
+  private loadCategory(): void {
+    this.loading = true;
+    this.errorMessage = '';
 
-return this.sortTracks(result);
-}
+    this.backend.getCategories().subscribe({
+      next: (categories) => {
+        this.category = categories.find((c) => c._id === this.categoryId) ?? null;
 
-clearFilters(): void {
-this.searchText = '';
-this.selectedLevel = 'All';
-this.selectedDuration = 'Any Duration';
-this.selectedRating = 'Any Rating';
-this.selectedSort = 'Most Popular';
-}
+        if (!this.category) {
+          this.errorMessage = 'That category could not be found.';
+          this.loading = false;
+          this.changeDetector.markForCheck();
+          return;
+        }
 
-private sortTracks(tracks: TrackItem[]): TrackItem[] {
-switch (this.selectedSort) {
-case 'Most Popular':
-return [...tracks].sort(
-(a, b) => b.rating - a.rating
-);
+        this.loadTracks();
+      },
+      error: (err) => {
+        console.error('Error fetching categories:', err);
+        this.errorMessage = 'Unable to load this category.';
+        this.loading = false;
+        this.changeDetector.markForCheck();
+      },
+    });
+  }
 
-case 'A-Z':
-return [...tracks].sort((a, b) =>
-a.title.localeCompare(b.title)
-);
+  private loadTracks(): void {
+    // The service unwraps the response, so both calls hand back plain arrays.
+    this.backend.getTracksByCategory(this.categoryId).subscribe({
+      next: (tracks) => {
+        this.loadedTracks = tracks;
+        this.loading = false;
+        this.changeDetector.markForCheck();
+      },
+      error: (err) => {
+        console.error('Error fetching tracks:', err);
+        this.loadedTracks = [];
+        this.loading = false;
+        this.changeDetector.markForCheck();
+      },
+    });
 
-case 'Most Courses':
-return [...tracks].sort(
-(a, b) => b.courses - a.courses
-);
+  }
 
-default:
-return tracks;
-}
-}
+  get filteredTracks(): Track[] {
+    const search = this.searchText.trim().toLowerCase();
+    if (!search) return this.loadedTracks;
+
+    return this.loadedTracks.filter(
+      (track) =>
+        track.title?.toLowerCase().includes(search) ||
+        track.description?.toLowerCase().includes(search)
+    );
+  }
+
+  get skillCount(): number {
+    return this.loadedTracks.reduce(
+      (total, track) => total + (track.requiredSkills?.length || 0),
+      0
+    );
+  }
+
+  clearFilters(): void {
+    this.searchText = '';
+  }
 }

@@ -49,9 +49,6 @@ const createOrder = async (req, res, next) => {
     if (!cart || cart.courses.length === 0) return next(new ApiError(400, "Cart is empty"));
 
     const order = await createOrderFromCourseIds(req.id, cart.courses.map((item) => item.courseId));
-    cart.courses = [];
-    cart.totalPrice = 0;
-    await cart.save();
 
     return res.status(201).json({ message: "Order created", order });
   } catch (error) {

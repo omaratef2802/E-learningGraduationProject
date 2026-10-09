@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { Routes } from '@angular/router';
 
 import { RoutePage } from './route-page';
+import { authGuard } from './guards/auth.guard';
 
 @Component({
   standalone: true,
@@ -14,7 +15,7 @@ export class HomeComponent {}
 ========================= */
 import { InstructorCourses } from './page/instructor-course/coursee';
 import { InstructorCreateCourse } from './page/instructor-create-course/create-course';
-import { InstructorProfile } from './page/instructor-profile/profile';
+import { InstructorProfilePage } from './page/instructor-profile/profile';
 import { InstructorNotifications } from './page/instructor-notifications/notifications';
 import { InstructorCatalog } from './page/instructor-catalog/catalog';
 import { InstructorCoursePreview } from './components/instructor-course-preview/instructor-course-preview';
@@ -23,6 +24,7 @@ import { InstructorLesson } from './components/instructor-lesson/lesson';
 import { InstructorQuiz } from './components/instructor-quiz/quiz';
 import { InstructorCertificatesComponent } from './components/instructor-certificates/instructor-certificates';
 import { InstructorSection } from './components/instructor-section/instructor-section';
+import { InstructorStudents } from './page/instructor-students/instructor-students';
 
 
 /* =========================
@@ -43,16 +45,22 @@ import { AdminCreateCourse } from './components/admin-create-course/admin-create
 
 
 
+import { AllCoursesPage } from './page/all-courses/all-courses';
 import { Categories } from './page/catalog/categories/categories';
 import { CourseDetails } from './page/catalog/course-details/course-details';
 import { FrontEndTracks } from './page/catalog/front-end-tracks/front-end-tracks';
-import { ReactCourses } from './page/catalog/courses/courses';
-import { Track } from './page/catalog/track/track';
+import { TrackPage } from './page/catalog/track/track';
 import { AboutPage } from './page/about/about';
 import { AuthComponent } from './components/auth/auth';
+import { OAuthCallbackComponent } from './components/auth/oauth-callback';
 import { Cart } from './page/cart/cart';
 import { Payment } from './page/payment/payment';
 import { WishlistComponent } from './page/wishlist/wishlist';
+import { StudentDashboard } from './page/student-dashboard/student-dashboard';
+import { StudentProfilePage } from './page/student-profile/student-profile';
+import { StudentCertificates } from './page/student-certificates/student-certificates';
+import { CoursePlayer } from './page/course-player/course-player';
+import { CourseQuiz } from './page/course-quiz/course-quiz';
 
 /* =========================
    GENERAL PAGE HELPER
@@ -87,63 +95,80 @@ export const routes: Routes = [
   ========================= */
   {
     path: 'instructor-dashboard',
-    redirectTo: 'instructor-courses',
-    pathMatch: 'full'
+    component: InstructorCourses,
+    canActivate: [authGuard]
   },
 
   {
     path: 'instructor-courses',
-    component: InstructorCourses
+    component: InstructorCourses,
+    canActivate: [authGuard]
   },
 
   {
     path: 'instructor-course-preview',
-    component: InstructorCoursePreview
+    component: InstructorCoursePreview,
+    canActivate: [authGuard]
   },
 
   {
     path: 'instructor-create-course',
-    component: InstructorCreateCourse
+    component: InstructorCreateCourse,
+    canActivate: [authGuard]
   },
 
   {
     path: 'instructor-profile',
-    component: InstructorProfile
+    component: InstructorProfilePage,
+    canActivate: [authGuard]
   },
 
   {
     path: 'instructor-certificates',
-    component: InstructorCertificatesComponent
+    component: InstructorCertificatesComponent,
+    canActivate: [authGuard]
   },
 
   {
     path: 'instructor-notifications',
-    component: InstructorNotifications
+    component: InstructorNotifications,
+    canActivate: [authGuard]
+  },
+
+  {
+    path: 'students',
+    component: InstructorStudents,
+    canActivate: [authGuard],
   },
 
   {
     path: 'instructor-catalog',
-    component: InstructorCatalog
+    component: InstructorCatalog,
+    canActivate: [authGuard]
   },
 
   {
     path: 'instructor-course-curriculum',
-    component: InstructorCurriculum
+    component: InstructorCurriculum,
+    canActivate: [authGuard]
   },
 
   {
     path: 'instructor-section',
-    component: InstructorSection
+    component: InstructorSection,
+    canActivate: [authGuard]
   },
 
   {
     path: 'instructor-lesson',
-    component: InstructorLesson
+    component: InstructorLesson,
+    canActivate: [authGuard]
   },
 
   {
     path: 'instructor-quiz',
-    component: InstructorQuiz
+    component: InstructorQuiz,
+    canActivate: [authGuard]
   },
 
   {
@@ -152,96 +177,78 @@ export const routes: Routes = [
     pathMatch: 'full',
   },
 
+  /* =========================
+     CATALOG
+     One page per concern: a category (with its tracks and courses), the
+     full course list, and a single course. The legacy URLs below redirect
+     here so existing links keep working.
+  ========================== */
+
   {
-    path: 'catalog',
+    path: 'categories',
     component: Categories,
   },
 
   {
-    path: 'catalog/web-development',
-    component: Track,
-  },
-
-  {
-    path: 'catalog/languages',
-    component: Categories,
-  },
-
-  {
-    path: 'catalog/ui-ux-design',
-    component: Categories,
-  },
-
-  {
-    path: 'catalog/business',
-    component: Categories,
-  },
-
-  {
-    path: 'catalog/web-development/programming',
-    component: Track,
-  },
-
-  {
-    path: 'catalog/web-development/front-end',
-    component: Track,
-  },
-
-  {
-    path: 'catalog/web-development/front-end/tracks',
+    path: 'category/:categoryId',
     component: FrontEndTracks,
   },
 
   {
-    path: 'catalog/web-development/front-end/react',
-    component: ReactCourses,
+    path: 'track/:trackId',
+    component: TrackPage,
   },
 
   {
-    path: 'catalog/web-development/front-end/react/course/:slug',
+    path: 'courses',
+    component: AllCoursesPage,
+  },
+
+  {
+    path: 'student-dashboard',
+    component: StudentDashboard,
+    canActivate: [authGuard],
+  },
+
+  {
+    path: 'learning',
+    component: StudentDashboard,
+    canActivate: [authGuard],
+  },
+
+  {
+    path: 'profile',
+    component: StudentProfilePage,
+    canActivate: [authGuard],
+  },
+
+  {
+    path: 'certificates',
+    component: StudentCertificates,
+    canActivate: [authGuard],
+  },
+
+  {
+    path: 'course/:courseId',
     component: CourseDetails,
   },
 
   {
-    path: 'catalog/web-development/front-end/html-css',
-    component: Track,
+    path: 'learn/:courseId/quiz/:quizId',
+    component: CourseQuiz,
+    canActivate: [authGuard],
   },
 
   {
-    path: 'catalog/web-development/front-end/javascript',
-    component: Track,
+    path: 'learn/:courseId',
+    component: CoursePlayer,
+    canActivate: [authGuard],
   },
 
-  {
-    path: 'catalog/web-development/front-end/typescript',
-    component: Track,
-  },
-
-  {
-    path: 'catalog/web-development/front-end/vue',
-    component: Track,
-  },
-
-  {
-    path: 'catalog/web-development/front-end/angular',
-    component: Track,
-  },
-
-  {
-    path: 'catalog/web-development/back-end',
-    component: Track,
-  },
-
-  {
-    path: 'catalog/web-development/full-stack',
-    component: Track,
-  },
-
-  {
-    path: 'catalog/web-development/mobile',
-    component: Track,
-  },
-
+  // Legacy catalog URLs. The category slugs land on the category list; the
+  // deeper static paths were never backed by data, so they go to the course list.
+  { path: 'catalog', pathMatch: 'full', redirectTo: 'categories' },
+  { path: 'catalog/:slug', pathMatch: 'full', redirectTo: 'categories' },
 
   /* =========================
      ADMIN ROUTES
@@ -249,47 +256,56 @@ export const routes: Routes = [
 
   {
     path: 'admin-dashboard',
-    component: AdminDashboard
+    component: AdminDashboard,
+    canActivate: [authGuard]
   },
 
   {
     path: 'admin-users',
-    component: AdminUsers
+    component: AdminUsers,
+    canActivate: [authGuard]
   },
 
   {
     path: 'admin-courses',
-    component: AdminCourses
+    component: AdminCourses,
+    canActivate: [authGuard]
   },
 
   {
     path: 'admin-create-course',
-    component: AdminCreateCourse
+    component: AdminCreateCourse,
+    canActivate: [authGuard]
   },
 
   {
     path: 'admin-categories',
-    component: AdminCategories
+    component: AdminCategories,
+    canActivate: [authGuard]
   },
 
   {
     path: 'admin-tracks',
-    component: AdminTracks
+    component: AdminTracks,
+    canActivate: [authGuard]
   },
 
   {
     path: 'admin-reports',
-    component: AdminReports
+    component: AdminReports,
+    canActivate: [authGuard]
   },
 
   {
     path: 'admin-notifications',
-    component: AdminNotifications
+    component: AdminNotifications,
+    canActivate: [authGuard]
   },
 
   {
     path: 'admin-profile',
-    component: AdminProfile
+    component: AdminProfile,
+    canActivate: [authGuard]
   },
 
 
@@ -298,18 +314,18 @@ export const routes: Routes = [
   ========================= */
 
   {
-    path: 'categories',
-    component: Categories
-  },
-
-  {
-    path: 'courses',
-    loadComponent: () => import('./page/all-courses/all-courses').then(m => m.AllCoursesPage)
+    path: 'instructor/:name',
+    loadComponent: () => import('./page/instructor-public/instructor-public').then(m => m.InstructorPublicPage)
   },
 
   {
     path: 'about',
     component: AboutPage
+  },
+
+  {
+    path: 'auth/callback',
+    component: OAuthCallbackComponent,
   },
 
   {
@@ -328,44 +344,20 @@ export const routes: Routes = [
   },
   {
   path: 'cart',
-  component: Cart
+  component: Cart,
+  canActivate: [authGuard]
 },
 {
   path: 'payment',
-  component: Payment
+  component: Payment,
+  canActivate: [authGuard]
 },
 {
   path: 'wishlist',
-  component: WishlistComponent
+  component: WishlistComponent,
+  canActivate: [authGuard]
 },
 
-  page(
-    'profile',
-    'YOUR SPACE',
-    'Profile',
-    'Manage your professional profile, achievements, and learning progress.'
-  ),
-
-  page(
-    'students',
-    'YOUR COMMUNITY',
-    'Students',
-    'Review your learners, engagement, and course activity.'
-  ),
-
-  page(
-    'learning',
-    'YOUR LEARNING',
-    'My Learning',
-    'Pick up where you left off and keep your momentum going.'
-  ),
-
-  page(
-    'certificates',
-    'YOUR ACHIEVEMENTS',
-    'Certificates',
-    'View and share the credentials you have earned.'
-  ),
   page(
     'help',
     'WE ARE HERE TO HELP',
@@ -393,13 +385,11 @@ export const routes: Routes = [
     'Settings',
     'Manage your instructor workspace preferences.'
   ),
-
-  page(
-    'search',
-    'SEARCH RESULTS',
-    'Find Your Next Course',
-    'Search results will appear here as you explore our learning catalog.'
-  ),
+  {
+    path: 'search',
+    redirectTo: 'courses',
+    pathMatch: 'full'
+},
 
 
   /* =========================
@@ -412,3 +402,4 @@ export const routes: Routes = [
   }
 
 ];
+

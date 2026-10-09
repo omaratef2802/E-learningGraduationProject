@@ -13,7 +13,7 @@
 
             <h1>Complete Your Payment</h1>
 
-            <p>Enter your information and choose your preferred payment method.</p>
+            <p>Review your course and continue to Paymob secure checkout.</p>
           </div>
 
           <div class="secure-badge">
@@ -67,227 +67,14 @@
 
             <section class="payment-card">
               <div class="section-title">
-                <div class="section-icon">
-                  <i class="fa-regular fa-credit-card"></i>
-                </div>
-
+                <div class="section-icon"><i class="fa-solid fa-lock"></i></div>
                 <div>
-                  <h2>Payment Method</h2>
-
-                  <p>Choose your preferred payment method</p>
-                </div>
-              </div>
-
-              <div class="payment-methods">
-                <div
-                  class="method-card"
-                  [class.active]="selectedMethod() === 'credit'"
-                  (click)="selectPaymentMethod('credit')"
-                >
-                  <input
-                    type="radio"
-                    name="paymentMethod"
-                    [checked]="selectedMethod() === 'credit'"
-                  />
-
-                  <div class="method-content">
-                    <div class="method-icon">
-                      <i class="fa-regular fa-credit-card"></i>
-                    </div>
-
-                    <div>
-                      <h3>Credit Card</h3>
-
-                      <p>Visa, Mastercard</p>
-                    </div>
-                  </div>
-                </div>
-
-                <div
-                  class="method-card"
-                  [class.active]="selectedMethod() === 'paypal'"
-                  (click)="selectPaymentMethod('paypal')"
-                >
-                  <input
-                    type="radio"
-                    name="paymentMethod"
-                    [checked]="selectedMethod() === 'paypal'"
-                  />
-
-                  <div class="method-content">
-                    <div class="method-icon">
-                      <i class="fa-brands fa-paypal"></i>
-                    </div>
-
-                    <div>
-                      <h3>PayPal</h3>
-
-                      <p>PayPal account</p>
-                    </div>
-                  </div>
-                </div>
-
-                <div
-                  class="method-card"
-                  [class.active]="selectedMethod() === 'fawry'"
-                  (click)="selectPaymentMethod('fawry')"
-                >
-                  <input
-                    type="radio"
-                    name="paymentMethod"
-                    [checked]="selectedMethod() === 'fawry'"
-                  />
-
-                  <div class="method-content">
-                    <div class="method-icon">
-                      <i class="fa-solid fa-money-bill-wave"></i>
-                    </div>
-
-                    <div>
-                      <h3>Fawry</h3>
-
-                      <p>Pay using Fawry</p>
-                    </div>
-                  </div>
+                  <h2>Secure payment with Paymob</h2>
+                  <p>Your card or wallet details are entered on Paymob's secure checkout.</p>
                 </div>
               </div>
             </section>
 
-            @if (selectedMethod() === 'credit') {
-              <section class="payment-card">
-                <div class="section-title">
-                  <div class="section-icon">
-                    <i class="fa-regular fa-credit-card"></i>
-                  </div>
-
-                  <div>
-                    <h2>Card Details</h2>
-
-                    <p>Enter your card information</p>
-                  </div>
-                </div>
-
-                <div class="form-group">
-                  <label for="cardNumber"> Card Number </label>
-
-                  <div class="input-with-icon">
-                    <i class="fa-regular fa-credit-card"></i>
-
-                    <input
-                      id="cardNumber"
-                      type="text"
-                      [value]="cardNumber()"
-                      (input)="updateCardNumber($event)"
-                      [class.input-error]="cardNumberError()"
-                      placeholder="1234 5678 9012 3456"
-                    />
-                  </div>
-
-                  @if (cardNumberError()) {
-                    <small class="field-error">
-                      {{ cardNumberError() }}
-                    </small>
-                  }
-                </div>
-
-                <div class="form-group">
-                  <label for="cardName"> Name on Card </label>
-
-                  <input
-                    id="cardName"
-                    type="text"
-                    [value]="cardName()"
-                    (input)="updateCardName($event)"
-                    [class.input-error]="cardNameError()"
-                    placeholder="Enter name on card"
-                  />
-
-                  @if (cardNameError()) {
-                    <small class="field-error">
-                      {{ cardNameError() }}
-                    </small>
-                  }
-                </div>
-
-                <div class="form-grid">
-                  <div class="form-group">
-                    <label for="expiry"> Expiry Date </label>
-
-                    <input
-                      id="expiry"
-                      type="text"
-                      [value]="expiry()"
-                      (input)="updateExpiry($event)"
-                      [class.input-error]="expiryError()"
-                      placeholder="MM / YY"
-                    />
-
-                    @if (expiryError()) {
-                      <small class="field-error">
-                        {{ expiryError() }}
-                      </small>
-                    }
-                  </div>
-
-                  <div class="form-group">
-                    <label for="cvv"> CVV </label>
-
-                    <div class="input-with-icon">
-                      <i class="fa-solid fa-lock"></i>
-
-                      <input
-                        id="cvv"
-                        type="password"
-                        [value]="cvv()"
-                        (input)="updateCvv($event)"
-                        [class.input-error]="cvvError()"
-                        placeholder="CVV"
-                      />
-                    </div>
-
-                    @if (cvvError()) {
-                      <small class="field-error">
-                        {{ cvvError() }}
-                      </small>
-                    }
-                  </div>
-                </div>
-
-                <label class="save-card">
-                  <input type="checkbox" [checked]="saveCard()" />
-
-                  <span> Save card for future payments </span>
-                </label>
-              </section>
-            }
-
-            @if (selectedMethod() === 'paypal') {
-              <section class="payment-card alternative-payment">
-                <div class="alternative-icon">
-                  <i class="fa-brands fa-paypal"></i>
-                </div>
-
-                <div>
-                  <h3>PayPal Payment</h3>
-
-                  <p>You will be redirected to PayPal to complete your payment.</p>
-                </div>
-              </section>
-            }
-
-            @if (selectedMethod() === 'fawry') {
-              <section class="payment-card alternative-payment">
-                <div class="alternative-icon">
-                  <i class="fa-solid fa-money-bill-wave"></i>
-                </div>
-
-                <div>
-                  <h3>Fawry Payment</h3>
-
-                  <p>You will receive the payment details after creating your order.</p>
-                </div>
-              </section>
-            }
 
             @if (errorMessage()) {
               <div class="error-message">
@@ -310,7 +97,7 @@
 
                 Processing...
               } @else {
-                <span> Pay ${{ getTotalPrice().toFixed(2) }} Now </span>
+                <span> Pay {{ getTotalPrice().toFixed(2) }} EGP Now </span>
 
                 <i class="fa-solid fa-arrow-right"></i>
               }
@@ -340,16 +127,20 @@
               </div>
 
               @if (cart()) {
-                @for (course of cart()!.courses; track course.courseId) {
+                @for (course of cart()!.courses; track getCourseId(course)) {
                   <div class="order-course">
                     <div class="course-image">
-                      <span>CR</span>
+                      @if (getCourseImage(course)) {
+                        <img [src]="getCourseImage(course)" [alt]="getCourseTitle(course)" />
+                      } @else {
+                        <span>CR</span>
+                      }
                     </div>
 
                     <div class="course-info">
-                      <h3>Course</h3>
+                      <h3>{{ getCourseTitle(course) }}</h3>
 
-                      <p>Course ID: {{ course.courseId }}</p>
+                      <p>Ready in your cart</p>
 
                       <strong> ${{ course.price.toFixed(2) }} </strong>
                     </div>
@@ -370,7 +161,7 @@
               <div class="price-row total-row">
                 <span> Total </span>
 
-                <strong> ${{ getTotalPrice().toFixed(2) }} </strong>
+                <strong> {{ getTotalPrice().toFixed(2) }} EGP </strong>
               </div>
 
               <button
@@ -382,7 +173,7 @@
                 @if (loading()) {
                   Processing...
                 } @else {
-                  Pay ${{ getTotalPrice().toFixed(2) }} Now
+                  Pay {{ getTotalPrice().toFixed(2) }} EGP Now
                 }
               </button>
             </section>
@@ -455,7 +246,7 @@
               <div class="detail-item">
                 <span> Amount </span>
 
-                <strong> ${{ getTotalPrice().toFixed(2) }} </strong>
+                <strong> {{ getTotalPrice().toFixed(2) }} EGP </strong>
               </div>
             </div>
 

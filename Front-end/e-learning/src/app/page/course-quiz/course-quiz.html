@@ -1,0 +1,57 @@
+<main class="quiz-page">
+  <nav class="quiz-nav"><a [routerLink]="['/learn', courseId]">← Back to learning path</a><span>PATHWAYED / ASSESSMENT</span></nav>
+  @if (loading) {
+    <div class="quiz-state" role="status">Preparing your quiz…</div>
+  } @else if (!quiz) {
+    <div class="quiz-state" role="alert"><h1>Quiz unavailable</h1><p>{{ errorMessage }}</p><a [routerLink]="['/learn', courseId]">Back to course</a></div>
+  } @else {
+    <header class="quiz-hero">
+      <span class="eyebrow">YOUR ASSESSMENT</span>
+      <h1>{{ quiz.title }}</h1>
+      <p>Take your time. Every question carries the points set by your instructor.</p>
+      <div class="quiz-stats"><span>{{ quiz.questions.length }} questions</span><span>{{ totalPoints }} total points</span><span>{{ quiz.passingScore }}% to pass</span></div>
+    </header>
+
+    @if (result) {
+      <div class="result" [class.passed]="result.passed" role="status">
+        <span class="result-icon">{{ result.passed ? '✦' : '↻' }}</span>
+        <div><strong>{{ result.passed ? 'Great work — you passed!' : 'Keep going — try again' }}</strong><p>You earned {{ result.score }} of {{ result.totalScore }} points ({{ result.percentage }}%).</p></div>
+        @if (!result.passed) { <button type="button" (click)="retry()">Retake quiz</button> }
+        @else { <a [routerLink]="['/learn', courseId]">Continue learning →</a> }
+      </div>
+    }
+
+    @if (certificate) {
+      <section class="certificate" aria-label="Certificate of completion">
+        <span class="certificate-seal">✦</span>
+        <span class="eyebrow">PATHWAYED · CERTIFICATE OF COMPLETION</span>
+        <h2>Congratulations, {{ certificate.studentName }}!</h2>
+        <p>This certifies that you have successfully completed</p>
+        <strong class="course-name">{{ certificate.courseName }}</strong>
+        <div class="certificate-details"><span><small>LEARNER</small>{{ certificate.studentName }}</span><span><small>INSTRUCTOR</small>{{ certificate.instructorName }}</span><span><small>ISSUED</small>{{ certificate.issueDate | date:'longDate' }}</span></div>
+        <small>Certificate ID: {{ certificate.certificateId }}</small>
+        <a routerLink="/certificates">View your certificate →</a>
+      </section>
+    }
+
+    <form (submit)="$event.preventDefault(); submit()" class="questions">
+      @for (question of quiz.questions; track $index; let i = $index) {
+        <fieldset [disabled]="!!result" class="question-card">
+          <legend><span class="number">{{ (i + 1).toString().padStart(2, '0') }}</span><span>{{ question.question }}</span><span class="points">{{ question.points }} {{ question.points === 1 ? 'point' : 'points' }}</span></legend>
+          <div class="options">
+            @for (option of question.options; track $index) {
+              <label [class.selected]="answers[i] === option">
+                <input type="radio" [name]="'question-' + i" [value]="option" [checked]="answers[i] === option" (change)="selectAnswer(i, option)" />
+                <span>{{ option }}</span>
+              </label>
+            }
+          </div>
+        </fieldset>
+      }
+      @if (errorMessage) { <p class="error-message" role="alert">{{ errorMessage }}</p> }
+      @if (!result) {
+        <div class="submit-row"><span>{{ answeredCount }} / {{ quiz.questions.length }} answered</span><button type="submit" [disabled]="submitting">{{ submitting ? 'Submitting…' : 'Submit answers →' }}</button></div>
+      }
+    </form>
+  }
+</main>

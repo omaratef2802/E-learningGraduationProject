@@ -1,7 +1,8 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { HERO_CONFIG } from './hero.config';
-import { InstructorData } from '../../page/instructor-data';
+import { InstructorDataService } from '../../services/instructor-data.service';
+import { Category } from '../../mock-types';
 
 @Component({
   selector: 'app-hero',
@@ -9,14 +10,25 @@ import { InstructorData } from '../../page/instructor-data';
   templateUrl: './hero.html',
   styleUrl: './hero.css',
 })
-export class Hero {
+export class Hero implements OnInit {
   private readonly router = inject(Router);
-  protected readonly data = inject(InstructorData);
+  private readonly data = inject(InstructorDataService);
+
   protected readonly config = HERO_CONFIG;
 
+  /** Categories come from the database via GET /category/. */
+  protected categories: Category[] = [];
+
+  ngOnInit(): void {
+    this.data.getCategories().subscribe({
+      next: (categories) => (this.categories = categories),
+      error: (err) => console.error('Error fetching categories:', err),
+    });
+  }
+
   get quickSearches(): string[] {
-    if (this.data.adminCategories && this.data.adminCategories.length > 0) {
-      return this.data.adminCategories.slice(0, 4).map(c => c.name);
+    if (this.categories.length > 0) {
+      return this.categories.slice(0, 4).map((c) => c.name);
     }
     return this.config.quickSearches;
   }
@@ -26,3 +38,4 @@ export class Hero {
     this.router.navigate(['/search'], { queryParams: value ? { q: value } : {} });
   }
 }
+

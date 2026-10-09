@@ -1,4 +1,4 @@
-import {
+﻿import {
   Component,
   OnInit,
   inject
@@ -51,8 +51,8 @@ export class AdminCreateCourse implements OnInit {
   ngOnInit(): void {
     // Load Instructors
     this.adminService.getAllInstructors().subscribe({
-       next: (res: any) => {
-         this.instructors = (res.data || res || []).map((i: any) => ({
+       next: (list) => {
+         this.instructors = list.map((i) => ({
             id: i._id || i.id,
             name: i.username || i.name || `${i.firstName} ${i.lastName}`,
             email: i.email
@@ -63,8 +63,8 @@ export class AdminCreateCourse implements OnInit {
 
     // Load Categories
     this.adminService.getCategories().subscribe({
-       next: (res: any) => {
-         this.allCategories = res.data || res || [];
+       next: (cats) => {
+         this.allCategories = cats;
          this.categories = this.allCategories.map(c => c.name);
          if (this.categories.length) {
             this.category = this.categories[0];
@@ -76,8 +76,8 @@ export class AdminCreateCourse implements OnInit {
 
     // Load Tracks
     this.adminService.getTracks().subscribe({
-       next: (res: any) => {
-         this.allTracks = res.data || res || [];
+       next: (tracks) => {
+           this.allTracks = tracks;
          this.updateTracks();
        },
        error: (err) => console.error(err)
@@ -99,8 +99,8 @@ export class AdminCreateCourse implements OnInit {
       // Tracks
       const catId = selectedCat._id || selectedCat.id;
       this.tracks = this.allTracks
-        .filter(t => t.categoryId === catId || t.category === catId || (t.category && t.category._id === catId))
-        .map(t => t.name || t.title);
+        .filter(t => (typeof t.categoryId === 'object' ? t.categoryId?._id : t.categoryId) === catId)
+        .map(t => t.title || (t as any).name);
     } else {
       this.subcategories = [];
       this.subcategory = '';
@@ -132,23 +132,24 @@ export class AdminCreateCourse implements OnInit {
     }
 
     const catObj = this.allCategories.find(c => c.name === this.category);
-    const trackObj = this.allTracks.find(t => t.name === this.track);
+    const trackObj = this.allTracks.find(t => (t.title || (t as any).name) === this.track);
 
     this.loading = true;
 
     const payload = {
       title: this.title.trim(),
+      slug: this.title.trim().toLowerCase().normalize('NFKD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, ''),
       description: this.description.trim(),
       category: catObj ? (catObj._id || catObj.id) : this.category,
       track: trackObj ? (trackObj._id || trackObj.id) : this.track,
       image: this.imageUrl,
       price: this.price || 0,
-      level: this.level,
+      level: this.level.toLowerCase(),
       language: this.language,
       duration: this.duration,
-      objectives: this.objectives.trim(),
-      prerequisites: this.prerequisites.trim(),
-      instructor: instructor.id
+      objectives: this.objectives.split('\n').map(item => item.trim()).filter(Boolean),
+      prerequisites: this.prerequisites.split('\n').map(item => item.trim()).filter(Boolean),
+      instructorId: instructor.id
     };
 
     this.adminService.createCourse(payload).subscribe({

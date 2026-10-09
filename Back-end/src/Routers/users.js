@@ -4,10 +4,12 @@ const { auth } = require("../middlewares/auth");
 const { authReset, authResetVerified } = require("../middlewares/auhtResetPass");
 const upload = require("../configs/multer");
 const passport = require("../configs/passport");
-const { getUserById, creatUser, updateUser, updatePassword, login, uploadImage, googleLogin, verifyOtp, changePassword, forgetPassword } = require("../controllers/users");
+const { getUserById, creatUser, updateUser, updatePassword, login, uploadImage, googleLogin, githubStart, githubCallback, verifyOtp, changePassword, forgetPassword } = require("../controllers/users");
 
 router.get("/login/google", passport.authenticate("google", { scope: ["profile", "email"] }));
-router.get("/google/callback", passport.authenticate("google", { session: false }), googleLogin);
+router.get("/google/callback", passport.authenticate("google", { session: false, failureRedirect: "http://localhost:4200/login?oauthError=google_failed" }), googleLogin);
+router.get("/login/github", githubStart);
+router.get("/github/callback", githubCallback);
 router.post("/signup", creatUser);
 router.post("/login", login);
 router.get("/profile/:id", auth, getUserById);

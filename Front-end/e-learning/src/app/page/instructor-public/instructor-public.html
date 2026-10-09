@@ -1,0 +1,29 @@
+<main class="instructor-public-page">
+  <div class="instructor-cover"></div>
+  <div class="instructor-header">
+    <a routerLink="/" class="back-button">← Back to home</a>
+    <div class="instructor-profile-content">
+      <div class="avatar">
+        @if (instructor?.img) {
+          <img [src]="instructor!.img" [alt]="instructorName" />
+        } @else {
+          <span class="avatar-initials" aria-hidden="true">{{ instructorName.charAt(0) }}</span>
+        }
+      </div>
+      <div class="instructor-info">
+        <h1>{{ instructorName || 'Instructor' }}</h1>
+        <p class="role">PathwayEd Instructor</p>
+        <p class="bio">{{ instructor?.bio || 'Explore this instructor’s courses and learning resources.' }}</p>
+        <div class="stats">
+          <span class="stat-badge">★ Verified Instructor</span>
+          <span class="stat-badge outline">Course Creator</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="instructor-courses-section">
+    <h3>Courses taught by {{ instructorName || 'this instructor' }}</h3>
+    <app-courses [instructorId]="instructorId"></app-courses>
+  </div>
+</main>

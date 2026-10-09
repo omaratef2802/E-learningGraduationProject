@@ -26,7 +26,7 @@ img {
   margin: 0 auto;
 }
 .breadcrumb-section {
-  padding: 14px 0 12px;
+  padding: 20px 0 12px;
   background: var(--page);
 }
 .breadcrumb-text {
@@ -82,8 +82,8 @@ img {
   grid-template-columns: 50px minmax(0, 1fr) 325px;
   align-items: center;
   gap: 20px;
-  min-height: 216px;
-  padding: 26px 34px;
+  min-height: auto;
+  padding: 20px 34px;
   border: 1px solid var(--border);
   border-radius: 18px;
   background: linear-gradient(135deg, rgba(244, 245, 255, 0.95), rgba(236, 240, 248, 0.98));
@@ -191,7 +191,7 @@ img {
   width: 325px;
   min-width: 325px;
   height: 58px;
-  padding: 10px 15px;
+  padding: 20px 15px;
   border-radius: 15px;
   background: rgba(255, 255, 255, 0.62);
   box-shadow: 0 7px 18px rgba(91, 103, 143, 0.08);
@@ -231,7 +231,7 @@ img {
   align-items: center;
   gap: 12px;
   margin-bottom: 24px;
-  padding: 12px 14px;
+  padding: 20px 14px;
   border: 1px solid var(--border);
   border-radius: 16px;
   background: rgba(255, 255, 255, 0.34);
@@ -352,7 +352,7 @@ img {
   box-shadow: 0 3px 8px rgba(32, 42, 72, 0.12);
 }
 .course-content {
-  padding: 14px;
+  padding: 20px;
 }
 .course-meta {
   display: flex;
@@ -376,7 +376,7 @@ img {
 }
 .course-title {
   display: block;
-  margin: 10px 0 8px;
+  margin: 15px 0 8px;
   color: #1d2431;
   font-size: 20px;
   font-weight: 800;
@@ -392,7 +392,7 @@ img {
 .explore-course {
   display: block;
   margin-top: 14px;
-  padding: 10px 16px;
+  padding: 20px 16px;
   border: 1px solid rgba(120, 131, 178, 0.15);
   border-radius: 999px;
   background: #f4f0ff;
@@ -403,7 +403,7 @@ img {
   text-decoration: none;
 }
 .no-results {
-  padding: 48px 20px;
+  padding: 20px 20px;
   border: 1px solid var(--border);
   border-radius: 14px;
   background: rgba(255, 255, 255, 0.7);
@@ -420,7 +420,7 @@ img {
 }
 .no-results button {
   margin-top: 14px;
-  padding: 10px 16px;
+  padding: 20px 16px;
   border: 0;
   border-radius: 10px;
   background: var(--primary);
@@ -433,7 +433,7 @@ img {
   .track-header-card {
     grid-template-columns: 1fr;
     min-height: 0;
-    padding: 22px 18px 20px;
+    padding: 20px 18px 20px;
   }
   .track-stats {
     width: 100%;
@@ -458,3 +458,6 @@ img {
     font-size: 18px;
   }
 }
+
+
+.track-state{margin:20px auto;padding:22px 24px;border:1px solid var(--border);border-radius:16px;background:rgba(255,255,255,.75);color:var(--muted);text-align:center}.track-error{color:#b42318;background:#fff5f5;border-color:#ffd5d2}

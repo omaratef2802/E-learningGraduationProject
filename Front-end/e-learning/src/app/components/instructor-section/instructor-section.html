@@ -48,8 +48,9 @@
           class="primary-action"
           type="button"
           (click)="saveSection()"
+          [disabled]="saving || loading || !sectionsLoaded"
         >
-          Save Section →
+          {{ saving ? 'Saving…' : 'Save Section →' }}
         </button>
 
       </div>
@@ -59,6 +60,10 @@
         class="section-form"
         (ngSubmit)="saveSection()"
       >
+
+        @if (errorMessage) {
+          <div class="section-error" role="alert">{{ errorMessage }}</div>
+        }
 
         <label>
           SECTION TITLE
@@ -90,6 +95,7 @@
         <button
           class="mobile-save"
           type="submit"
+          [disabled]="saving || loading || !sectionsLoaded"
         >
           Save Section
         </button>

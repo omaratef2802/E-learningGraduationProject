@@ -1,7 +1,8 @@
-import Swal from 'sweetalert2';
+﻿import Swal from 'sweetalert2';
 import {
   Component,
-  inject
+  inject,
+  OnInit
 } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
@@ -12,16 +13,13 @@ import {
   RouterLink
 } from '@angular/router';
 
-import {
-  InstructorData,
-  CurriculumQuiz,
-  QuizQuestion,
-  CurriculumSection
-} from '../../page/instructor-data';
 
 import {
   InstructorSidebar
 } from '../../page/instructor-sidebar/sidebar';
+
+import { InstructorDataService } from '../../services/instructor-data.service';
+import { CurriculumQuiz, CurriculumSection } from '../../mock-types';
 
 @Component({
   selector: 'app-instructor-quiz',
@@ -34,7 +32,7 @@ import {
   templateUrl: './quiz.html',
   styleUrl: './quiz.css'
 })
-export class InstructorQuiz {
+export class InstructorQuiz implements OnInit {
 
   private readonly route =
     inject(ActivatedRoute);
@@ -42,15 +40,13 @@ export class InstructorQuiz {
   private readonly router =
     inject(Router);
 
-  private readonly data =
-    inject(InstructorData);
+  private readonly dataService =
+    inject(InstructorDataService);
 
   protected sectionId =
     this.route.snapshot.queryParamMap.get(
       'section'
-    ) ||
-    this.data.sections[0]?.id ||
-    '';
+    ) || '';
 
   protected quizId =
     this.route.snapshot.queryParamMap.get(
@@ -93,13 +89,15 @@ export class InstructorQuiz {
   protected duration = '10 minutes';
 
   protected questions:
-    QuizQuestion[] = [];
+    any[] = [];
+
+  protected sections: CurriculumSection[] = [];
 
   protected get currentSection():
     CurriculumSection | undefined {
 
-    return this.data.sections.find(
-      section =>
+    return this.sections.find(
+      (section) =>
         section.id ===
         this.sectionId
     );
@@ -109,12 +107,26 @@ export class InstructorQuiz {
     return this.currentSection?.lessons || [];
   }
 
-  constructor() {
+  ngOnInit(): void {
+
+    if (!this.courseId) return;
+
+    this.dataService.getCurriculum(this.courseId).subscribe({
+      next: (sections) => {
+        this.sections = sections;
+        this.hydrate();
+      },
+      error: (err) => console.error('Error fetching quiz:', err),
+    });
+  }
+
+
+  private hydrate(): void {
 
     const existing =
       this.currentSection
         ?.quizzes.find(
-          quiz =>
+          (quiz) =>
             quiz.id ===
             this.quizId
         );
@@ -124,14 +136,8 @@ export class InstructorQuiz {
       this.title =
         existing.title;
 
-      this.description =
-        existing.description;
-
       this.passingScore =
         existing.passingScore;
-
-      this.duration =
-        existing.duration;
 
       this.type =
         existing.type;
@@ -141,11 +147,17 @@ export class InstructorQuiz {
 
       this.questions =
         existing.questions.map(
-          question => ({
-            ...question,
+          (question) => ({
+            id: crypto.randomUUID(),
+            text: question.question,
+            type: 'Multiple Choice',
             options: [
               ...question.options
-            ]
+            ],
+            correctAnswer:
+              question.correctAnswer ?? '',
+            points:
+              question.points ?? 1
           })
         );
     }
@@ -258,7 +270,7 @@ export class InstructorQuiz {
 
       const lesson =
         this.lessons.find(
-          item =>
+          (item: any) =>
             item.id ===
             this.lessonId
         );
@@ -273,7 +285,7 @@ export class InstructorQuiz {
 
       const existingLessonQuiz =
         this.currentSection?.quizzes.find(
-          quiz =>
+          (quiz: any) =>
             quiz.id !== this.quizId &&
             quiz.type === 'Lesson' &&
             quiz.lessonId ===
@@ -295,7 +307,7 @@ export class InstructorQuiz {
 
       const existingFinalQuiz =
         this.currentSection?.quizzes.find(
-          quiz =>
+          (quiz: any) =>
             quiz.id !== this.quizId &&
             quiz.type === 'Section'
         );
@@ -311,7 +323,7 @@ export class InstructorQuiz {
 
     const questions =
       this.questions.map(
-        question => ({
+        (question: any) => ({
 
           ...question,
 
@@ -320,7 +332,7 @@ export class InstructorQuiz {
 
           options:
             question.options.map(
-              option =>
+              (option: any) =>
                 option.trim()
             ),
 
@@ -334,10 +346,10 @@ export class InstructorQuiz {
 
     const hasInvalidQuestion =
       questions.some(
-        question =>
+        (question: any) =>
           !question.text ||
           question.options.some(
-            option =>
+            (option: any) =>
               !option
           ) ||
           !question.correctAnswer
@@ -353,80 +365,45 @@ export class InstructorQuiz {
       return;
     }
 
-    const payload:
-      Omit<CurriculumQuiz, 'id'> = {
-
-      title:
-        this.title.trim(),
-
-      description:
-        this.description.trim(),
-
-      passingScore:
-        Math.min(
-          100,
-          Math.max(
-            0,
-            Number(
-              this.passingScore
-            ) || 0
-          )
-        ),
-
-      duration:
-        this.duration.trim() ||
-        'Untimed',
-
-      questions,
-
-      type:
-        this.type,
-
-      lessonId:
-        this.type === 'Lesson'
-          ? this.lessonId
-          : undefined
+    // The quiz schema stores `question` (not `text`) and has no
+    // `description`, `duration`, `type` or `lessonId` fields - see dbQuizs.js.
+    // The lesson link lives on Lesson.quizId and is set by the backend when
+    // createQuiz receives a lessonId.
+    const payload = {
+      title: this.title.trim(),
+      passingScore: Math.min(100, Math.max(0, Number(this.passingScore) || 0)),
+      questions: questions.map((question: any) => ({
+        question: question.text.trim(),
+        options: question.options.map((option: string) => option.trim()),
+        correctAnswer: question.correctAnswer.trim(),
+        points: Number(question.points) || 1
+      }))
     };
 
-    if (
-      this.quizId
-    ) {
-
-      const updated =
-        this.data.updateQuiz(
-          this.sectionId,
-          this.quizId,
-          payload
-        );
-
-      if (!updated) {
-
-        Swal.fire('Notice', 'Unable to update this quiz.'
-        , 'info');
-
-        return;
-      }
-
+    if (this.quizId) {
+      // PATCH /Quiz/updateQuiz/:id
+      this.dataService.updateQuiz(this.quizId, payload).subscribe({
+        next: () => this.backToCurriculum(),
+        error: (err) => {
+          console.error('Failed to update quiz:', err);
+          Swal.fire('Error', err?.error?.message || 'Unable to update this quiz.', 'error');
+        },
+      });
     } else {
-
-      const quizId =
-        this.data.addQuiz(
-          this.sectionId,
-          payload
-        );
-
-      if (!quizId) {
-
-        Swal.fire('Notice', this.type === 'Lesson'
-            ? 'This lesson already has a quiz.'
-            : 'This section already has a final quiz.'
-        , 'info');
-
-        return;
-      }
+      // POST /Quiz/createQuiz - targets a lesson (Lesson.quizId) or the
+      // whole section (Quiz.sectionId) depending on the selected type.
+      const target =
+        this.type === 'Section'
+          ? { sectionId: this.sectionId }
+          : { lessonId: this.lessonId };
+      this.dataService.createQuiz(target, payload).subscribe({
+        next: () => this.backToCurriculum(),
+        error: (err) => {
+          console.error('Failed to create quiz:', err);
+          Swal.fire('Error', err?.error?.message || 'Unable to create this quiz.', 'error');
+        },
+      });
     }
-
-    this.backToCurriculum();
   }
 
   backToCurriculum(): void {
@@ -445,3 +422,7 @@ export class InstructorQuiz {
     );
   }
 }
+
+
+
+

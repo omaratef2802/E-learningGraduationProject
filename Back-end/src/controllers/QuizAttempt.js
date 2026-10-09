@@ -18,17 +18,28 @@ const submitQuizAttempt = async (req, res, next) => {
   try {
     const studentId = req.id;
     const { quizId, lessonId, studentAnswers } = req.body;
-    if (!quizId || !lessonId) return next(new ApiError(400, "Quiz and lesson are required"));
+    if (!quizId) return next(new ApiError(400, "Quiz is required"));
     if (studentAnswers !== undefined && !Array.isArray(studentAnswers)) return next(new ApiError(400, "Student answers must be an array"));
 
     const quiz = await Quiz.findById(quizId);
     if (!quiz) return next(new ApiError(404, "Quiz not found"));
 
-    const lesson = await Lesson.findOne({ _id: lessonId, quizId });
-    if (!lesson) return next(new ApiError(400, "This quiz does not belong to this lesson"));
-    if (quiz.courseId.toString() !== lesson.courseId.toString()) return next(new ApiError(400, "Quiz and lesson course do not match"));
+    let courseId;
+    let lesson = null;
+    if (quiz.sectionId) {
+      // Section final quiz: it belongs to no lesson, so the course is taken
+      // from the quiz itself and enrollment is checked against it.
+      if (lessonId) return next(new ApiError(400, "This is a section quiz and does not belong to a lesson"));
+      courseId = quiz.courseId;
+    } else {
+      if (!lessonId) return next(new ApiError(400, "Lesson is required for a lesson quiz"));
+      lesson = await Lesson.findOne({ _id: lessonId, quizId });
+      if (!lesson) return next(new ApiError(400, "This quiz does not belong to this lesson"));
+      if (quiz.courseId.toString() !== lesson.courseId.toString()) return next(new ApiError(400, "Quiz and lesson course do not match"));
+      courseId = lesson.courseId;
+    }
 
-    const course = await Course.findOne({ _id: lesson.courseId, status: "published" });
+    const course = await Course.findOne({ _id: courseId, status: "published" });
     if (!course) return next(new ApiError(404, "Course not found"));
     const enrollment = await Enrollment.findOne({ studentId, courseId: course._id });
     if (!enrollment) return next(new ApiError(403, "You are not enrolled in this course"));

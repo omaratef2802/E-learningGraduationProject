@@ -14,8 +14,32 @@
   </nav>
 
   <div class="header-actions">
-    <a class="login-link" [routerLink]="config.loginRoute">Log In</a>
-    <a class="signup-button" [routerLink]="config.signupRoute">Sign Up</a>
-    <a class="account-button" [routerLink]="config.profileRoute" aria-label="Account">♟</a>
+    @if (!isLoggedIn) {
+      <a class="login-link" [routerLink]="config.loginRoute">Log In</a>
+      <a class="signup-button" [routerLink]="config.signupRoute">Sign Up</a>
+    } @else {
+      @if (userRole === 'student') {
+        <a class="cart-link" routerLink="/cart" aria-label="Open shopping cart" [attr.aria-label]="cartCount() ? 'Shopping cart, ' + cartCount() + ' courses' : 'Shopping cart'">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 4h2l2.1 10.1a2 2 0 0 0 2 1.6h8.7a2 2 0 0 0 1.9-1.4L22 8H6"/><circle cx="10" cy="20" r="1.2"/><circle cx="18" cy="20" r="1.2"/></svg>
+          @if (cartCount() > 0) { <span class="cart-badge">{{ cartCount() > 99 ? '99+' : cartCount() }}</span> }
+        </a>
+      }
+      <div class="profile-dropdown-container">
+        <button class="account-button" type="button" (click)="toggleDropdown($event)" aria-label="Account" [attr.aria-expanded]="dropdownOpen">♟</button>
+        
+        @if (dropdownOpen) {
+          <div class="profile-dropdown fade-in">
+            <div class="dropdown-header">
+              <strong>{{ userFullName }}</strong>
+              <span>{{ userRole | titlecase }}</span>
+            </div>
+            <a class="dropdown-item" [routerLink]="getDashboardRoute()" (click)="closeDropdown()">Dashboard</a>
+            <a class="dropdown-item" [routerLink]="getProfileRoute()" (click)="closeDropdown()">Profile</a>
+            <hr class="dropdown-divider">
+            <a class="dropdown-item logout" (click)="logout()">Log Out</a>
+          </div>
+        }
+      </div>
+    }
   </div>
 </header>

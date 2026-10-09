@@ -1,4 +1,4 @@
-import {
+﻿import {
   Component,
   OnInit,
   inject
@@ -52,8 +52,7 @@ export class AdminReports implements OnInit {
     let courses = 0;
     
     this.adminService.getAllUsers().subscribe({
-       next: (res: any) => {
-         const u = res.data || res || [];
+       next: (u) => {
          users = u.length;
          this.buildReport(users, courses);
        },
@@ -61,8 +60,7 @@ export class AdminReports implements OnInit {
     });
     
     this.adminService.getCourses().subscribe({
-       next: (res: any) => {
-         const c = res.data || res || [];
+       next: (c) => {
          courses = c.length;
          this.buildReport(users, courses);
        },
