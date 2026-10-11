@@ -1,0 +1,26 @@
+const express = require("express");
+const router = express.Router();
+const { auth, relasedTo } = require("../middlewares/auth");
+const { authReset, authResetVerified } = require("../middlewares/auhtResetPass");
+const upload = require("../configs/multer");
+const { getAdminById, getAllAdmin, getAllInstructor, createAdmin, updateAdmin, updatePassword, login, uploadImage, forgetPassword, verifyOtp, changePassword, deleteUser } = require("../controllers/admin");
+const { updateManagedUser, updateManagedUserStatus } = require("../controllers/admin");
+const passport = require("../configs/passport");
+
+router.get("/myUsers", auth, relasedTo("admin"), require("../controllers/users").getAllUser);
+router.get("/myInstructors", auth, relasedTo("admin"), getAllInstructor);
+router.post("/addAdmin", auth, relasedTo("admin"), createAdmin);
+router.post("/loginAdmin", login);
+router.post("/updatePassword", auth, relasedTo("admin"), updatePassword);
+router.patch("/updateAdmin", auth, relasedTo("admin"), updateAdmin);
+router.post("/MyProfile/uploadImg", auth, relasedTo("admin"), upload.single("Img"), uploadImage);
+router.post("/forgetPassword", forgetPassword);
+router.post("/forgerPassword", forgetPassword);
+router.post("/verifyOtp", authReset, verifyOtp);
+router.post("/changePassword", authReset, authResetVerified, changePassword);
+router.delete("/users/:id", auth, relasedTo("admin"), deleteUser);
+router.patch("/users/:id", auth, relasedTo("admin"), updateManagedUser);
+router.patch("/users/:id/status", auth, relasedTo("admin"), updateManagedUserStatus);
+router.get("/profile/:id", auth, relasedTo("admin"), getAdminById);
+router.get("/myAdmins", auth, relasedTo("admin"), getAllAdmin);
+module.exports = router;

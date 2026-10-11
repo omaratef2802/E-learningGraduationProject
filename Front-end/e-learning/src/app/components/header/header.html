@@ -1,0 +1,54 @@
+<header class="site-header" [class.is-scrolled]="isScrolled">
+  <a class="brand" routerLink="/" aria-label="PathwayEd home">
+    <span class="brand-icon">◆</span>
+    <span class="brand-name">{{ config.brandName }}</span>
+  </a>
+
+  <nav class="nav-pill" aria-label="Main navigation">
+    @for (link of config.links; track link.label) {
+      <a
+        [class.active]="isLinkActive(link)"
+        [routerLink]="link.route"
+      >{{ link.label }}</a>
+    }
+  </nav>
+
+  <div class="header-actions">
+    @if (!isLoggedIn) {
+      <a class="login-link" [routerLink]="config.loginRoute">Log In</a>
+      <a class="signup-button" [routerLink]="config.signupRoute">Sign Up</a>
+    } @else {
+      @if (userRole === 'student') {
+        <a class="wishlist-link" routerLink="/wishlist" aria-label="Open wishlist" title="Wishlist">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78Z"/></svg>
+        </a>
+        <a class="cart-link" routerLink="/cart" aria-label="Open shopping cart" [attr.aria-label]="cartCount() ? 'Shopping cart, ' + cartCount() + ' courses' : 'Shopping cart'">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 4h2l2.1 10.1a2 2 0 0 0 2 1.6h8.7a2 2 0 0 0 1.9-1.4L22 8H6"/><circle cx="10" cy="20" r="1.2"/><circle cx="18" cy="20" r="1.2"/></svg>
+          @if (cartCount() > 0) { <span class="cart-badge">{{ cartCount() > 99 ? '99+' : cartCount() }}</span> }
+        </a>
+      }
+      <div class="profile-dropdown-container">
+        <button class="account-button" type="button" (click)="toggleDropdown($event)" aria-label="Open account menu" [attr.aria-expanded]="dropdownOpen" [title]="userFullName">
+          @if (profileImage) {
+            <img [src]="profileImage" [alt]="userFullName + ' profile photo'" />
+          } @else {
+            <span>{{ userInitials }}</span>
+          }
+        </button>
+        
+        @if (dropdownOpen) {
+          <div class="profile-dropdown fade-in">
+            <div class="dropdown-header">
+              <strong>{{ userFullName }}</strong>
+              <span>{{ userRole | titlecase }}</span>
+            </div>
+            <a class="dropdown-item" [routerLink]="getDashboardRoute()" (click)="closeDropdown()">Dashboard</a>
+            <a class="dropdown-item" [routerLink]="getProfileRoute()" (click)="closeDropdown()">Profile</a>
+            <hr class="dropdown-divider">
+            <button class="dropdown-item logout" type="button" (click)="logout()">Log Out</button>
+          </div>
+        }
+      </div>
+    }
+  </div>
+</header>

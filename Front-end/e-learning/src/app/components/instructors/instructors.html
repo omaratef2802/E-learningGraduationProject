@@ -1,0 +1,27 @@
+<section class="instructors-section" aria-labelledby="instructors-title">
+  <div class="instructors-heading">
+    <span class="section-eyebrow">{{ config.eyebrow }}</span>
+    <h2 id="instructors-title">{{ config.title }}</h2>
+    <p>{{ config.description }}</p>
+  </div>
+
+  <div class="instructors-grid">
+    @for (instructor of instructorsList; track instructor.name) {
+      <article class="instructor-card" [class]="instructor.tone">
+        <div class="portrait-wrap">
+          <span class="portrait-ring"></span>
+          @if (instructor.image) {
+            <img [src]="instructor.image" [alt]="instructor.name" />
+          } @else {
+            <span class="portrait-initials" aria-hidden="true">{{ instructor.name.charAt(0) }}</span>
+          }
+        </div>
+        <h3>{{ instructor.name }}</h3>
+        <span class="instructor-role">{{ instructor.role }}</span>
+        <p>{{ instructor.bio }}</p>
+        <div class="instructor-stats"><span>PathwayEd Instructor</span></div>
+        <button type="button" (click)="viewInstructor(instructor)" [attr.aria-label]="'View profile of ' + instructor.name">View profile <strong>→</strong></button>
+      </article>
+    }
+  </div>
+</section>

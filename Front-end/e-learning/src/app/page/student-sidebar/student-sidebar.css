@@ -1,0 +1,38 @@
+:host { display: block; }
+.student-sidebar { position: fixed; inset: 0 auto 0 0; z-index: 20; display: flex; width: 258px; flex-direction: column; padding: 25px 17px 14px; border-right: 1px solid #e8eaf2; color: #282a43; background: #fbfbfe; font-family: Inter, "Segoe UI", sans-serif; box-sizing: border-box; }
+.sidebar-header { display: flex; align-items: center; justify-content: space-between; }
+.dashboard-brand { display: flex; align-items: center; gap: 11px; padding: 3px 5px; color: inherit; text-decoration: none; }
+.brand-icon { display: grid; width: 34px; height: 34px; place-items: center; border-radius: 11px; color: white; background: linear-gradient(135deg, #7772ff, #5652e7); box-shadow: 0 7px 16px #6965f53b; font-size: 14px; font-weight: 800; }
+.dashboard-brand strong, .dashboard-brand small { display: block; }
+.dashboard-brand strong { font-size: 15px; letter-spacing: -.03em; }
+.dashboard-brand small { margin-top: 3px; color: #777b91; font-size: 10px; }
+.nav-caption { margin: 44px 0 11px 11px; color: #a0a2b2; font-size: 9px; font-weight: 750; letter-spacing: .15em; }
+.sidebar-nav { display: grid; gap: 5px; }
+.sidebar-nav button { position: relative; display: flex; align-items: center; gap: 12px; width: 100%; min-height: 45px; padding: 0 12px; border: 0; border-radius: 12px; color: #74788e; background: transparent; cursor: pointer; text-align: left; font-family: inherit; font-size: 12px; font-weight: 600; transition: color .18s, background .18s, transform .18s; }
+.sidebar-nav button:hover { color: #5b57e8; background: #f1f0ff; transform: translateX(2px); }
+.sidebar-nav button.active { color: #5e5ae9; background: #efeeff; font-weight: 700; }
+.nav-icon { display: grid; width: 22px; place-items: center; color: #888ba0; font-size: 16px; }
+.sidebar-nav button.active .nav-icon { color: #635ff0; }
+.nav-count { display: grid; min-width: 20px; height: 20px; place-items: center; margin-left: auto; padding: 0 5px; border-radius: 99px; color: #fff; background: #ed5268; font-size: 9px; font-weight: 800; }
+.active-mark { width: 5px; height: 5px; margin-left: auto; border-radius: 50%; background: #6965f5; }
+.sidebar-bottom { margin-top: auto; }
+.sidebar-profile { display: flex; align-items: center; gap: 10px; padding: 13px 6px 4px; border-top: 1px solid #e9eaf1; }
+.avatar { display: grid; flex: 0 0 auto; width: 35px; height: 35px; place-items: center; border-radius: 50%; color: #fff; background: linear-gradient(135deg, #8b88ff, #5b57e8); font-size: 13px; font-weight: 750; }
+.profile-copy { min-width: 0; }
+.profile-copy strong, .profile-copy small { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.profile-copy strong { max-width: 145px; color: #36384f; font-size: 11px; }
+.profile-copy small { margin-top: 4px; color: #9295a8; font-size: 10px; }
+.sidebar-profile button { display: grid; width: 29px; height: 29px; place-items: center; margin-left: auto; border: 0; border-radius: 9px; color: #8a8da1; background: transparent; cursor: pointer; font-size: 16px; }
+.sidebar-profile button:hover { color: #5e5ae9; background: #f0efff; }
+.sidebar-toggle { display: none; }
+@media (max-width: 900px) { .student-sidebar { width: 226px; padding-inline: 12px; } }
+@media (max-width: 700px) {
+  .student-sidebar { position: relative; width: 100%; padding: 13px 16px; border-right: 0; border-bottom: 1px solid #e8eaf2; }
+  .sidebar-toggle { display: block; padding: 7px; border: 0; border-radius: 9px; color: #6965e9; background: #efeeff; cursor: pointer; font-size: 18px; }
+  .nav-caption { display: none; }
+  .sidebar-nav { display: none; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px; margin-top: 12px; }
+  .sidebar-nav.open { display: grid; }
+  .sidebar-nav button { justify-content: center; gap: 5px; min-height: 42px; padding: 5px; font-size: 10px; text-align: center; }
+  .nav-icon { width: auto; font-size: 14px; }
+  .active-mark, .sidebar-bottom { display: none; }
+}

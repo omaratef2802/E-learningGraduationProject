@@ -1,0 +1,105 @@
+<main class="wishlist-page">
+  <div class="page-shell">
+    <nav class="breadcrumbs" aria-label="Breadcrumb">
+      <a routerLink="/categories">⌂ Home</a>
+      <span>›</span>
+      <strong>Wishlist</strong>
+    </nav>
+
+    <section class="wishlist-hero">
+      <div>
+        <span class="eyebrow">YOUR SAVED COURSES</span>
+        <h1>Wishlist</h1>
+        <p>Keep the courses you want to explore later in one place.</p>
+      </div>
+      <div class="wishlist-count">
+        <strong>{{ activeCoursesCount }}</strong>
+        <span>{{ activeCoursesCount === 1 ? 'course saved' : 'courses saved' }}</span>
+      </div>
+    </section>
+
+    <section class="toolbar-panel" *ngIf="!loading && courses.length > 0">
+      <div class="search-box">
+        <span aria-hidden="true">⌕</span>
+        <input
+          type="text"
+          placeholder="Search your wishlist..."
+          [value]="searchQuery"
+          (input)="updateSearch($event)"
+        />
+        <button *ngIf="searchQuery" type="button" (click)="clearSearch()" aria-label="Clear search">×</button>
+      </div>
+    </section>
+
+    <div *ngIf="successMessage" class="toast toast-success">✓ {{ successMessage }}</div>
+    <div *ngIf="errorMessage" class="toast toast-error">! {{ errorMessage }}</div>
+
+    <section *ngIf="loading" class="state-card">
+      <div class="spinner"></div>
+      <h2>Loading your wishlist...</h2>
+      <p>We are getting your saved courses.</p>
+    </section>
+
+    <section *ngIf="!loading && displayedCourses.length > 0" class="courses-grid">
+      <article class="course-card" *ngFor="let course of displayedCourses">
+        <div class="course-cover">
+          <img
+            [src]="course.image || 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=900&q=85'"
+            [alt]="course.title"
+          />
+          <span class="course-tag">{{ getLevel(course) }}</span>
+          <button
+            class="save-button in-wishlist"
+            type="button"
+            [disabled]="removingId === course._id"
+            (click)="removeFromWishlist(course._id)"
+            [attr.aria-label]="'Remove ' + course.title + ' from wishlist'"
+          >
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78Z" />
+            </svg>
+          </button>
+        </div>
+
+        <div class="course-body">
+          <div class="course-rating">
+            <span>★</span>
+            {{ course.rating ? course.rating : 'No rating' }}
+          </div>
+          <h2>{{ course.title }}</h2>
+          <p class="description">{{ course.description || 'Build practical skills through guided lessons and real projects.' }}</p>
+
+          <div class="instructor">
+            <img *ngIf="course.instructorId?.img" [src]="course.instructorId?.img!" [alt]="getInstructorName(course)" />
+            <span *ngIf="!course.instructorId?.img" class="instructor-avatar">{{ getInstructorInitial(course) }}</span>
+            <span>{{ getInstructorName(course) }}</span>
+          </div>
+
+          <div class="course-meta">
+            <span>{{ getLevel(course) }}</span>
+            <span>◷ {{ getDuration(course) }}</span>
+          </div>
+
+          <div class="course-footer">
+            <strong>{{ course.price | number:'1.0-2' }} EGP</strong>
+            <button type="button" (click)="openCourse(course._id)">View Course <span>→</span></button>
+          </div>
+        </div>
+      </article>
+    </section>
+
+    <section *ngIf="!loading && courses.length > 0 && displayedCourses.length === 0" class="state-card">
+      <div class="empty-icon">⌕</div>
+      <h2>No courses found</h2>
+      <p>We couldn't find a saved course matching “{{ searchQuery }}”.</p>
+      <button type="button" class="primary-button" (click)="clearSearch()">Clear Search</button>
+    </section>
+
+    <section *ngIf="!loading && courses.length === 0" class="state-card">
+      <div class="empty-icon">♡</div>
+      <h2>Your wishlist is empty</h2>
+      <p>Save courses you are interested in and find them here later.</p>
+      <a class="primary-button" routerLink="/courses">Browse Courses <span>→</span></a>
+    </section>
+  </div>
+</main>

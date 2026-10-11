@@ -1,0 +1,27 @@
+<div class="students-shell">
+  <app-instructor-sidebar></app-instructor-sidebar>
+  <main class="students-main">
+    <header class="students-topbar"><div class="breadcrumb"><span>INSTRUCTOR PORTAL</span><b>/</b><strong>MY STUDENTS</strong></div><a routerLink="/instructor-dashboard">Back to dashboard</a></header>
+    <section class="students-content">
+      <div class="page-heading"><div><span class="page-kicker">YOUR LEARNING COMMUNITY</span><h1>My students</h1><p>Students currently enrolled in courses you teach.</p></div><div class="student-count"><strong>{{ students.length }}</strong><span>Unique learners</span></div></div>
+      <label class="student-search"><span aria-hidden="true">⌕</span><input [(ngModel)]="search" (ngModelChange)="applyFilter()" placeholder="Search by learner, email, or course" /></label>
+      @if (loading) {
+        <div class="students-state" role="status">Loading your students…</div>
+      } @else if (errorMessage) {
+        <div class="students-state error-state" role="alert">{{ errorMessage }}</div>
+      } @else if (filteredStudents.length) {
+        <div class="student-list">
+          @for (student of filteredStudents; track student._id) {
+            <article class="student-card">
+              <div class="student-identity"><span class="student-avatar">{{ initials(student) }}</span><div><h2>{{ student.firstName }} {{ student.lastName }}</h2><a [href]="'mailto:' + student.email">{{ student.email }}</a></div></div>
+              <div class="student-courses"><span>ENROLLED COURSES</span><strong>{{ getCourseSummary(student) }}</strong><small>{{ getCourseNames(student) }}</small></div>
+              <div class="student-progress"><span>AVERAGE PROGRESS</span><strong>{{ getOverallProgress(student) }}%</strong><div class="progress-track"><i [style.width.%]="getOverallProgress(student)"></i></div></div>
+            </article>
+          }
+        </div>
+      } @else {
+        <div class="students-state empty-state"><span class="empty-icon">♙</span><strong>{{ search ? 'No matching students' : 'No students enrolled yet' }}</strong><p>{{ search ? 'Try another name, email, or course.' : 'When learners enroll in one of your courses, they will appear here.' }}</p></div>
+      }
+    </section>
+  </main>
+</div>

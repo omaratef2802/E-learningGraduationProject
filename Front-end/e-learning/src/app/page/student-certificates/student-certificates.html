@@ -1,0 +1,34 @@
+<div class="certificates-shell">
+  <app-student-sidebar></app-student-sidebar>
+  <main class="certificates-main">
+    <header class="certificates-topbar">
+      <div class="breadcrumb"><span>STUDENT SPACE</span><b>/</b><strong>CERTIFICATES</strong></div>
+      <a routerLink="/student-dashboard">← Back to dashboard</a>
+    </header>
+
+    <section class="certificates-content">
+      <div class="page-heading">
+        <span class="page-kicker">YOUR ACHIEVEMENTS</span>
+        <h1>My certificates</h1>
+        <p>Verified milestones earned by completing your courses.</p>
+      </div>
+
+      @if (loading) {
+        <div class="certificates-state" role="status"><span class="spinner"></span>Loading your certificates…</div>
+      } @else if (errorMessage) {
+        <div class="certificates-state error-state" role="alert"><strong>Certificates unavailable</strong><p>{{ errorMessage }}</p><a routerLink="/login">Sign in again</a></div>
+      } @else if (certificates.length) {
+        <div class="certificate-grid">
+          @for (certificate of certificates; track certificate._id) {
+            <article class="certificate-card">
+              <div class="certificate-art"><span class="seal">✦</span><span class="art-label">PATHWAYED · CERTIFICATE OF COMPLETION</span><strong>{{ certificate.courseName }}</strong><small>Presented to {{ certificate.studentName }}</small><div class="art-footer"><span>{{ certificate.instructorName }}</span><span>{{ certificate.issueDate | date:'MMM d, y' }}</span></div></div>
+              <div class="certificate-info"><div><span>COURSE</span><strong>{{ certificate.courseName }}</strong></div><div><span>INSTRUCTOR</span><strong>{{ certificate.instructorName }}</strong></div><div class="certificate-id"><span>CERTIFICATE ID</span><strong>{{ certificate.certificateId }}</strong></div><a [href]="verificationLink(certificate)" target="_blank" rel="noopener">Verify certificate <span aria-hidden="true">↗</span></a></div>
+            </article>
+          }
+        </div>
+      } @else {
+        <div class="certificates-state empty-state"><span class="empty-icon">✦</span><strong>Your first certificate is ahead</strong><p>Complete a course to earn a verified certificate. Your achievements will appear here.</p><a routerLink="/learning">Continue learning →</a></div>
+      }
+    </section>
+  </main>
+</div>

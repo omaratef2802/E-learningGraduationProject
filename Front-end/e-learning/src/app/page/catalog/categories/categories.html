@@ -1,0 +1,106 @@
+﻿<section class="hero-section">
+  <div class="container">
+    <div class="hero-breadcrumb">
+      <span class="home-icon">&#8962;</span>
+      <span>HOME</span>
+      <span class="breadcrumb-separator">&rsaquo;</span>
+      <strong>CATEGORIES</strong>
+    </div>
+
+    <div class="hero-content">
+      <div class="hero-text">
+        <h1>Explore Learning Categories</h1>
+        <p>
+          Discover courses, skills, and tailored learning paths designed to
+          help you build practical skills that match your ambitions.
+        </p>
+      </div>
+
+      <div class="hero-stat">
+        <div class="hero-stat-icon">&#9635;</div>
+        <div class="hero-stat-copy">
+          <span>Categories</span>
+          <strong>{{ loadedCategories.length }}</strong>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="categories-section">
+  <div class="container">
+
+    <div class="search-row">
+      <div class="search-box">
+        <span class="search-icon">&#128269;</span>
+        <input
+          type="text"
+          [(ngModel)]="searchText"
+          placeholder="Search categories, subfields, or skills..."
+        />
+      </div>
+    </div>
+
+    <div class="category-pills-row">
+      <button
+        class="category-pill"
+        [class.active]="selectedCategory === 'All'"
+        (click)="selectedCategory = 'All'"
+      >
+        All
+      </button>
+
+      @for (name of categoryNames; track name) {
+        <button
+          class="category-pill"
+          [class.active]="selectedCategory === name"
+          (click)="selectedCategory = name"
+        >
+          {{ name }}
+        </button>
+      }
+    </div>
+
+    @if (searchText || selectedCategory !== 'All') {
+      <div class="clear-row">
+        <button class="clear-button" (click)="clearFilters()">Clear filters</button>
+      </div>
+    }
+
+    @if (isLoading) {
+      <div class="state-box">Loading categories...</div>
+    }
+
+    @if (errorMessage) {
+      <div class="state-box error">{{ errorMessage }}</div>
+    }
+
+    @if (!isLoading && filteredCategories.length > 0) {
+      <div class="category-grid">
+        @for (category of filteredCategories; track category._id) {
+          <div class="category-card">
+            <a class="image-container" [routerLink]="categoryRoute(category)">
+              <span class="category-icon">{{ category.icon || '#' }}</span>
+            </a>
+
+            <div class="card-body">
+              <h3>{{ category.name }}</h3>
+              <p>{{ category.description }}</p>
+
+              <div class="card-meta">
+                <span>{{ category.subcategories?.length || 0 }} Subcategories</span>
+              </div>
+
+              <a class="card-link" [routerLink]="categoryRoute(category)">
+                Browse {{ category.name }}
+              </a>
+            </div>
+          </div>
+        }
+      </div>
+    } @else if (!isLoading && !errorMessage) {
+      <div class="state-box">No categories found.</div>
+    }
+
+  </div>
+</section>

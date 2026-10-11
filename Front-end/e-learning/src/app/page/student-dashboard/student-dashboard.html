@@ -1,0 +1,79 @@
+<div class="student-shell">
+  <app-student-sidebar></app-student-sidebar>
+
+  <main class="student-main">
+    <header class="student-topbar">
+      <div class="breadcrumb"><span>STUDENT SPACE</span><b>/</b><strong>DASHBOARD</strong></div>
+      <div class="topbar-actions">
+        <a class="topbar-cart" routerLink="/cart" [attr.aria-label]="cartCount() + ' courses in your cart'">
+          <span aria-hidden="true">🛒</span><span>My cart</span><b>{{ cartCount() }}</b>
+        </a>
+        <a class="topbar-link" routerLink="/courses"><span aria-hidden="true">⌕</span> Explore courses</a>
+      </div>
+    </header>
+
+    <div class="dashboard-content">
+      <section class="welcome-banner">
+        <div class="welcome-copy">
+          <span class="welcome-kicker">YOUR LEARNING, IN ONE PLACE</span>
+          <h1>Welcome back, {{ studentName }} <span aria-hidden="true">✦</span></h1>
+          <p>Keep your momentum going. A little progress each day adds up to something remarkable.</p>
+          <a class="primary-action" routerLink="/courses">Find your next course <span aria-hidden="true">→</span></a>
+        </div>
+        <div class="welcome-art" aria-hidden="true">
+          <span class="art-orbit orbit-one"></span><span class="art-orbit orbit-two"></span>
+          <span class="art-book">✦</span><span class="art-spark spark-one">✧</span><span class="art-spark spark-two">✦</span>
+        </div>
+      </section>
+
+      <section class="stats-grid" aria-label="Learning summary">
+        <article class="stat-card"><span class="stat-icon violet">▣</span><span class="stat-label">My courses</span><strong>{{ enrollments.length }}</strong><small>Courses you joined</small></article>
+        <article class="stat-card"><span class="stat-icon blue">◷</span><span class="stat-label">In progress</span><strong>{{ inProgressCount }}</strong><small>Ready when you are</small></article>
+        <article class="stat-card"><span class="stat-icon green">✓</span><span class="stat-label">Completed</span><strong>{{ completedCount }}</strong><small>Milestones reached</small></article>
+        <article class="stat-card"><span class="stat-icon amber">↗</span><span class="stat-label">Average progress</span><strong>{{ averageProgress }}<i>%</i></strong><small>Across your learning</small></article>
+        <a class="stat-card cart-stat-card" routerLink="/cart" aria-label="Open your shopping cart">
+          <span class="stat-icon cart-stat-icon">🛒</span><span class="stat-label">In your cart</span>
+          <strong>{{ cartCount() }}</strong><small>${{ cartTotal() | number: '1.2-2' }} · Ready for checkout</small>
+        </a>
+      </section>
+
+      <section class="learning-section">
+        <div class="section-heading">
+          <div><span class="section-kicker">PICK UP WHERE YOU LEFT OFF</span><h2>My learning</h2><p>Your enrolled courses and recent progress.</p></div>
+          <a routerLink="/courses">Browse courses <span aria-hidden="true">→</span></a>
+        </div>
+
+        @if (isLoading) {
+          <div class="course-grid" aria-label="Loading courses" aria-busy="true">
+            @for (item of [1, 2, 3]; track item) { <div class="course-skeleton"><span></span><i></i><i></i></div> }
+          </div>
+        } @else if (errorMessage) {
+          <div class="dashboard-state error-state"><span>!</span><div><strong>Courses are unavailable</strong><p>{{ errorMessage }}</p></div><a routerLink="/login">Sign in</a></div>
+        } @else if (enrollments.length) {
+          <div class="course-grid">
+            @for (enrollment of visibleEnrollments; track enrollment._id) {
+              <article class="course-card">
+                <a class="course-cover" [routerLink]="['/course', enrollment.courseId?._id]">
+                  <img [src]="enrollment.courseId?.image || 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=900&q=80'" [alt]="enrollment.courseId?.title || 'Course cover'" />
+                  <span class="cover-shade"></span><span class="cover-tag">{{ enrollment.courseId?.level || 'Your course' }}</span>
+                </a>
+                <div class="course-card-body">
+                  <div class="course-meta"><span>{{ enrollment.status === 'completed' ? 'COMPLETED' : 'IN YOUR LIBRARY' }}</span><span>{{ enrollment.progress || 0 }}%</span></div>
+                  <h3><a [routerLink]="['/course', enrollment.courseId?._id]">{{ enrollment.courseId?.title }}</a></h3>
+                  <p>With {{ instructorName(enrollment) }}</p>
+                  <div class="progress-track" role="progressbar" [attr.aria-valuenow]="enrollment.progress || 0" aria-valuemin="0" aria-valuemax="100"><span [style.width.%]="enrollment.progress || 0"></span></div>
+                  <button type="button" class="continue-button" (click)="continueCourse(enrollment)">{{ enrollment.progress >= 100 ? 'Review course' : 'Continue learning' }} <span aria-hidden="true">→</span></button>
+                </div>
+              </article>
+            }
+          </div>
+          @if (showViewAll) { <a class="view-all-link" routerLink="/learning">View all {{ enrollments.length }} courses →</a> }
+        } @else {
+          <div class="dashboard-state empty-state"><span class="empty-icon">◇</span><strong>Your learning journey starts here</strong><p>You haven't joined a course yet. Explore the catalog and find a topic you love.</p><a routerLink="/courses">Explore courses <span aria-hidden="true">→</span></a></div>
+        }
+      </section>
+
+      <section class="dashboard-footer-card"><div><span class="footer-spark">✦</span><span><strong>Keep your streak alive</strong><small>Make time for one lesson today and keep moving forward.</small></span></div><a routerLink="/categories">Explore learning paths <span aria-hidden="true">→</span></a></section>
+    </div>
+  </main>
+</div>

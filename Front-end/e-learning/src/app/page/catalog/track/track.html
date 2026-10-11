@@ -1,0 +1,52 @@
+<main class="track-page">
+  <section class="breadcrumb-section">
+    <nav class="container breadcrumb-text" aria-label="Breadcrumb">
+      <a routerLink="/">&#8962; Home</a>
+      <span class="sep" aria-hidden="true">&#8250;</span>
+      <a routerLink="/categories">Categories</a>
+      <span class="sep" aria-hidden="true">&#8250;</span>
+      <strong>{{ trackData?.title || 'Learning path' }}</strong>
+    </nav>
+  </section>
+
+  <section class="track-header">
+    <div class="container">
+      <div class="track-header-card">
+        <div class="track-icon" aria-hidden="true">&#10148;</div>
+        <div class="track-info">
+          <div class="track-heading">
+            <span class="track-label">LEARNING PATH</span>
+            <span class="accredited">Practical, instructor-led courses</span>
+          </div>
+          <h1>{{ trackData?.title || 'Learning path' }}</h1>
+          <p>{{ trackData?.description || 'Explore courses in this learning path.' }}</p>
+        </div>
+        <div class="track-stats" aria-label="Learning path overview">
+          <div>
+            <strong>{{ courseCount }}</strong>
+            <span>Courses</span>
+          </div>
+          <div>
+            <strong>{{ trackData?.requiredSkills?.length || 0 }}</strong>
+            <span>Skills</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  @if (loading) {
+    <div class="container track-state" role="status">Loading learning path…</div>
+  }
+  @if (errorMessage) {
+    <div class="container track-state track-error" role="alert">{{ errorMessage }}</div>
+  }
+
+  @if (!loading && trackData) {
+    <section class="courses-section">
+      <div class="container">
+        <app-courses [trackId]="trackId" [searchQuery]="searchText"></app-courses>
+      </div>
+    </section>
+  }
+</main>

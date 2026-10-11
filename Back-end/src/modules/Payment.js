@@ -1,0 +1,25 @@
+const mongoose = require("mongoose");
+
+const paymentSchema = new mongoose.Schema(
+  {
+    orderId: { type: mongoose.Schema.Types.ObjectId, ref: "Order", required: true },
+    userId: { type: mongoose.Schema.Types.ObjectId, ref: "users", required: true },
+    // amount/currency preserve the order's local price (currently EGP).
+    amount: { type: Number, required: true, min: 0 },
+    currency: { type: String, default: "EGP", trim: true, uppercase: true },
+    // gatewayAmount/gatewayCurrency store the amount actually charged by PayPal.
+    gatewayAmount: { type: Number, min: 0, default: null },
+    gatewayCurrency: { type: String, default: null, trim: true, uppercase: true },
+    paymentMethod: { type: String, required: true, trim: true },
+    status: { type: String, enum: ["pending", "processing", "success", "failed", "refunded"], default: "pending" },
+    fulfilledAt: { type: Date, default: null },
+    gatewayOrderId: { type: String, default: undefined },
+    gatewayTransactionId: { type: String, default: null },
+  },
+  { timestamps: true },
+);
+
+paymentSchema.index({ orderId: 1, createdAt: -1 });
+paymentSchema.index({ gatewayOrderId: 1 }, { unique: true, sparse: true });
+
+module.exports = mongoose.model("Payment", paymentSchema);

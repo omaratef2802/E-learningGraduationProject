@@ -1,0 +1,12 @@
+:host{display:block;color:#292b40;font-family:"Trebuchet MS","Segoe UI",sans-serif}.site-footer{padding:0 4vw 27px;background:#e8ebf4;border-top:1px solid rgba(211,215,230,.7)}.footer-main{display:grid;grid-template-columns:1.65fr 1fr 1fr 1fr;gap:42px;max-width:1180px;margin:0 auto;padding:48px 0 38px}.brand{display:inline-flex;align-items:center;gap:9px;color:#292b40;text-decoration:none}.brand-icon{display:grid;place-items:center;width:17px;height:17px;border-radius:5px;color:#fff;background:#686bf0;font-size:8px;transform:rotate(45deg)}.footer-brand strong{font-size:14px}.footer-brand p{max-width:285px;margin:13px 0;color:#737789;font-size:10px;line-height:1.55}.social-links{display:flex;gap:8px}.social-links a{display:grid;place-items:center;width:26px;height:26px;border:1px solid rgba(255,255,255,.8);border-radius:50%;color:#6870d8;background:#f4f6fc;box-shadow:0 5px 12px rgba(72,78,118,.12);font-size:10px;font-weight:800;text-decoration:none;transition:transform .2s ease,background .2s ease}.social-links a:hover{color:#fff;background:#686bf0;transform:translateY(-3px)}.footer-column{display:flex;flex-direction:column;gap:12px}.footer-column h3{margin:0 0 3px;color:#494d61;font-size:9px;letter-spacing:.08em}.footer-column a,.footer-bottom a{color:#777b8b;font-size:10px;text-decoration:none}.footer-column a:hover,.footer-bottom a:hover{color:#686bf0}.footer-bottom{display:flex;justify-content:space-between;gap:20px;max-width:1180px;margin:0 auto;padding-top:18px;border-top:1px solid rgba(137,143,169,.2);color:#777b8b;font-size:9px}.footer-bottom div{display:flex;gap:22px}@media(max-width:650px){.footer-main{grid-template-columns:1fr 1fr;gap:30px 20px}.footer-brand{grid-column:1/-1}.footer-bottom{display:block;line-height:1.7}.footer-bottom div{flex-wrap:wrap;gap:10px 16px;margin-top:8px}}
+.site-footer { padding-bottom: 34px; }
+.footer-main { padding-top: 64px; padding-bottom: 48px; gap: 50px; }
+.footer-brand strong { font-size: 18px; }
+.footer-brand p { max-width: 330px; margin: 16px 0; font-size: 13px; line-height: 1.65; }
+.footer-column { gap: 15px; }
+.footer-column h3 { font-size: 11px; }
+.footer-column a, .footer-bottom a { font-size: 13px; }
+.footer-bottom { padding-top: 22px; font-size: 12px; }
+.social-links { gap: 10px; }
+.social-links a { width: 32px; height: 32px; font-size: 12px; }
+@media (max-width:650px) { .footer-main { padding-top: 48px; gap: 34px 24px; } .footer-brand p { font-size: 12px; } .footer-column a, .footer-bottom a { font-size: 12px; } }
